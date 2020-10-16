@@ -12,6 +12,5 @@ void main() async {
   var props = Map.fromIterable(iterable,
       key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   var s = props['server'];
-  print('server=>$s');
   runApp(new Call(ip: s));
 }

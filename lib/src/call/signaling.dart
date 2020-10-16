@@ -16,6 +16,7 @@ enum SignalingState {
   ConnectionOpen,
   ConnectionClosed,
   ConnectionError,
+  NoInet,
 }
 
 /*
@@ -42,6 +43,7 @@ class Signaling {
   var _remoteCandidates = [];
 
   MediaStream _localStream;
+  MediaStream _remoteStream;
   SignalingStateCallback onStateChange;
   StreamStateCallback onLocalStream;
   StreamStateCallback onAddRemoteStream;
@@ -108,6 +110,7 @@ class Signaling {
   }
 
   void invite(peerId, String media, useScreen) {
+    print("inviting");
     if (peerId == null) return;
     this._sessionId = this._selfId + "-" + peerId;
 
@@ -129,34 +132,16 @@ class Signaling {
       'session_id': this._sessionId,
       'from': this._selfId,
     });
-    var ids = _sessionId.split('-');
-    var oldId = ids[1];
-    if (oldId == _selfId) oldId = ids[0];
-    print("old id=>$oldId");
-    _oldPeerIds.add(oldId);
-    msgNew();
-  }
-
-  getFreePeerId(List peers) {
-    for (dynamic p in peers) {
-      final id = p['id'];
-      if (!p['busy'] && id != _selfId && !_oldPeerIds.contains(id)) {
-        return id;
-      }
-    }
-    return null;
   }
 
   void onMessage(message) async {
     Map<String, dynamic> mapData = message;
     var data = mapData['data'];
     var type = mapData['type'];
-    print("type=>$type");
     switch (type) {
-      case 'peers':
+      case 'peer':
         {
-          List<dynamic> peers = data;
-          invite(getFreePeerId(peers), 'video', false);
+          invite(data['id'], 'video', false);
         }
         break;
       case 'offer':
@@ -226,9 +211,9 @@ class Signaling {
             pc.close();
             _peerConnections.remove(id);
           }
-          this._sessionId = null;
           if (this.onStateChange != null) {
             this.onStateChange(SignalingState.CallStateBye);
+            this._sessionId = null;
           }
         }
         break;
@@ -237,7 +222,6 @@ class Signaling {
           var from = data['from'];
           var to = data['to'];
           var sessionId = data['session_id'];
-          print('bye: ' + sessionId);
 
           if (_localStream != null) {
             _localStream.dispose();
@@ -258,7 +242,7 @@ class Signaling {
 
           this._sessionId = null;
           if (this.onStateChange != null) {
-            _oldPeerIds.add(from);
+            addPeerId(sessionId);
             this.onStateChange(SignalingState.CallStateBye);
           }
         }
@@ -273,8 +257,14 @@ class Signaling {
     }
   }
 
+  void addPeerId(sessionId) {
+    var ids = sessionId.split('-');
+    var oldId = ids[1];
+    if (oldId == _selfId) oldId = ids[0];
+    _oldPeerIds.add(oldId);
+  }
+
   Future<WebSocket> _connectForSelfSignedCert(String host, int port) async {
-    print("_connectForSelfSignedCert host=>$host");
     try {
       Random r = Random();
       String key = base64.encode(List<int>.generate(8, (_) => r.nextInt(255)));
@@ -282,7 +272,6 @@ class Signaling {
       HttpClient client = HttpClient(context: securityContext);
       client.badCertificateCallback =
           (X509Certificate cert, String host, int port) {
-        print('Allow self-signed certificate => $host:$port. ');
         return true;
       };
 
@@ -297,6 +286,7 @@ class Signaling {
       HttpClientResponse response = await request.close();
       print(response.reasonPhrase);
       Socket socket = await response.detachSocket();
+      // socket.close();
       var webSocket = WebSocket.fromUpgradedSocket(
         socket,
         protocol: 'signaling',
@@ -332,19 +322,24 @@ class Signaling {
 
       msgNew();
     } catch (e) {
-      print("err=>$e");
-      if (this.onStateChange != null) {
+      var code = (e as SocketException).osError.errorCode;
+      print("err_code=>$code");
+      if (this.onStateChange != null && code == 101) {
+        this.onStateChange(SignalingState.NoInet);
+      } else if (this.onStateChange != null) {
         this.onStateChange(SignalingState.ConnectionError);
       }
     }
   }
 
   void msgNew() {
+    print("msg new v1");
     _send('new', {
       'name': _displayName,
       'id': _selfId,
       'user_agent':
-          'flutter-webrtc/' + Platform.operatingSystem + '-plugin 0.0.1'
+          'flutter-webrtc/' + Platform.operatingSystem + '-plugin 0.0.1',
+      'oldPeerIds': _oldPeerIds
     });
   }
 
@@ -392,7 +387,7 @@ class Signaling {
 
     pc.onAddStream = (stream) {
       if (this.onAddRemoteStream != null) this.onAddRemoteStream(stream);
-      //_remoteStreams.add(stream);
+      _remoteStream = stream;
     };
 
     pc.onRemoveStream = (stream) {
@@ -460,5 +455,9 @@ class Signaling {
     if (_socket != null) _socket.add(encoder.convert(data));
   }
 
-  void mute(bool micMuted) {}
+  void mute(bool micMuted) {
+    _remoteStream.getAudioTracks().forEach((element) {
+      element.enabled = !micMuted;
+    });
+  }
 }

@@ -70,8 +70,8 @@ class _CallState extends State<Call> {
               _localRenderer.srcObject = null;
               _remoteRenderer.srcObject = null;
               _inCalling = false;
-              _signaling.msgNew();
             });
+            _signaling.msgNew();
             break;
           case SignalingState.CallStateInvite:
           case SignalingState.CallStateConnected:
@@ -79,6 +79,7 @@ class _CallState extends State<Call> {
           case SignalingState.ConnectionClosed:
           case SignalingState.ConnectionError:
             setState(() {
+              print("conn err");
               _maintaining = true;
             });
             break;
@@ -86,10 +87,6 @@ class _CallState extends State<Call> {
             break;
         }
       };
-
-      _signaling.onPeersUpdate = ((event) {
-//        _invitePeer(this, getFreePeerId(_peers), false);
-      });
 
       _signaling.onLocalStream = ((stream) {
         _localRenderer.srcObject = stream;
@@ -121,7 +118,6 @@ class _CallState extends State<Call> {
       micMuted = !micMuted;
     });
     _signaling.mute(micMuted);
-
   }
 
   Future<void> checkConn() async {
