@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/webrtc.dart';
+import 'package:wakelock/wakelock.dart';
 
 import 'signaling.dart';
 
@@ -84,6 +85,7 @@ class _CallState extends State<Call> {
             });
             break;
           case SignalingState.ConnectionOpen:
+            Wakelock.enable();
             break;
         }
       };
