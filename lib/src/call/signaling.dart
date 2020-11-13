@@ -37,7 +37,6 @@ class Signaling {
   var _sessionId;
   var _host;
   var _port = 4443;
-  var _displayName;
   var _peerConnections = new Map<String, RTCPeerConnection>();
   var _dataChannels = new Map<String, RTCDataChannel>();
   var _remoteCandidates = [];
@@ -48,7 +47,6 @@ class Signaling {
   StreamStateCallback onLocalStream;
   StreamStateCallback onAddRemoteStream;
   StreamStateCallback onRemoveRemoteStream;
-  OtherEventCallback onPeersUpdate;
   DataChannelMessageCallback onDataChannelMessage;
   DataChannelCallback onDataChannel;
 
@@ -81,7 +79,7 @@ class Signaling {
     'optional': [],
   };
 
-  final Map<String, dynamic> _dc_constraints = {
+  final Map<String, dynamic> _dcConstraints = {
     'mandatory': {
       'OfferToReceiveAudio': false,
       'OfferToReceiveVideo': false,
@@ -89,7 +87,7 @@ class Signaling {
     'optional': [],
   };
 
-  Signaling(this._host, this._displayName);
+  Signaling(this._host);
 
   close() {
     if (_localStream != null) {
@@ -110,7 +108,6 @@ class Signaling {
   }
 
   void invite(peerId, String media, useScreen) {
-    print("inviting");
     if (peerId == null) return;
     this._sessionId = this._selfId + "-" + peerId;
 
@@ -299,7 +296,7 @@ class Signaling {
     }
   }
 
-  void connect() async {
+  void connect(String countryCode) async {
     try {
 //      var url = 'ws://$_host:$_port';
 //      _socket = await WebSocket.connect(url);
@@ -314,16 +311,14 @@ class Signaling {
         JsonDecoder decoder = JsonDecoder();
         this.onMessage(decoder.convert(data));
       }, onDone: () {
-        print('Closed by server!');
         if (this.onStateChange != null) {
           this.onStateChange(SignalingState.ConnectionClosed);
         }
       });
 
-      msgNew();
+      msgNew(countryCode);
     } catch (e) {
       var code = (e as SocketException).osError.errorCode;
-      print("err_code=>$code");
       if (this.onStateChange != null && code == 101) {
         this.onStateChange(SignalingState.NoInet);
       } else if (this.onStateChange != null) {
@@ -332,15 +327,9 @@ class Signaling {
     }
   }
 
-  void msgNew() {
-    print("msg new v1");
-    _send('new', {
-      'name': _displayName,
-      'id': _selfId,
-      'user_agent':
-          'flutter-webrtc/' + Platform.operatingSystem + '-plugin 0.0.1',
-      'oldPeerIds': _oldPeerIds
-    });
+  void msgNew(String deviceInfo) {
+    _send('new',
+        {'devInfo': deviceInfo, 'id': _selfId, 'oldPeerIds': _oldPeerIds});
   }
 
   Future<MediaStream> createStream(media, userScreen) async {
@@ -420,8 +409,8 @@ class Signaling {
 
   _createOffer(String id, RTCPeerConnection pc, String media) async {
     try {
-      RTCSessionDescription s = await pc
-          .createOffer(media == 'data' ? _dc_constraints : _constraints);
+      RTCSessionDescription s =
+          await pc.createOffer(media == 'data' ? _dcConstraints : _constraints);
       pc.setLocalDescription(s);
       _send('offer', {
         'to': id,
@@ -437,7 +426,7 @@ class Signaling {
   _createAnswer(String id, RTCPeerConnection pc, media) async {
     try {
       RTCSessionDescription s = await pc
-          .createAnswer(media == 'data' ? _dc_constraints : _constraints);
+          .createAnswer(media == 'data' ? _dcConstraints : _constraints);
       pc.setLocalDescription(s);
       _send('answer', {
         'to': id,

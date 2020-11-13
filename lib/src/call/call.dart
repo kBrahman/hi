@@ -3,11 +3,21 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:data_connection_checker/data_connection_checker.dart';
+import 'package:device_info/device_info.dart';
+import 'package:facebook_audience_network/ad/ad_banner.dart';
+import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/webrtc.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'signaling.dart';
+
+var colorCodes = {
+  50: Color.fromRGBO(211, 10, 75, .1),
+  for (var i = 100; i < 1000; i += 100)
+    i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
+};
 
 class Call extends StatefulWidget {
   final String ip;
@@ -20,8 +30,6 @@ class Call extends StatefulWidget {
 
 class _CallState extends State<Call> {
   Signaling _signaling;
-  String _displayName =
-      Platform.localHostname + '(' + Platform.operatingSystem + ")";
   RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
   bool _inCalling = false;
@@ -31,7 +39,13 @@ class _CallState extends State<Call> {
   bool _connOk = true;
   bool _maintaining = false;
 
-  _CallState({Key key, @required this.serverIP}) {
+  _CallState({@required this.serverIP}) {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      deviceInfo.androidInfo.then((v) => {_connect(v.model)});
+    } else {
+      deviceInfo.iosInfo.then((v) => {_connect(v.model)});
+    }
     checkConn();
   }
 
@@ -39,7 +53,7 @@ class _CallState extends State<Call> {
   initState() {
     super.initState();
     initRenderers();
-    _connect();
+    FacebookAudienceNetwork.init();
   }
 
   initRenderers() async {
@@ -55,9 +69,9 @@ class _CallState extends State<Call> {
     _remoteRenderer.dispose();
   }
 
-  void _connect() async {
+  void _connect(String model) async {
     if (_signaling == null) {
-      _signaling = new Signaling(serverIP, _displayName)..connect();
+      _signaling = new Signaling(serverIP)..connect(model);
 
       _signaling.onStateChange = (SignalingState state) {
         switch (state) {
@@ -72,7 +86,7 @@ class _CallState extends State<Call> {
               _remoteRenderer.srcObject = null;
               _inCalling = false;
             });
-            _signaling.msgNew();
+            _signaling.msgNew(model);
             break;
           case SignalingState.CallStateInvite:
           case SignalingState.CallStateConnected:
@@ -80,7 +94,6 @@ class _CallState extends State<Call> {
           case SignalingState.ConnectionClosed:
           case SignalingState.ConnectionError:
             setState(() {
-              print("conn err");
               _maintaining = true;
             });
             break;
@@ -132,10 +145,22 @@ class _CallState extends State<Call> {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', ''), // English, no country code
+        const Locale('hi', ''), // Hebrew, no country code
+      ],
+      theme: ThemeData(
+        primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       home: new Scaffold(
-        appBar: new AppBar(
-          title: new Text('hi'),
-          backgroundColor: Color(0xFFE10A50),
+        appBar: AppBar(
+          title: Text('hi'),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: _inCalling
@@ -152,7 +177,6 @@ class _CallState extends State<Call> {
                         onPressed: _hangUp,
                         tooltip: 'Hangup',
                         child: new Icon(Icons.call_end),
-                        backgroundColor: Colors.pink,
                       ),
                       FloatingActionButton(
                         child: micMuted
@@ -231,6 +255,28 @@ class WaitingWidget extends StatelessWidget {
     return new Center(
       child: new Column(
         children: <Widget>[
+          FacebookBannerAd(
+            placementId: Platform.isAndroid
+                ? "3797187196981029_3797192466980502"
+                : "YOUR_IOS_PLACEMENT_ID",
+            bannerSize: BannerSize.MEDIUM_RECTANGLE,
+            listener: (result, value) {
+              switch (result) {
+                case BannerAdResult.ERROR:
+                  print("ad er=>: $value");
+                  break;
+                case BannerAdResult.LOADED:
+                  print("ad loaded: $value");
+                  break;
+                case BannerAdResult.CLICKED:
+                  print("Clicked: $value");
+                  break;
+                case BannerAdResult.LOGGING_IMPRESSION:
+                  print("Logging Impression: $value");
+                  break;
+              }
+            },
+          ),
           CircularProgressIndicator(),
           Padding(padding: EdgeInsets.only(top: 10)),
           Text("Waiting for someone..."),
