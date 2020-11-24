@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:device_info/device_info.dart';
-import 'package:facebook_audience_network/ad/ad_banner.dart';
-import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/webrtc.dart';
@@ -53,7 +52,6 @@ class _CallState extends State<Call> {
   initState() {
     super.initState();
     initRenderers();
-    FacebookAudienceNetwork.init();
   }
 
   initRenderers() async {
@@ -249,32 +247,26 @@ class _CallState extends State<Call> {
   }
 }
 
-class WaitingWidget extends StatelessWidget {
+class WaitingWidget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _WaitingWidgetState();
+}
+
+class _WaitingWidgetState extends State<WaitingWidget> {
+  var banner;
+
   @override
   Widget build(BuildContext context) {
     return new Center(
       child: new Column(
         children: <Widget>[
-          FacebookBannerAd(
-            placementId: Platform.isAndroid
-                ? "3797187196981029_3797192466980502"
-                : "YOUR_IOS_PLACEMENT_ID",
-            bannerSize: BannerSize.MEDIUM_RECTANGLE,
-            listener: (result, value) {
-              switch (result) {
-                case BannerAdResult.ERROR:
-                  print("ad er=>: $value");
-                  break;
-                case BannerAdResult.LOADED:
-                  print("ad loaded: $value");
-                  break;
-                case BannerAdResult.CLICKED:
-                  print("Clicked: $value");
-                  break;
-                case BannerAdResult.LOGGING_IMPRESSION:
-                  print("Logging Impression: $value");
-                  break;
-              }
+          AdmobBanner(
+            adUnitId: Platform.isIOS
+                ? AdmobBanner.testAdUnitId
+                : "ca-app-pub-8761730220693010/9359738284",
+            adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
+            listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+              print('Banner=>$event; args=>$args');
             },
           ),
           CircularProgressIndicator(),
