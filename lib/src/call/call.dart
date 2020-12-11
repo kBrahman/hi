@@ -38,14 +38,173 @@ class _CallState extends State<Call> {
   bool _connOk = true;
   bool _maintaining = false;
 
+  final ww = WaitingWidget();
+
+  var interstitialAd;
+  var adTrigger = 1;
+  var nextPressCount = 0;
+  var shouldCallNext = true;
+
   _CallState({@required this.serverIP}) {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
-      deviceInfo.androidInfo.then((v) => {_connect(v.model)});
+      deviceInfo.androidInfo.then((v) {
+        _connect(v.model);
+        ww.signaling = _signaling;
+        ww.model = v.model;
+      });
     } else {
-      deviceInfo.iosInfo.then((v) => {_connect(v.model)});
+      deviceInfo.iosInfo.then((v) {
+        _connect(v.model);
+        ww.signaling = _signaling;
+        ww.model = v.model;
+      });
     }
     checkConn();
+    interstitialAd = AdmobInterstitial(
+      adUnitId: 'ca-app-pub-8761730220693010/2067844692',
+      listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+        print('int event=>$event');
+        if (event == AdmobAdEvent.closed) {
+          _signaling.msgNew(ww.model);
+          _signaling.busy(false);
+          interstitialAd.load();
+        }
+      },
+    )..load();
+    //int id ca-app-pub-8761730220693010/2067844692
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', ''), // English, no country code
+        const Locale('hi', ''), // Hebrew, no country code
+      ],
+      theme: ThemeData(
+        primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: new Scaffold(
+        appBar: AppBar(
+          title: Text('hi'),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: _inCalling
+            ? new SizedBox(
+                width: 250.0,
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      FloatingActionButton(
+                        child: const Icon(Icons.switch_camera),
+                        onPressed: _switchCamera,
+                      ),
+                      FloatingActionButton(
+                        onPressed: _hangUp,
+                        tooltip: 'Hangup',
+                        child: new Icon(Icons.call_end),
+                      ),
+                      FloatingActionButton(
+                        child: micMuted
+                            ? const Icon(Icons.mic_off)
+                            : const Icon(Icons.mic),
+                        onPressed: _muteMic,
+                      ),
+                      FloatingActionButton(
+                        child: const Icon(Icons.skip_next),
+                        onPressed: onNext,
+                      )
+                    ]))
+            : null,
+        body: _inCalling
+            ? OrientationBuilder(builder: (context, orientation) {
+                return Container(
+                  child: Stack(children: <Widget>[
+                    Positioned(
+                        left: 0.0,
+                        right: 0.0,
+                        top: 0.0,
+                        bottom: 0.0,
+                        child: new Container(
+                          margin: new EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          child: new RTCVideoView(_remoteRenderer),
+                          decoration: new BoxDecoration(color: Colors.black54),
+                        )),
+                    Positioned(
+                      left: 20.0,
+                      top: 20.0,
+                      child: new Container(
+                        width:
+                            orientation == Orientation.portrait ? 90.0 : 120.0,
+                        height:
+                            orientation == Orientation.portrait ? 120.0 : 90.0,
+                        child: RTCVideoView(_localRenderer),
+                        decoration: BoxDecoration(color: Colors.black54),
+                      ),
+                    ),
+                  ]),
+                );
+              })
+            : _connOk && !_maintaining
+                ? ww
+                : !_connOk
+                    ? Center(
+                        child: Column(
+                          children: <Widget>[
+                            Text("No internet access"),
+                            RaisedButton(
+                              onPressed: checkConn,
+                              child: Text("Refresh"),
+                            )
+                          ],
+                          mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                      )
+                    : Center(
+                        child: Container(
+                          child: Text(
+                            "Maintenance works on server side come later please",
+                          ),
+                          padding: EdgeInsets.only(left: 20, right: 10),
+                        ),
+                      ),
+      ),
+    );
+  }
+
+  onNext() {
+    nextPressCount++;
+    if (nextPressCount == adTrigger) {
+      nextPressCount = 0;
+      adTrigger *= 2;
+      interstitialAd.isLoaded.then((isLoaded) {
+        if (isLoaded) {
+          interstitialAd.show();
+          shouldCallNext = false;
+          _signaling.bye();
+          _signaling.busy(true);
+          setState(() {
+            _inCalling = false;
+          });
+        } else {
+          shouldCallNext = true;
+          _signaling.bye();
+        }
+      });
+    } else {
+      print('on next top else');
+      shouldCallNext = true;
+      _signaling.bye();
+    }
   }
 
   @override
@@ -84,12 +243,14 @@ class _CallState extends State<Call> {
               _remoteRenderer.srcObject = null;
               _inCalling = false;
             });
-            _signaling.msgNew(model);
+            if (shouldCallNext) _signaling.msgNew(model);
             break;
           case SignalingState.CallStateInvite:
           case SignalingState.CallStateConnected:
           case SignalingState.CallStateRinging:
           case SignalingState.ConnectionClosed:
+            print('on closed');
+            break;
           case SignalingState.ConnectionError:
             setState(() {
               _maintaining = true;
@@ -139,122 +300,18 @@ class _CallState extends State<Call> {
       _connOk = b;
     });
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        const Locale('en', ''), // English, no country code
-        const Locale('hi', ''), // Hebrew, no country code
-      ],
-      theme: ThemeData(
-        primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: new Scaffold(
-        appBar: AppBar(
-          title: Text('hi'),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: _inCalling
-            ? new SizedBox(
-                width: 250.0,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      FloatingActionButton(
-                        child: const Icon(Icons.switch_camera),
-                        onPressed: _switchCamera,
-                      ),
-                      FloatingActionButton(
-                        onPressed: _hangUp,
-                        tooltip: 'Hangup',
-                        child: new Icon(Icons.call_end),
-                      ),
-                      FloatingActionButton(
-                        child: micMuted
-                            ? const Icon(Icons.mic_off)
-                            : const Icon(Icons.mic),
-                        onPressed: _muteMic,
-                      ),
-                      FloatingActionButton(
-                        child: const Icon(Icons.skip_next),
-                        onPressed: _signaling.bye,
-                      )
-                    ]))
-            : null,
-        body: _inCalling
-            ? OrientationBuilder(builder: (context, orientation) {
-                return Container(
-                  child: Stack(children: <Widget>[
-                    Positioned(
-                        left: 0.0,
-                        right: 0.0,
-                        top: 0.0,
-                        bottom: 0.0,
-                        child: new Container(
-                          margin: new EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
-                          child: new RTCVideoView(_remoteRenderer),
-                          decoration: new BoxDecoration(color: Colors.black54),
-                        )),
-                    Positioned(
-                      left: 20.0,
-                      top: 20.0,
-                      child: new Container(
-                        width:
-                            orientation == Orientation.portrait ? 90.0 : 120.0,
-                        height:
-                            orientation == Orientation.portrait ? 120.0 : 90.0,
-                        child: RTCVideoView(_localRenderer),
-                        decoration: BoxDecoration(color: Colors.black54),
-                      ),
-                    ),
-                  ]),
-                );
-              })
-            : _connOk && !_maintaining
-                ? WaitingWidget()
-                : !_connOk
-                    ? Center(
-                        child: Column(
-                          children: <Widget>[
-                            Text("No internet access"),
-                            RaisedButton(
-                              onPressed: checkConn,
-                              child: Text("Refresh"),
-                            )
-                          ],
-                          mainAxisAlignment: MainAxisAlignment.center,
-                        ),
-                      )
-                    : Center(
-                        child: Container(
-                          child: Text(
-                            "Maintenance works on server side come later please",
-                          ),
-                          padding: EdgeInsets.only(left: 20, right: 10),
-                        ),
-                      ),
-      ),
-    );
-  }
 }
 
 class WaitingWidget extends StatefulWidget {
+  Signaling signaling;
+
+  String model;
+
   @override
   State<StatefulWidget> createState() => _WaitingWidgetState();
 }
 
 class _WaitingWidgetState extends State<WaitingWidget> {
-  var banner;
-
   @override
   Widget build(BuildContext context) {
     return new Center(
@@ -266,9 +323,21 @@ class _WaitingWidgetState extends State<WaitingWidget> {
                 : "ca-app-pub-8761730220693010/9359738284",
             adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
             listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-              print('Banner=>$event; args=>$args');
+              print(
+                  'Banner=>$event; bool=>${event == AdmobAdEvent.opened}; args=>$args');
+              switch (event) {
+                case AdmobAdEvent.opened:
+                  print('signaling null=>${widget.signaling == null}');
+                  widget.signaling.busy(true);
+                  break;
+
+                case AdmobAdEvent.closed:
+                  widget.signaling.msgNew(widget.model);
+                  widget.signaling.busy(false);
+              }
             },
           ),
+          Padding(padding: EdgeInsets.only(top: 5)),
           CircularProgressIndicator(),
           Padding(padding: EdgeInsets.only(top: 10)),
           Text("Waiting for someone..."),

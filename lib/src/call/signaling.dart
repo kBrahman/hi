@@ -131,6 +131,10 @@ class Signaling {
     });
   }
 
+  void busy(bool isBusy) => _send('busy', <String, dynamic>{
+        'isBusy': isBusy,
+      });
+
   void onMessage(message) async {
     Map<String, dynamic> mapData = message;
     var data = mapData['data'];
@@ -216,7 +220,6 @@ class Signaling {
         break;
       case 'bye':
         {
-          var from = data['from'];
           var to = data['to'];
           var sessionId = data['session_id'];
 
@@ -296,7 +299,7 @@ class Signaling {
     }
   }
 
-  void connect(String countryCode) async {
+  void connect(String model) async {
     try {
 //      var url = 'ws://$_host:$_port';
 //      _socket = await WebSocket.connect(url);
@@ -316,7 +319,7 @@ class Signaling {
         }
       });
 
-      msgNew(countryCode);
+      msgNew(model);
     } catch (e) {
       var code = (e as SocketException).osError.errorCode;
       if (this.onStateChange != null && code == 101) {
@@ -440,6 +443,7 @@ class Signaling {
 
   _send(event, data) {
     data['type'] = event;
+    print('before encoding data=>$data');
     JsonEncoder encoder = new JsonEncoder();
     if (_socket != null) _socket.add(encoder.convert(data));
   }
