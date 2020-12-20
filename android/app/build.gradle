@@ -55,9 +55,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId id
-        minSdkVersion 20
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -65,10 +64,13 @@ android {
 
     buildTypes {
         release {
+            minifyEnabled true
+            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.zhet
         }
     }
-    buildToolsVersion '29.0.3'
+    buildToolsVersion '30.0.2'
 }
 
 flutter {

@@ -7,7 +7,7 @@ import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_webrtc/webrtc.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'signaling.dart';
@@ -196,6 +196,7 @@ class _CallState extends State<Call> {
             _inCalling = false;
           });
         } else {
+          print("not loaded");
           shouldCallNext = true;
           _signaling.bye();
         }
