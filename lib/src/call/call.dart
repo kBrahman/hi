@@ -43,7 +43,6 @@ class _CallState extends State<Call> {
   var interstitialAd;
   var adTrigger = 1;
   var nextPressCount = 0;
-  var shouldCallNext = true;
 
   _CallState({@required this.serverIP}) {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -67,7 +66,6 @@ class _CallState extends State<Call> {
         print('int event=>$event');
         if (event == AdmobAdEvent.closed) {
           _signaling.msgNew(ww.model);
-          _signaling.busy(false);
           interstitialAd.load();
         }
       },
@@ -119,7 +117,8 @@ class _CallState extends State<Call> {
                       ),
                       FloatingActionButton(
                         child: const Icon(Icons.skip_next),
-                        onPressed: onNext,
+                        onPressed: () =>
+                            _signaling.bye(++nextPressCount == adTrigger),
                       )
                     ]))
             : null,
@@ -182,29 +181,21 @@ class _CallState extends State<Call> {
   }
 
   onNext() {
-    nextPressCount++;
+    print('on next');
     if (nextPressCount == adTrigger) {
       nextPressCount = 0;
       adTrigger *= 2;
       interstitialAd.isLoaded.then((isLoaded) {
         if (isLoaded) {
           interstitialAd.show();
-          shouldCallNext = false;
-          _signaling.bye();
-          _signaling.busy(true);
-          setState(() {
-            _inCalling = false;
-          });
         } else {
           print("not loaded");
-          shouldCallNext = true;
-          _signaling.bye();
+          _signaling.msgNew(ww.model);
         }
       });
     } else {
       print('on next top else');
-      shouldCallNext = true;
-      _signaling.bye();
+      _signaling.msgNew(ww.model);
     }
   }
 
@@ -244,7 +235,7 @@ class _CallState extends State<Call> {
               _remoteRenderer.srcObject = null;
               _inCalling = false;
             });
-            if (shouldCallNext) _signaling.msgNew(model);
+            onNext();
             break;
           case SignalingState.CallStateInvite:
           case SignalingState.CallStateConnected:
@@ -324,17 +315,12 @@ class _WaitingWidgetState extends State<WaitingWidget> {
                 : "ca-app-pub-8761730220693010/9359738284",
             adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
             listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-              print(
-                  'Banner=>$event; bool=>${event == AdmobAdEvent.opened}; args=>$args');
               switch (event) {
                 case AdmobAdEvent.opened:
-                  print('signaling null=>${widget.signaling == null}');
-                  widget.signaling.busy(true);
+                  widget.signaling.bye(true);
                   break;
-
                 case AdmobAdEvent.closed:
                   widget.signaling.msgNew(widget.model);
-                  widget.signaling.busy(false);
               }
             },
           ),

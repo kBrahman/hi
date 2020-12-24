@@ -124,10 +124,10 @@ class Signaling {
     });
   }
 
-  void bye() {
-    _send('bye', {
+  void bye(bool isBusy) {
+    _send('bye', <String, dynamic>{
       'session_id': this._sessionId,
-      'from': this._selfId,
+      'is_busy': isBusy,
     });
   }
 
@@ -241,7 +241,9 @@ class Signaling {
           }
 
           this._sessionId = null;
-          if (this.onStateChange != null) {
+          var onStateChangeIsNUll = this.onStateChange == null;
+          print('onStateChangeIsNUll=>$onStateChangeIsNUll');
+          if (!onStateChangeIsNUll) {
             addPeerId(sessionId);
             this.onStateChange(SignalingState.CallStateBye);
           }
@@ -261,6 +263,7 @@ class Signaling {
     var ids = sessionId.split('-');
     var oldId = ids[1];
     if (oldId == _selfId) oldId = ids[0];
+    print('add peer id=>$oldId');
     _oldPeerIds.add(oldId);
   }
 
@@ -331,6 +334,7 @@ class Signaling {
   }
 
   void msgNew(String deviceInfo) {
+    print('msgNew');
     _send('new',
         {'devInfo': deviceInfo, 'id': _selfId, 'oldPeerIds': _oldPeerIds});
   }
