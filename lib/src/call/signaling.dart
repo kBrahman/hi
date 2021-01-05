@@ -129,11 +129,8 @@ class Signaling {
       'session_id': this._sessionId,
       'is_busy': isBusy,
     });
+    print('sent bye');
   }
-
-  void busy(bool isBusy) => _send('busy', <String, dynamic>{
-        'isBusy': isBusy,
-      });
 
   void onMessage(message) async {
     Map<String, dynamic> mapData = message;
@@ -447,7 +444,6 @@ class Signaling {
 
   _send(event, data) {
     data['type'] = event;
-    print('before encoding data=>$data');
     JsonEncoder encoder = new JsonEncoder();
     if (_socket != null) _socket.add(encoder.convert(data));
   }
