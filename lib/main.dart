@@ -12,7 +12,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Admob.initialize();
   String data = await rootBundle.loadString('assets/local.properties');
-  var iterable = data.split('\n').where((element) => !element.startsWith('#'));
+  var iterable = data
+      .split('\n')
+      .where((element) => !element.startsWith('#') && element.isNotEmpty);
+  print('l=>${iterable.length}');
   var props = Map.fromIterable(iterable,
       key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   var s = props['server'];
