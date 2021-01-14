@@ -11,13 +11,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:wakelock/wakelock.dart';
 
+import '../../main.dart';
 import 'signaling.dart';
-
-var colorCodes = {
-  50: Color.fromRGBO(211, 10, 75, .1),
-  for (var i = 100; i < 1000; i += 100)
-    i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
-};
 
 class Call extends StatefulWidget {
   final String ip;
@@ -62,7 +57,9 @@ class _CallState extends State<Call> {
     }
     checkConn();
     interstitialAd = AdmobInterstitial(
-      adUnitId: 'ca-app-pub-8761730220693010/2067844692',
+      adUnitId: Platform.isIOS
+          ? AdmobInterstitial.testAdUnitId
+          : 'ca-app-pub-8761730220693010/2067844692',
       listener: (AdmobAdEvent event, Map<String, dynamic> args) {
         print('int event=>$event');
         if (event == AdmobAdEvent.closed) {

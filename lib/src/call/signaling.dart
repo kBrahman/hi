@@ -239,9 +239,8 @@ class Signaling {
 
           this._sessionId = null;
           var onStateChangeIsNUll = this.onStateChange == null;
-          print('onStateChangeIsNUll=>$onStateChangeIsNUll');
           if (!onStateChangeIsNUll) {
-            addPeerId(sessionId);
+            addOldPeerId(sessionId);
             this.onStateChange(SignalingState.CallStateBye);
           }
         }
@@ -256,7 +255,7 @@ class Signaling {
     }
   }
 
-  void addPeerId(sessionId) {
+  void addOldPeerId(sessionId) {
     var ids = sessionId.split('-');
     var oldId = ids[1];
     if (oldId == _selfId) oldId = ids[0];
