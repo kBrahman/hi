@@ -13,7 +13,6 @@ import 'src/call/call.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseCrashlytics.instance.crash();
   Admob.initialize();
   String data = await rootBundle.loadString('assets/local.properties');
   var iterable = data
