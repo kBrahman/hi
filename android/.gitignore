@@ -11,3 +11,4 @@ GeneratedPluginRegistrant.java
 key.properties
 /keystore.properties
 /app/zhet.keystore
+/app/google-services.json

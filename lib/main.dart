@@ -2,16 +2,18 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'src/call/call.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseCrashlytics.instance.crash();
   Admob.initialize();
   String data = await rootBundle.loadString('assets/local.properties');
   var iterable = data

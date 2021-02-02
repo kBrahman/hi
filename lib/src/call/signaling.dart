@@ -196,18 +196,15 @@ class Signaling {
       case 'leave':
         {
           var id = data;
-          _peerConnections.remove(id);
-          _dataChannels.remove(id);
-
           if (_localStream != null) {
             _localStream.dispose();
             _localStream = null;
           }
-
           var pc = _peerConnections[id];
           if (pc != null) {
             pc.close();
             _peerConnections.remove(id);
+            _dataChannels.remove(id);
           }
           if (this.onStateChange != null) {
             this.onStateChange(SignalingState.CallStateBye);
