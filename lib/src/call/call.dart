@@ -82,6 +82,7 @@ class _CallState extends State<Call> {
         supportedLocales: [
           const Locale('en', ''),
           const Locale('hi', ''),
+          const Locale('ar', '')
         ],
         theme: ThemeData(
           primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
