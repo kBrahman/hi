@@ -36,12 +36,6 @@ void main() async {
   // });
 }
 
-var colorCodes = {
-  50: Color.fromRGBO(211, 10, 75, .1),
-  for (var i = 100; i < 1000; i += 100)
-    i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
-};
-
 // class StartWidget extends StatefulWidget {
 //   final ip;
 //

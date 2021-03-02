@@ -11,7 +11,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:wakelock/wakelock.dart';
 
-import '../../main.dart';
 import 'signaling.dart';
 
 class Call extends StatefulWidget {
@@ -39,6 +38,11 @@ class _CallState extends State<Call> {
   var interstitialAd;
   var adTrigger = 1;
   var nextPressCount = 0;
+  var colorCodes = {
+    50: Color.fromRGBO(211, 10, 75, .1),
+    for (var i = 100; i < 1000; i += 100)
+      i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
+  };
 
   _CallState({@required this.serverIP}) {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -61,7 +65,6 @@ class _CallState extends State<Call> {
           ? AdmobInterstitial.testAdUnitId
           : 'ca-app-pub-8761730220693010/2067844692',
       listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-        print('int event=>$event');
         if (event == AdmobAdEvent.closed) {
           _signaling.msgNew(ww.model);
           interstitialAd.load();
@@ -82,7 +85,8 @@ class _CallState extends State<Call> {
         supportedLocales: [
           const Locale('en', ''),
           const Locale('hi', ''),
-          const Locale('ar', '')
+          const Locale('ar', ''),
+          const Locale('de', '')
         ],
         theme: ThemeData(
           primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
@@ -92,8 +96,7 @@ class _CallState extends State<Call> {
           appBar: AppBar(
             title: Text('hi'),
           ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
           floatingActionButton: _inCalling
               ? new SizedBox(
                   width: 250.0,
@@ -126,29 +129,21 @@ class _CallState extends State<Call> {
               ? OrientationBuilder(builder: (context, orientation) {
                   return Container(
                     child: Stack(children: <Widget>[
-                      Positioned(
-                          left: 0.0,
-                          right: 0.0,
-                          top: 0.0,
-                          bottom: 0.0,
-                          child: new Container(
-                            margin: new EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
-                            child: new RTCVideoView(_remoteRenderer),
-                            decoration:
-                                new BoxDecoration(color: Colors.black54),
-                          )),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: RTCVideoView(_remoteRenderer),
+                        decoration: BoxDecoration(color: colorCodes[400]),
+                      ),
                       Positioned(
                         left: 20.0,
                         top: 20.0,
                         child: new Container(
-                          width: orientation == Orientation.portrait
-                              ? 90.0
-                              : 120.0,
-                          height: orientation == Orientation.portrait
-                              ? 120.0
-                              : 90.0,
+                          width:
+                              orientation == Orientation.portrait ? 90.0 : 120.0,
+                          height:
+                              orientation == Orientation.portrait ? 120.0 : 90.0,
                           child: RTCVideoView(_localRenderer),
                           decoration: BoxDecoration(color: Colors.black54),
                         ),

@@ -253,6 +253,7 @@ class Signaling {
   }
 
   void addOldPeerId(sessionId) {
+    if (sessionId == null) return;
     var ids = sessionId.split('-');
     var oldId = ids[1];
     if (oldId == _selfId) oldId = ids[0];
@@ -275,8 +276,8 @@ class Signaling {
           Uri.parse('https://$host:$port/ws')); // form the correct url here
       request.headers.add('Connection', 'Upgrade');
       request.headers.add('Upgrade', 'websocket');
-      request.headers.add(
-          'Sec-WebSocket-Version', '13'); // insert the correct version here
+      request.headers
+          .add('Sec-WebSocket-Version', '13'); // insert the correct version here
       request.headers.add('Sec-WebSocket-Key', key.toLowerCase());
 
       HttpClientResponse response = await request.close();
@@ -328,8 +329,8 @@ class Signaling {
 
   void msgNew(String deviceInfo) {
     print('msgNew');
-    _send('new',
-        {'devInfo': deviceInfo, 'id': _selfId, 'oldPeerIds': _oldPeerIds});
+    _send(
+        'new', {'devInfo': deviceInfo, 'id': _selfId, 'oldPeerIds': _oldPeerIds});
   }
 
   Future<MediaStream> createStream(media, userScreen) async {
@@ -337,8 +338,7 @@ class Signaling {
       'audio': true,
       'video': {
         'mandatory': {
-          'minWidth':
-              '640', // Provide your own width, height and frame rate here
+          'minWidth': '640', // Provide your own width, height and frame rate here
           'minHeight': '480',
           'minFrameRate': '30',
         },
@@ -425,8 +425,8 @@ class Signaling {
 
   _createAnswer(String id, RTCPeerConnection pc, media) async {
     try {
-      RTCSessionDescription s = await pc
-          .createAnswer(media == 'data' ? _dcConstraints : _constraints);
+      RTCSessionDescription s =
+          await pc.createAnswer(media == 'data' ? _dcConstraints : _constraints);
       pc.setLocalDescription(s);
       _send('answer', {
         'to': id,
