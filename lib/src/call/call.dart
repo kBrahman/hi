@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:hi/l10n/locale.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'signaling.dart';
@@ -40,8 +41,7 @@ class _CallState extends State<Call> {
   var nextPressCount = 0;
   var colorCodes = {
     50: Color.fromRGBO(211, 10, 75, .1),
-    for (var i = 100; i < 1000; i += 100)
-      i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
+    for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
   };
 
   _CallState({@required this.serverIP}) {
@@ -82,12 +82,7 @@ class _CallState extends State<Call> {
           GlobalCupertinoLocalizations.delegate,
           AppLocalizations.delegate
         ],
-        supportedLocales: [
-          const Locale('en', ''),
-          const Locale('hi', ''),
-          const Locale('ar', ''),
-          const Locale('de', '')
-        ],
+        supportedLocales: LOCALES,
         theme: ThemeData(
           primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
           visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -113,15 +108,12 @@ class _CallState extends State<Call> {
                           child: new Icon(Icons.call_end),
                         ),
                         FloatingActionButton(
-                          child: micMuted
-                              ? const Icon(Icons.mic_off)
-                              : const Icon(Icons.mic),
+                          child: micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
                           onPressed: _muteMic,
                         ),
                         FloatingActionButton(
                           child: const Icon(Icons.skip_next),
-                          onPressed: () =>
-                              _signaling.bye(++nextPressCount == adTrigger),
+                          onPressed: () => _signaling.bye(++nextPressCount == adTrigger),
                         )
                       ]))
               : null,
@@ -138,14 +130,14 @@ class _CallState extends State<Call> {
                       ),
                       Positioned(
                         left: 20.0,
-                        top: 20.0,
-                        child: new Container(
-                          width:
-                              orientation == Orientation.portrait ? 90.0 : 120.0,
-                          height:
-                              orientation == Orientation.portrait ? 120.0 : 90.0,
-                          child: RTCVideoView(_localRenderer),
-                          decoration: BoxDecoration(color: Colors.black54),
+                        top: 10.0,
+                        child: ClipOval(
+                          child: Container(
+                            width: 100.0,
+                            height: 100.0,
+                            child: RTCVideoView(_localRenderer),
+                            decoration: BoxDecoration(color: Colors.black54),
+                          ),
                         ),
                       ),
                     ]),

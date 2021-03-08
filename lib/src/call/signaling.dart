@@ -25,8 +25,7 @@ enum SignalingState {
 typedef void SignalingStateCallback(SignalingState state);
 typedef void StreamStateCallback(MediaStream stream);
 typedef void OtherEventCallback(dynamic event);
-typedef void DataChannelMessageCallback(
-    RTCDataChannel dc, RTCDataChannelMessage data);
+typedef void DataChannelMessageCallback(RTCDataChannel dc, RTCDataChannelMessage data);
 typedef void DataChannelCallback(RTCDataChannel dc);
 
 class Signaling {
@@ -53,14 +52,7 @@ class Signaling {
   Map<String, dynamic> _iceServers = {
     'iceServers': [
       {'url': 'stun:stun.l.google.com:19302'},
-      /*
-       * turn server configuration example.
-      {
-        'url': 'turn:123.45.67.89:3478',
-        'username': 'change_to_real_user',
-        'credential': 'change_to_real_secret'
-      },
-       */
+      {'url': 'stun:stun1.l.google.com:19302'}
     ]
   };
 
@@ -184,8 +176,8 @@ class Signaling {
           var id = data['from'];
           var candidateMap = data['candidate'];
           var pc = _peerConnections[id];
-          RTCIceCandidate candidate = RTCIceCandidate(candidateMap['candidate'],
-              candidateMap['sdpMid'], candidateMap['sdpMLineIndex']);
+          RTCIceCandidate candidate = RTCIceCandidate(
+              candidateMap['candidate'], candidateMap['sdpMid'], candidateMap['sdpMLineIndex']);
           if (pc != null) {
             await pc.addCandidate(candidate);
           } else {
@@ -257,7 +249,6 @@ class Signaling {
     var ids = sessionId.split('-');
     var oldId = ids[1];
     if (oldId == _selfId) oldId = ids[0];
-    print('add peer id=>$oldId');
     _oldPeerIds.add(oldId);
   }
 
@@ -267,17 +258,15 @@ class Signaling {
       String key = base64.encode(List<int>.generate(8, (_) => r.nextInt(255)));
       SecurityContext securityContext = SecurityContext();
       HttpClient client = HttpClient(context: securityContext);
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) {
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
         return true;
       };
 
-      HttpClientRequest request = await client.getUrl(
-          Uri.parse('https://$host:$port/ws')); // form the correct url here
+      HttpClientRequest request =
+          await client.getUrl(Uri.parse('https://$host:$port/ws')); // form the correct url here
       request.headers.add('Connection', 'Upgrade');
       request.headers.add('Upgrade', 'websocket');
-      request.headers
-          .add('Sec-WebSocket-Version', '13'); // insert the correct version here
+      request.headers.add('Sec-WebSocket-Version', '13'); // insert the correct version here
       request.headers.add('Sec-WebSocket-Key', key.toLowerCase());
 
       HttpClientResponse response = await request.close();
@@ -329,8 +318,7 @@ class Signaling {
 
   void msgNew(String deviceInfo) {
     print('msgNew');
-    _send(
-        'new', {'devInfo': deviceInfo, 'id': _selfId, 'oldPeerIds': _oldPeerIds});
+    _send('new', {'devInfo': deviceInfo, 'id': _selfId, 'oldPeerIds': _oldPeerIds});
   }
 
   Future<MediaStream> createStream(media, userScreen) async {
@@ -393,8 +381,7 @@ class Signaling {
   _addDataChannel(id, RTCDataChannel channel) {
     channel.onDataChannelState = (e) {};
     channel.onMessage = (RTCDataChannelMessage data) {
-      if (this.onDataChannelMessage != null)
-        this.onDataChannelMessage(channel, data);
+      if (this.onDataChannelMessage != null) this.onDataChannelMessage(channel, data);
     };
     _dataChannels[id] = channel;
 

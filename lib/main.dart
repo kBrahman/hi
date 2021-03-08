@@ -14,11 +14,10 @@ void main() async {
   await Firebase.initializeApp();
   Admob.initialize();
   String data = await rootBundle.loadString('assets/local.properties');
-  var iterable = data
-      .split('\n')
-      .where((element) => !element.startsWith('#') && element.isNotEmpty);
-  var props = Map.fromIterable(iterable,
-      key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
+  var iterable =
+      data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
+  var props =
+      Map.fromIterable(iterable, key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   var s = props['server'];
   if (Platform.isIOS) {
     await Admob.requestTrackingAuthorization();
@@ -26,9 +25,8 @@ void main() async {
   await [
     Permission.camera,
     Permission.microphone,
-  ].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
-      ? exit(0)
-      : runApp(new Call(ip: s)));
+  ].request().then(
+      (statuses) => statuses.values.any((e) => !e.isGranted) ? exit(0) : runApp(new Call(ip: s)));
   // Future.wait([Permission.camera.status, Permission.microphone.status])
   //     .then((statuses) {
   //   print('statuses=>$statuses');
