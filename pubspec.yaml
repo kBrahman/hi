@@ -1,7 +1,7 @@
 name: hi
 description: Video chat
 publish_to: 'none'
-version: 1.3.9+13
+version: 1.3.10+14
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -17,7 +17,7 @@ dependencies:
   admob_flutter: 1.0.1
   flutter_localizations:
     sdk: flutter
-  intl: ^0.16.1
+  intl: 0.17.0
   device_info: ^1.0.0
   permission_handler: ^5.0.1+1
   firebase_core: ^0.7.0
