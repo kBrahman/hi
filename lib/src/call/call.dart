@@ -25,15 +25,14 @@ class Call extends StatefulWidget {
 
 class _CallState extends State<Call> {
   Signaling _signaling;
-  RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
-  RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
+  RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool _inCalling = false;
   bool micMuted = false;
 
   final String serverIP;
   bool _connOk = true;
   bool _maintaining = false;
-
   final ww = WaitingWidget();
 
   var interstitialAd;
@@ -61,9 +60,8 @@ class _CallState extends State<Call> {
     }
     checkConn();
     interstitialAd = AdmobInterstitial(
-      adUnitId: Platform.isIOS
-          ? AdmobInterstitial.testAdUnitId
-          : 'ca-app-pub-8761730220693010/2067844692',
+      adUnitId:
+          Platform.isIOS ? AdmobInterstitial.testAdUnitId : 'ca-app-pub-8761730220693010/2067844692',
       listener: (AdmobAdEvent event, Map<String, dynamic> args) {
         if (event == AdmobAdEvent.closed) {
           _signaling.msgNew(ww.model);
@@ -83,6 +81,9 @@ class _CallState extends State<Call> {
           AppLocalizations.delegate
         ],
         supportedLocales: LOCALES,
+        localeResolutionCallback: (locale, supportedLocales) => supportedLocales.firstWhere(
+            (element) => element.languageCode == locale.languageCode,
+            orElse: () => supportedLocales.first),
         theme: ThemeData(
           primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
           visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -95,27 +96,25 @@ class _CallState extends State<Call> {
           floatingActionButton: _inCalling
               ? new SizedBox(
                   width: 250.0,
-                  child: new Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        FloatingActionButton(
-                          child: const Icon(Icons.switch_camera),
-                          onPressed: _switchCamera,
-                        ),
-                        FloatingActionButton(
-                          onPressed: _hangUp,
-                          tooltip: 'Hangup',
-                          child: new Icon(Icons.call_end),
-                        ),
-                        FloatingActionButton(
-                          child: micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
-                          onPressed: _muteMic,
-                        ),
-                        FloatingActionButton(
-                          child: const Icon(Icons.skip_next),
-                          onPressed: () => _signaling.bye(++nextPressCount == adTrigger),
-                        )
-                      ]))
+                  child: new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    FloatingActionButton(
+                      child: const Icon(Icons.switch_camera),
+                      onPressed: _switchCamera,
+                    ),
+                    FloatingActionButton(
+                      onPressed: _hangUp,
+                      tooltip: 'Hangup',
+                      child: new Icon(Icons.call_end),
+                    ),
+                    FloatingActionButton(
+                      child: micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
+                      onPressed: _muteMic,
+                    ),
+                    FloatingActionButton(
+                      child: const Icon(Icons.skip_next),
+                      onPressed: () => _signaling.bye(++nextPressCount == adTrigger),
+                    )
+                  ]))
               : null,
           body: _inCalling
               ? OrientationBuilder(builder: (context, orientation) {
@@ -131,14 +130,9 @@ class _CallState extends State<Call> {
                       Positioned(
                         left: 20.0,
                         top: 10.0,
-                        child: ClipOval(
-                          child: Container(
-                            width: 100.0,
-                            height: 100.0,
-                            child: RTCVideoView(_localRenderer),
-                            decoration: BoxDecoration(color: Colors.black54),
-                          ),
-                        ),
+                        width: 100,
+                        height: 100,
+                        child: RTCVideoView(_localRenderer),
                       ),
                     ]),
                   );
@@ -187,8 +181,9 @@ class _CallState extends State<Call> {
   }
 
   void _connect(String model) async {
+    print('connect');
     if (_signaling == null) {
-      _signaling = new Signaling(serverIP)..connect(model);
+      _signaling = Signaling(serverIP)..connect(model);
 
       _signaling.onStateChange = (SignalingState state) {
         switch (state) {
@@ -221,13 +216,12 @@ class _CallState extends State<Call> {
         }
       };
 
-      _signaling.onLocalStream = ((stream) {
+      _signaling.onLocalStream = ((MediaStream stream) {
+        print('onLocalStream id=>${stream.id}');
         _localRenderer.srcObject = stream;
       });
 
-      _signaling.onAddRemoteStream = ((stream) {
-        _remoteRenderer.srcObject = stream;
-      });
+      _signaling.onAddRemoteStream = ((stream) => setState(() => _remoteRenderer.srcObject = stream));
 
       _signaling.onRemoveRemoteStream = ((stream) {
         _remoteRenderer.srcObject = null;
@@ -255,6 +249,8 @@ class _CallState extends State<Call> {
 
   Future<void> checkConn() async {
     var b = await DataConnectionChecker().hasConnection;
+    print('check conn b=>$b');
+    if (!_connOk && b) _connect(ww.model);
     setState(() {
       _connOk = b;
     });
@@ -283,7 +279,7 @@ class NoInternetWidget extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Text(AppLocalizations.of(context).no_inet),
-            RaisedButton(
+            ElevatedButton(
               onPressed: checkConn,
               child: Text(AppLocalizations.of(context).refresh),
             )
@@ -309,9 +305,8 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       child: new Column(
         children: <Widget>[
           AdmobBanner(
-            adUnitId: Platform.isIOS
-                ? AdmobBanner.testAdUnitId
-                : "ca-app-pub-8761730220693010/9359738284",
+            adUnitId:
+                Platform.isIOS ? AdmobBanner.testAdUnitId : "ca-app-pub-8761730220693010/9359738284",
             adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
             listener: (AdmobAdEvent event, Map<String, dynamic> args) {
               switch (event) {

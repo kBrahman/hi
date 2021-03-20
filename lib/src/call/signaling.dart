@@ -53,14 +53,13 @@ class Signaling {
     'iceServers': [
       {'url': 'stun:stun.l.google.com:19302'},
       {'url': 'stun:stun1.l.google.com:19302'}
-    ]
+    ],
+    'sdpSemantics': 'unified-plan'
   };
 
   final Map<String, dynamic> _config = {
     'mandatory': {},
-    'optional': [
-      {'DtlsSrtpKeyAgreement': true},
-    ],
+    'optional': [],
   };
 
   final Map<String, dynamic> _constraints = {
@@ -99,7 +98,7 @@ class Signaling {
     }
   }
 
-  void invite(peerId, String media, useScreen) {
+  void invite(peerId, String media, useScreen) async {
     if (peerId == null) return;
     this._sessionId = this._selfId + "-" + peerId;
 
@@ -107,13 +106,12 @@ class Signaling {
       this.onStateChange(SignalingState.CallStateNew);
     }
 
-    _createPeerConnection(peerId, media, useScreen).then((pc) {
-      _peerConnections[peerId] = pc;
-      if (media == 'data') {
-        _createDataChannel(peerId, pc);
-      }
-      _createOffer(peerId, pc, media);
-    });
+    final pc = await _createPeerConnection(peerId, media, useScreen);
+    _peerConnections[peerId] = pc;
+    if (media == 'data') {
+      _createDataChannel(peerId, pc);
+    }
+    _createOffer(peerId, pc, media);
   }
 
   void bye(bool isBusy) {
@@ -121,7 +119,6 @@ class Signaling {
       'session_id': this._sessionId,
       'is_busy': isBusy,
     });
-    print('sent bye');
   }
 
   void onMessage(message) async {
@@ -148,8 +145,9 @@ class Signaling {
 
           var pc = await _createPeerConnection(id, media, false);
           _peerConnections[id] = pc;
-          await pc.setRemoteDescription(
-              RTCSessionDescription(description['sdp'], description['type']));
+          var sdp = description['sdp'];
+          print('sdp=>$sdp');
+          await pc.setRemoteDescription(RTCSessionDescription(sdp, description['type']));
           await _createAnswer(id, pc, media);
           if (this._remoteCandidates.length > 0) {
             _remoteCandidates.forEach((candidate) async {
@@ -166,8 +164,8 @@ class Signaling {
 
           var pc = _peerConnections[id];
           if (pc != null) {
-            await pc.setRemoteDescription(
-                RTCSessionDescription(description['sdp'], description['type']));
+            await pc
+                .setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
           }
         }
         break;
@@ -278,7 +276,6 @@ class Signaling {
         protocol: 'signaling',
         serverSide: false,
       );
-
       return webSocket;
     } catch (e) {
       throw e;
@@ -287,11 +284,7 @@ class Signaling {
 
   void connect(String model) async {
     try {
-//      var url = 'ws://$_host:$_port';
-//      _socket = await WebSocket.connect(url);
-
       _socket = await _connectForSelfSignedCert(_host, _port);
-
       if (this.onStateChange != null) {
         this.onStateChange(SignalingState.ConnectionOpen);
       }
@@ -327,17 +320,21 @@ class Signaling {
       'video': {
         'mandatory': {
           'minWidth': '640', // Provide your own width, height and frame rate here
-          'minHeight': '480',
+          'minHeight': '640',
           'minFrameRate': '30',
         },
         'facingMode': 'user',
-        'optional': [],
+        //   'optional': [],
       }
     };
+    // MediaStream stream = userScreen
+    //     ? await navigator.mediaDevices.getDisplayMedia(mediaConstraints)
+    //     : await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
+    var remoteConstrains = {'audio': true, 'video': true};
     MediaStream stream = userScreen
-        ? await navigator.getDisplayMedia(mediaConstraints)
-        : await navigator.getUserMedia(mediaConstraints);
+        ? await navigator.mediaDevices.getDisplayMedia(remoteConstrains)
+        : await navigator.mediaDevices.getUserMedia(remoteConstrains);
     if (this.onLocalStream != null) {
       this.onLocalStream(stream);
     }
@@ -345,9 +342,11 @@ class Signaling {
   }
 
   _createPeerConnection(id, media, userScreen) async {
-    if (media != 'data') _localStream = await createStream(media, userScreen);
     RTCPeerConnection pc = await createPeerConnection(_iceServers, _config);
-    if (media != 'data') pc.addStream(_localStream);
+    if (media != 'data') {
+      _localStream = await createStream(media, userScreen);
+      _localStream.getTracks().forEach((track) => pc.addTrack(track, _localStream));
+    }
     pc.onIceCandidate = (candidate) {
       _send('candidate', {
         'to': id,
@@ -362,11 +361,20 @@ class Signaling {
 
     pc.onIceConnectionState = (state) {};
 
-    pc.onAddStream = (stream) {
-      if (this.onAddRemoteStream != null) this.onAddRemoteStream(stream);
-      _remoteStream = stream;
-    };
+    // pc.onAddStream = (stream) {
+    //   if (this.onAddRemoteStream != null) this.onAddRemoteStream(stream);
+    //   _remoteStream = stream;
+    // };
 
+    pc.onTrack = (RTCTrackEvent event) {
+      print('onTrack=>${event.track.label}');
+      if (event.track.kind == 'video' && event.streams.isNotEmpty) {
+        var stream = event.streams[0];
+        print('New stream: ' + stream.id);
+        if (this.onAddRemoteStream != null) this.onAddRemoteStream(stream);
+        _remoteStream = stream;
+      }
+    };
     pc.onRemoveStream = (stream) {
       if (this.onRemoveRemoteStream != null) this.onRemoveRemoteStream(stream);
     };
@@ -374,7 +382,6 @@ class Signaling {
     pc.onDataChannel = (channel) {
       _addDataChannel(id, channel);
     };
-
     return pc;
   }
 
@@ -396,8 +403,7 @@ class Signaling {
 
   _createOffer(String id, RTCPeerConnection pc, String media) async {
     try {
-      RTCSessionDescription s =
-          await pc.createOffer(media == 'data' ? _dcConstraints : _constraints);
+      RTCSessionDescription s = await pc.createOffer(media == 'data' ? _dcConstraints : _constraints);
       pc.setLocalDescription(s);
       _send('offer', {
         'to': id,
@@ -412,8 +418,7 @@ class Signaling {
 
   _createAnswer(String id, RTCPeerConnection pc, media) async {
     try {
-      RTCSessionDescription s =
-          await pc.createAnswer(media == 'data' ? _dcConstraints : _constraints);
+      RTCSessionDescription s = await pc.createAnswer(media == 'data' ? _dcConstraints : _constraints);
       pc.setLocalDescription(s);
       _send('answer', {
         'to': id,

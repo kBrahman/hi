@@ -5,5 +5,6 @@ const LOCALES = [
   const Locale('hi', ''),
   const Locale('ar', ''),
   const Locale('de', ''),
-  const Locale('bn', '')
+  const Locale('bn', ''),
+  const Locale('ur', '')
 ];
