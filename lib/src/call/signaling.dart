@@ -5,7 +5,7 @@ import 'dart:math';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-import 'random_string.dart';
+import '../util/random_string.dart';
 
 enum SignalingState {
   CallStateNew,
@@ -36,7 +36,7 @@ class Signaling {
   var _sessionId;
   var _host;
   var _port = 4443;
-  var _peerConnections = new Map<String, RTCPeerConnection>();
+  RTCPeerConnection _peerConnection;
   var _dataChannels = new Map<String, RTCDataChannel>();
   var _remoteCandidates = [];
 
@@ -85,17 +85,12 @@ class Signaling {
       _localStream.dispose();
       _localStream = null;
     }
-
-    _peerConnections.forEach((key, pc) {
-      pc.close();
-    });
+    _peerConnection.close();
     if (_socket != null) _socket.close();
   }
 
   void switchCamera() {
-    if (_localStream != null) {
-      _localStream.getVideoTracks()[0].switchCamera();
-    }
+    if (_localStream != null) Helper.switchCamera(_localStream.getVideoTracks()[0]);
   }
 
   void invite(peerId, String media, useScreen) async {
@@ -107,7 +102,7 @@ class Signaling {
     }
 
     final pc = await _createPeerConnection(peerId, media, useScreen);
-    _peerConnections[peerId] = pc;
+    _peerConnection = pc;
     if (media == 'data') {
       _createDataChannel(peerId, pc);
     }
@@ -144,7 +139,7 @@ class Signaling {
           }
 
           var pc = await _createPeerConnection(id, media, false);
-          _peerConnections[id] = pc;
+          _peerConnection = pc;
           var sdp = description['sdp'];
           print('sdp=>$sdp');
           await pc.setRemoteDescription(RTCSessionDescription(sdp, description['type']));
@@ -159,10 +154,8 @@ class Signaling {
         break;
       case 'answer':
         {
-          var id = data['from'];
           var description = data['description'];
-
-          var pc = _peerConnections[id];
+          var pc = _peerConnection;
           if (pc != null) {
             await pc
                 .setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
@@ -171,9 +164,8 @@ class Signaling {
         break;
       case 'candidate':
         {
-          var id = data['from'];
           var candidateMap = data['candidate'];
-          var pc = _peerConnections[id];
+          var pc = _peerConnection;
           RTCIceCandidate candidate = RTCIceCandidate(
               candidateMap['candidate'], candidateMap['sdpMid'], candidateMap['sdpMLineIndex']);
           if (pc != null) {
@@ -190,10 +182,9 @@ class Signaling {
             _localStream.dispose();
             _localStream = null;
           }
-          var pc = _peerConnections[id];
+          var pc = _peerConnection;
           if (pc != null) {
             pc.close();
-            _peerConnections.remove(id);
             _dataChannels.remove(id);
           }
           if (this.onStateChange != null) {
@@ -212,10 +203,9 @@ class Signaling {
             _localStream = null;
           }
 
-          var pc = _peerConnections[to];
+          var pc = _peerConnection;
           if (pc != null) {
             pc.close();
-            _peerConnections.remove(to);
           }
 
           var dc = _dataChannels[to];

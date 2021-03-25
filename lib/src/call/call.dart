@@ -2,14 +2,16 @@ import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 
-import 'package:admob_flutter/admob_flutter.dart';
 import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hi/l10n/locale.dart';
+import 'package:hi/src/util/c.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'signaling.dart';
@@ -35,7 +37,6 @@ class _CallState extends State<Call> {
   bool _maintaining = false;
   final ww = WaitingWidget();
 
-  var interstitialAd;
   var adTrigger = 1;
   var nextPressCount = 0;
   var colorCodes = {
@@ -43,33 +44,38 @@ class _CallState extends State<Call> {
     for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
   };
 
+  InterstitialAd interstitial;
+
   _CallState({@required this.serverIP}) {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid)
       deviceInfo.androidInfo.then((v) {
         _connect(v.model);
         ww.signaling = _signaling;
         ww.model = v.model;
       });
-    } else {
+    else
       deviceInfo.iosInfo.then((v) {
         _connect(v.model);
         ww.signaling = _signaling;
         ww.model = v.model;
       });
-    }
     checkConn();
-    interstitialAd = AdmobInterstitial(
-      adUnitId:
-          Platform.isIOS ? AdmobInterstitial.testAdUnitId : 'ca-app-pub-8761730220693010/2067844692',
-      listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-        if (event == AdmobAdEvent.closed) {
-          _signaling.msgNew(ww.model);
-          interstitialAd.load();
-        }
-      },
-    )..load();
     //int id ca-app-pub-8761730220693010/2067844692
+  }
+
+  @override
+  initState() {
+    super.initState();
+    initRenderers();
+    interstitial = InterstitialAd(
+      adUnitId: _interstitialId(),
+      request: AdRequest(),
+      listener: AdListener(onAdClosed: (ad) {
+        _signaling.msgNew(ww.model);
+        ad.load();
+      }),
+    )..load();
   }
 
   @override
@@ -149,22 +155,12 @@ class _CallState extends State<Call> {
     if (nextPressCount == adTrigger) {
       nextPressCount = 0;
       adTrigger *= 2;
-      interstitialAd.isLoaded.then((isLoaded) {
-        if (isLoaded) {
-          interstitialAd.show();
-        } else {
-          _signaling.msgNew(ww.model);
-        }
-      });
+      interstitial
+          .isLoaded()
+          .then((isLoaded) => isLoaded ? interstitial.show() : _signaling.msgNew(ww.model));
     } else {
       _signaling.msgNew(ww.model);
     }
-  }
-
-  @override
-  initState() {
-    super.initState();
-    initRenderers();
   }
 
   initRenderers() async {
@@ -249,12 +245,17 @@ class _CallState extends State<Call> {
 
   Future<void> checkConn() async {
     var b = await DataConnectionChecker().hasConnection;
-    print('check conn b=>$b');
     if (!_connOk && b) _connect(ww.model);
     setState(() {
       _connOk = b;
     });
   }
+
+  _interstitialId() => Platform.isIOS || kDebugMode ? _testInterstitialId() : INTERSTITIAL_ID;
+
+  _testInterstitialId() => Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/1033173712'
+      : 'ca-app-pub-3940256099942544/4411468910';
 }
 
 class MaintenanceWidget extends StatelessWidget {
@@ -299,25 +300,30 @@ class WaitingWidget extends StatefulWidget {
 }
 
 class _WaitingWidgetState extends State<WaitingWidget> {
+  BannerAd banner;
+
+  @override
+  void initState() {
+    banner = BannerAd(
+      adUnitId: _bannerId(),
+      size: AdSize.mediumRectangle,
+      request: AdRequest(),
+      listener: AdListener(
+          onAdOpened: (_) => widget.signaling.bye(true),
+          onAdClosed: (_) => widget.signaling.msgNew(widget.model)),
+    )..load();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Center(
       child: new Column(
         children: <Widget>[
-          AdmobBanner(
-            adUnitId:
-                Platform.isIOS ? AdmobBanner.testAdUnitId : "ca-app-pub-8761730220693010/9359738284",
-            adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
-            listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-              switch (event) {
-                case AdmobAdEvent.opened:
-                  widget.signaling.bye(true);
-                  break;
-                case AdmobAdEvent.closed:
-                  widget.signaling.msgNew(widget.model);
-              }
-            },
-          ),
+          Container(
+              child: AdWidget(ad: banner),
+              width: banner.size.width.toDouble(),
+              height: banner.size.height.toDouble()),
           Padding(padding: EdgeInsets.only(top: 5)),
           CircularProgressIndicator(),
           Padding(padding: EdgeInsets.only(top: 10)),
@@ -327,4 +333,16 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       ),
     );
   }
+
+  @override
+  void deactivate() {
+    banner.dispose();
+    super.deactivate();
+  }
+
+  _bannerId() => Platform.isIOS || kDebugMode ? _bannerTestAdUnitId() : BANNER_ID;
+
+  _bannerTestAdUnitId() => Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/6300978111'
+      : 'ca-app-pub-3940256099942544/2934735716';
 }
