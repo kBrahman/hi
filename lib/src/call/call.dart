@@ -2,37 +2,38 @@ import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 
-import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hi/l10n/locale.dart';
-import 'package:hi/src/util/c.dart';
+import 'package:hi/src/util/util.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'signaling.dart';
 
 class Call extends StatefulWidget {
-  final String ip;
+  final String? ip;
 
-  Call({Key key, @required this.ip}) : super(key: key);
+  Call({Key? key, @required this.ip}) : super(key: key);
 
   @override
   _CallState createState() => new _CallState(serverIP: ip);
 }
 
 class _CallState extends State<Call> {
-  Signaling _signaling;
+  static const TAG = '_CallState';
+  Signaling? _signaling;
   RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool _inCalling = false;
   bool micMuted = false;
 
-  final String serverIP;
+  final String? serverIP;
   bool _connOk = true;
   bool _maintaining = false;
   final ww = WaitingWidget();
@@ -44,19 +45,27 @@ class _CallState extends State<Call> {
     for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
   };
 
-  InterstitialAd interstitial;
+  InterstitialAd? interstitial;
+
+  double? _h;
+
+  double? _w;
 
   _CallState({@required this.serverIP}) {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    _h = WidgetsBinding.instance?.window.physicalSize.height;
+    _w = WidgetsBinding.instance?.window.physicalSize.width;
     if (Platform.isAndroid)
       deviceInfo.androidInfo.then((v) {
-        _connect(v.model);
+        _connect(v.model, '$_h:$_w');
         ww.signaling = _signaling;
         ww.model = v.model;
+        ww.h = _h;
+        ww.w = _w;
       });
     else
       deviceInfo.iosInfo.then((v) {
-        _connect(v.model);
+        _connect(v.model, '$_h:$_w');
         ww.signaling = _signaling;
         ww.model = v.model;
       });
@@ -67,37 +76,45 @@ class _CallState extends State<Call> {
   @override
   initState() {
     super.initState();
+    log(TAG, "init");
     initRenderers();
     interstitial = InterstitialAd(
       adUnitId: _interstitialId(),
       request: AdRequest(),
       listener: AdListener(onAdClosed: (ad) {
-        _signaling.msgNew(ww.model);
+        _signaling?.msgNew(ww.model, '$_h:$_w');
         ad.load();
       }),
     )..load();
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          AppLocalizations.delegate
-        ],
-        supportedLocales: LOCALES,
-        localeResolutionCallback: (locale, supportedLocales) => supportedLocales.firstWhere(
-            (element) => element.languageCode == locale.languageCode,
-            orElse: () => supportedLocales.first),
-        theme: ThemeData(
-          primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: new Scaffold(
-          appBar: AppBar(
-            title: Text('hi'),
-          ),
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate
+      ],
+      supportedLocales: LOCALES,
+      localeResolutionCallback: (locale, supportedLocales) => supportedLocales.firstWhere(
+          (element) => element.languageCode == locale?.languageCode,
+          orElse: () => supportedLocales.first),
+      theme: ThemeData(
+        primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: WillPopScope(
+        onWillPop: () {
+          log(TAG, "will pop");
+          _signaling?.close();
+          return Future.value(true);
+        },
+        child: new Scaffold(
+          // appBar: AppBar(
+          //   title: Text('hi'),
+          // ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
           floatingActionButton: _inCalling
               ? new SizedBox(
@@ -105,7 +122,9 @@ class _CallState extends State<Call> {
                   child: new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                     FloatingActionButton(
                       child: const Icon(Icons.switch_camera),
-                      onPressed: _switchCamera,
+                      onPressed: () {
+                        _signaling?.switchCamera();
+                      },
                     ),
                     FloatingActionButton(
                       onPressed: _hangUp,
@@ -118,30 +137,22 @@ class _CallState extends State<Call> {
                     ),
                     FloatingActionButton(
                       child: const Icon(Icons.skip_next),
-                      onPressed: () => _signaling.bye(++nextPressCount == adTrigger),
+                      onPressed: () => _signaling?.bye(++nextPressCount == adTrigger),
                     )
                   ]))
               : null,
           body: _inCalling
               ? OrientationBuilder(builder: (context, orientation) {
-                  return Container(
-                    child: Stack(children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: RTCVideoView(_remoteRenderer),
-                        decoration: BoxDecoration(color: colorCodes[400]),
-                      ),
-                      Positioned(
-                        left: 20.0,
-                        top: 10.0,
-                        width: 100,
-                        height: 100,
-                        child: RTCVideoView(_localRenderer),
-                      ),
-                    ]),
-                  );
+                  return Stack(children: <Widget>[
+                    RTCVideoView(_remoteRenderer),
+                    Positioned(
+                      left: 20.0,
+                      top: 10.0,
+                      width: 90,
+                      height: 120,
+                      child: RTCVideoView(_localRenderer),
+                    ),
+                  ]);
                 })
               : _connOk && !_maintaining
                   ? ww
@@ -149,17 +160,18 @@ class _CallState extends State<Call> {
                       ? NoInternetWidget(checkConn)
                       : MaintenanceWidget(),
         ),
-      );
+      ),
+    );
+  }
 
   onNext() {
     if (nextPressCount == adTrigger) {
       nextPressCount = 0;
       adTrigger *= 2;
-      interstitial
-          .isLoaded()
-          .then((isLoaded) => isLoaded ? interstitial.show() : _signaling.msgNew(ww.model));
+      interstitial?.isLoaded().then(
+          (isLoaded) => isLoaded ? interstitial?.show() : _signaling?.msgNew(ww.model, '$_h:$_w'));
     } else {
-      _signaling.msgNew(ww.model);
+      _signaling?.msgNew(ww.model, '$_h:$_w');
     }
   }
 
@@ -170,18 +182,18 @@ class _CallState extends State<Call> {
 
   @override
   deactivate() {
-    super.deactivate();
-    if (_signaling != null) _signaling.close();
+    log(TAG, 'deactivate');
+    if (_signaling != null) _signaling?.close();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
+    super.deactivate();
   }
 
-  void _connect(String model) async {
-    print('connect');
+  void _connect(String? model, String localMC) async {
     if (_signaling == null) {
-      _signaling = Signaling(serverIP)..connect(model);
+      _signaling = Signaling(serverIP)..connect(model, localMC);
 
-      _signaling.onStateChange = (SignalingState state) {
+      _signaling?.onStateChange = (SignalingState state) {
         switch (state) {
           case SignalingState.CallStateNew:
             this.setState(() {
@@ -212,43 +224,38 @@ class _CallState extends State<Call> {
         }
       };
 
-      _signaling.onLocalStream = ((MediaStream stream) {
-        print('onLocalStream id=>${stream.id}');
-        _localRenderer.srcObject = stream;
+      _signaling?.onLocalStream = ((stream) {
+        setState(() {
+          _localRenderer.srcObject = stream;
+        });
       });
 
-      _signaling.onAddRemoteStream = ((stream) => setState(() => _remoteRenderer.srcObject = stream));
+      _signaling?.onAddRemoteStream = ((stream) => setState(() => _remoteRenderer.srcObject = stream));
 
-      _signaling.onRemoveRemoteStream = ((stream) {
+      _signaling?.onRemoveRemoteStream = ((stream) {
         _remoteRenderer.srcObject = null;
       });
     }
   }
 
-  _hangUp() {
-    if (_signaling != null) {
-      _signaling.close();
-      exit(0);
-    }
-  }
-
-  _switchCamera() {
-    _signaling.switchCamera();
+  _hangUp() async {
+    _signaling?.close();
+    if (Platform.isAndroid) SystemNavigator.pop();
   }
 
   _muteMic() {
     setState(() {
       micMuted = !micMuted;
     });
-    _signaling.mute(micMuted);
+    _signaling?.mute(micMuted);
   }
 
   Future<void> checkConn() async {
-    var b = await DataConnectionChecker().hasConnection;
-    if (!_connOk && b) _connect(ww.model);
-    setState(() {
-      _connOk = b;
-    });
+    // var b = await DataConnectionChecker().hasConnection;
+    // if (!_connOk && b) _connect(ww.model, '$_h:$_w');
+    // setState(() {
+    //   _connOk = b;
+    // });
   }
 
   _interstitialId() => Platform.isIOS || kDebugMode ? _testInterstitialId() : INTERSTITIAL_ID;
@@ -263,7 +270,8 @@ class MaintenanceWidget extends StatelessWidget {
   Widget build(BuildContext context) => Center(
         child: Container(
           child: Text(
-            AppLocalizations.of(context).maintenance,
+            AppLocalizations.of(context)?.maintenance ??
+                'Maintenance works on server side, come later please',
           ),
           padding: EdgeInsets.only(left: 20, right: 10),
         ),
@@ -279,10 +287,10 @@ class NoInternetWidget extends StatelessWidget {
   Widget build(BuildContext context) => Center(
         child: Column(
           children: <Widget>[
-            Text(AppLocalizations.of(context).no_inet),
+            Text(AppLocalizations.of(context)?.no_inet ?? 'No internet'),
             ElevatedButton(
               onPressed: checkConn,
-              child: Text(AppLocalizations.of(context).refresh),
+              child: Text(AppLocalizations.of(context)?.refresh ?? 'Refresh'),
             )
           ],
           mainAxisAlignment: MainAxisAlignment.center,
@@ -291,16 +299,18 @@ class NoInternetWidget extends StatelessWidget {
 }
 
 class WaitingWidget extends StatefulWidget {
-  Signaling signaling;
+  Signaling? signaling;
 
-  String model;
+  String? model;
+  double? h;
+  double? w;
 
   @override
   State<StatefulWidget> createState() => _WaitingWidgetState();
 }
 
 class _WaitingWidgetState extends State<WaitingWidget> {
-  BannerAd banner;
+  late final BannerAd banner;
 
   @override
   void initState() {
@@ -309,8 +319,8 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       size: AdSize.mediumRectangle,
       request: AdRequest(),
       listener: AdListener(
-          onAdOpened: (_) => widget.signaling.bye(true),
-          onAdClosed: (_) => widget.signaling.msgNew(widget.model)),
+          onAdOpened: (_) => widget.signaling?.bye(true),
+          onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}')),
     )..load();
     super.initState();
   }
@@ -327,7 +337,7 @@ class _WaitingWidgetState extends State<WaitingWidget> {
           Padding(padding: EdgeInsets.only(top: 5)),
           CircularProgressIndicator(),
           Padding(padding: EdgeInsets.only(top: 10)),
-          Text(AppLocalizations.of(context).waiting),
+          Text(AppLocalizations.of(context)?.waiting ?? 'Waiting for someone'),
         ],
         mainAxisAlignment: MainAxisAlignment.center,
       ),

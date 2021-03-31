@@ -7,5 +7,6 @@ const LOCALES = [
   const Locale('de', ''),
   const Locale('bn', ''),
   const Locale('ur', ''),
-  const Locale('ru', '')
+  const Locale('ru', ''),
+  const Locale('fa', '')
 ];

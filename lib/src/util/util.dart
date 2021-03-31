@@ -10,6 +10,8 @@ const LOWER_ALPHA_START = 97;
 const LOWER_ALPHA_END = 122;
 const UPPER_ALPHA_START = 65;
 const UPPER_ALPHA_END = 90;
+const BANNER_ID = 'ca-app-pub-8761730220693010/9359738284';
+const INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/2067844692';
 
 /// Generates a random integer where [from] <= [to].
 int randomBetween(int from, int to) {
@@ -22,10 +24,10 @@ int randomBetween(int from, int to) {
 /// between ascii [from] to [to].
 /// Defaults to characters of ascii '!' to '~'.
 String randomString(int length, {int from: ASCII_START, int to: ASCII_END}) {
-  return new String.fromCharCodes(
-      new List.generate(length, (index) => randomBetween(from, to)));
+  return new String.fromCharCodes(new List.generate(length, (index) => randomBetween(from, to)));
 }
 
 /// Generates a random string of [length] with only numeric characters.
-String randomNumeric(int length) =>
-    randomString(length, from: NUMERIC_START, to: NUMERIC_END);
+String randomNumeric(int length) => randomString(length, from: NUMERIC_START, to: NUMERIC_END);
+
+log(String tag, String msg) => print('$tag:$msg');
