@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -111,13 +112,15 @@ class _CallState extends State<Call> {
           _signaling?.close();
           return Future.value(true);
         },
-        child: new Scaffold(
-          // appBar: AppBar(
-          //   title: Text('hi'),
-          // ),
+        child: Scaffold(
+          appBar: _inCalling
+              ? null
+              : AppBar(
+                  title: Text('hi'),
+                ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
           floatingActionButton: _inCalling
-              ? new SizedBox(
+              ? SizedBox(
                   width: 250.0,
                   child: new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                     FloatingActionButton(
@@ -251,6 +254,12 @@ class _CallState extends State<Call> {
   }
 
   Future<void> checkConn() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    setState(() {
+      _connOk = connectivityResult == ConnectivityResult.mobile ||
+          connectivityResult == ConnectivityResult.wifi;
+    });
+
     // var b = await DataConnectionChecker().hasConnection;
     // if (!_connOk && b) _connect(ww.model, '$_h:$_w');
     // setState(() {
@@ -310,6 +319,7 @@ class WaitingWidget extends StatefulWidget {
 }
 
 class _WaitingWidgetState extends State<WaitingWidget> {
+  static const TAG = '_WaitingWidgetState';
   late final BannerAd banner;
 
   @override
