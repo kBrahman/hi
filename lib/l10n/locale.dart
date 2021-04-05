@@ -8,5 +8,6 @@ const LOCALES = [
   const Locale('bn', ''),
   const Locale('ur', ''),
   const Locale('ru', ''),
-  const Locale('fa', '')
+  const Locale('fa', ''),
+  const Locale('tr', '')
 ];
