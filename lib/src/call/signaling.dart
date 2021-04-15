@@ -34,7 +34,7 @@ class Signaling {
   final _oldPeerIds = [];
 
   String _selfId = randomNumeric(6);
-  var _socket;
+  WebSocket? _socket;
   var _sessionId;
   var _host;
   var _port = 4443;
@@ -90,7 +90,7 @@ class Signaling {
     _remoteStream?.dispose();
     _remoteStream = null;
     _peerConnection?.close();
-    if (_socket != null) _socket.close();
+    if (_socket != null) _socket?.close();
   }
 
   void switchCamera() {
@@ -271,7 +271,7 @@ class Signaling {
       _socket = await _connectForSelfSignedCert(_host, _port);
       this.onStateChange?.call(SignalingState.ConnectionOpen);
 
-      _socket.listen((data) {
+      _socket?.listen((data) {
         JsonDecoder decoder = JsonDecoder();
         this.onMessage(decoder.convert(data));
       }, onDone: () {
@@ -402,7 +402,7 @@ class Signaling {
   _send(event, data) {
     data['type'] = event;
     JsonEncoder encoder = new JsonEncoder();
-    if (_socket != null) _socket.add(encoder.convert(data));
+    if (_socket != null) _socket?.add(encoder.convert(data));
   }
 
   void mute(bool micMuted) {

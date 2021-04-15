@@ -28,7 +28,7 @@ class Call extends StatefulWidget {
 
 class _CallState extends State<Call> {
   static const TAG = '_CallState';
-  Signaling? _signaling;
+  late Signaling _signaling;
   RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool _inCalling = false;
@@ -53,6 +53,7 @@ class _CallState extends State<Call> {
   double? _w;
 
   _CallState({@required this.serverIP}) {
+    _signaling = Signaling(serverIP);
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     _h = WidgetsBinding.instance?.window.physicalSize.height;
     _w = WidgetsBinding.instance?.window.physicalSize.width;
@@ -77,13 +78,12 @@ class _CallState extends State<Call> {
   @override
   initState() {
     super.initState();
-    log(TAG, "init");
     initRenderers();
     interstitial = InterstitialAd(
       adUnitId: _interstitialId(),
       request: AdRequest(),
       listener: AdListener(onAdClosed: (ad) {
-        _signaling?.msgNew(ww.model, '$_h:$_w');
+        _signaling.msgNew(ww.model, '$_h:$_w');
         ad.load();
       }),
     )..load();
@@ -109,7 +109,7 @@ class _CallState extends State<Call> {
       home: WillPopScope(
         onWillPop: () {
           log(TAG, "will pop");
-          _signaling?.close();
+          _signaling.close();
           return Future.value(true);
         },
         child: Scaffold(
@@ -126,7 +126,7 @@ class _CallState extends State<Call> {
                     FloatingActionButton(
                       child: const Icon(Icons.switch_camera),
                       onPressed: () {
-                        _signaling?.switchCamera();
+                        _signaling.switchCamera();
                       },
                     ),
                     FloatingActionButton(
@@ -140,7 +140,7 @@ class _CallState extends State<Call> {
                     ),
                     FloatingActionButton(
                       child: const Icon(Icons.skip_next),
-                      onPressed: () => _signaling?.bye(++nextPressCount == adTrigger),
+                      onPressed: () => _signaling.bye(++nextPressCount == adTrigger),
                     )
                   ]))
               : null,
@@ -172,9 +172,9 @@ class _CallState extends State<Call> {
       nextPressCount = 0;
       adTrigger *= 2;
       interstitial?.isLoaded().then(
-          (isLoaded) => isLoaded ? interstitial?.show() : _signaling?.msgNew(ww.model, '$_h:$_w'));
+          (isLoaded) => isLoaded ? interstitial?.show() : _signaling.msgNew(ww.model, '$_h:$_w'));
     } else {
-      _signaling?.msgNew(ww.model, '$_h:$_w');
+      _signaling.msgNew(ww.model, '$_h:$_w');
     }
   }
 
@@ -185,64 +185,62 @@ class _CallState extends State<Call> {
 
   @override
   deactivate() {
-    log(TAG, 'deactivate');
-    if (_signaling != null) _signaling?.close();
+    _signaling.close();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     super.deactivate();
   }
 
   void _connect(String? model, String localMC) async {
-    if (_signaling == null) {
-      _signaling = Signaling(serverIP)..connect(model, localMC);
+    log(TAG, "conn");
+    _signaling.connect(model, localMC);
 
-      _signaling?.onStateChange = (SignalingState state) {
-        switch (state) {
-          case SignalingState.CallStateNew:
-            this.setState(() {
-              _inCalling = true;
-            });
-            break;
-          case SignalingState.CallStateBye:
-            this.setState(() {
-              _localRenderer.srcObject = null;
-              _remoteRenderer.srcObject = null;
-              _inCalling = false;
-            });
-            onNext();
-            break;
-          case SignalingState.CallStateInvite:
-          case SignalingState.CallStateConnected:
-          case SignalingState.CallStateRinging:
-          case SignalingState.ConnectionClosed:
-            break;
-          case SignalingState.ConnectionError:
-            setState(() {
-              _maintaining = true;
-            });
-            break;
-          case SignalingState.ConnectionOpen:
-            Wakelock.enable();
-            break;
-        }
-      };
+    _signaling.onStateChange = (SignalingState state) {
+      switch (state) {
+        case SignalingState.CallStateNew:
+          this.setState(() {
+            _inCalling = true;
+          });
+          break;
+        case SignalingState.CallStateBye:
+          this.setState(() {
+            _localRenderer.srcObject = null;
+            _remoteRenderer.srcObject = null;
+            _inCalling = false;
+          });
+          onNext();
+          break;
+        case SignalingState.CallStateInvite:
+        case SignalingState.CallStateConnected:
+        case SignalingState.CallStateRinging:
+        case SignalingState.ConnectionClosed:
+          break;
+        case SignalingState.ConnectionError:
+          setState(() {
+            _maintaining = true;
+          });
+          break;
+        case SignalingState.ConnectionOpen:
+          Wakelock.enable();
+          break;
+      }
+    };
 
-      _signaling?.onLocalStream = ((stream) {
-        setState(() {
-          _localRenderer.srcObject = stream;
-        });
+    _signaling.onLocalStream = ((stream) {
+      setState(() {
+        _localRenderer.srcObject = stream;
       });
+    });
 
-      _signaling?.onAddRemoteStream = ((stream) => setState(() => _remoteRenderer.srcObject = stream));
+    _signaling.onAddRemoteStream = ((stream) => setState(() => _remoteRenderer.srcObject = stream));
 
-      _signaling?.onRemoveRemoteStream = ((stream) {
-        _remoteRenderer.srcObject = null;
-      });
-    }
+    _signaling.onRemoveRemoteStream = ((stream) {
+      _remoteRenderer.srcObject = null;
+    });
   }
 
   _hangUp() async {
-    _signaling?.close();
+    _signaling.close();
     if (Platform.isAndroid) SystemNavigator.pop();
   }
 
@@ -250,7 +248,7 @@ class _CallState extends State<Call> {
     setState(() {
       micMuted = !micMuted;
     });
-    _signaling?.mute(micMuted);
+    _signaling.mute(micMuted);
   }
 
   Future<void> checkConn() async {
@@ -259,12 +257,8 @@ class _CallState extends State<Call> {
       _connOk = connectivityResult == ConnectivityResult.mobile ||
           connectivityResult == ConnectivityResult.wifi;
     });
-
-    // var b = await DataConnectionChecker().hasConnection;
-    // if (!_connOk && b) _connect(ww.model, '$_h:$_w');
-    // setState(() {
-    //   _connOk = b;
-    // });
+    if (_connOk) _connect(ww.model, '$_h:$_w');
+    log(TAG, 'check conn');
   }
 
   _interstitialId() => Platform.isIOS || kDebugMode ? _testInterstitialId() : INTERSTITIAL_ID;
