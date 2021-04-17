@@ -54,23 +54,8 @@ class _CallState extends State<Call> {
 
   _CallState({@required this.serverIP}) {
     _signaling = Signaling(serverIP);
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     _h = WidgetsBinding.instance?.window.physicalSize.height;
     _w = WidgetsBinding.instance?.window.physicalSize.width;
-    if (Platform.isAndroid)
-      deviceInfo.androidInfo.then((v) {
-        _connect(v.model, '$_h:$_w');
-        ww.signaling = _signaling;
-        ww.model = v.model;
-        ww.h = _h;
-        ww.w = _w;
-      });
-    else
-      deviceInfo.iosInfo.then((v) {
-        _connect(v.model, '$_h:$_w');
-        ww.signaling = _signaling;
-        ww.model = v.model;
-      });
     checkConn();
     //int id ca-app-pub-8761730220693010/2067844692
   }
@@ -171,8 +156,9 @@ class _CallState extends State<Call> {
     if (nextPressCount == adTrigger) {
       nextPressCount = 0;
       adTrigger *= 2;
-      interstitial?.isLoaded().then(
-          (isLoaded) => isLoaded ? interstitial?.show() : _signaling.msgNew(ww.model, '$_h:$_w'));
+      interstitial
+          ?.isLoaded()
+          .then((isLoaded) => isLoaded ? interstitial?.show() : _signaling.msgNew(ww.model, '$_h:$_w'));
     } else {
       _signaling.msgNew(ww.model, '$_h:$_w');
     }
@@ -253,11 +239,25 @@ class _CallState extends State<Call> {
 
   Future<void> checkConn() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     setState(() {
       _connOk = connectivityResult == ConnectivityResult.mobile ||
           connectivityResult == ConnectivityResult.wifi;
     });
-    if (_connOk) _connect(ww.model, '$_h:$_w');
+    if (Platform.isAndroid && _connOk)
+      deviceInfo.androidInfo.then((v) {
+        _connect(v.model, '$_h:$_w');
+        ww.signaling = _signaling;
+        ww.model = v.model;
+        ww.h = _h;
+        ww.w = _w;
+      });
+    else if (_connOk)
+      deviceInfo.iosInfo.then((v) {
+        _connect(v.model, '$_h:$_w');
+        ww.signaling = _signaling;
+        ww.model = v.model;
+      });
     log(TAG, 'check conn');
   }
 
