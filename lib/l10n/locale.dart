@@ -10,5 +10,6 @@ const LOCALES = [
   const Locale('ru', ''),
   const Locale('fa', ''),
   const Locale('tr', ''),
-  const Locale('fr', '')
+  const Locale('fr', ''),
+  const Locale('ko', '')
 ];

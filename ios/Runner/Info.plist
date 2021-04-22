@@ -7,7 +7,14 @@
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-8761730220693010~3608895769</string>
+	<string>ca-app-pub-8761730220693010~6352787569</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
@@ -29,11 +36,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) Camera Usage!</string>
+	<string>"hi" needs the Camera access so your peer can see you</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>$(PRODUCT_NAME) Microphone Usage!</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>$(PRODUCT_NAME) PhotoLibrary Usage!</string>
+	<string>"hi" needs the Microphone access so your peer can hear you</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

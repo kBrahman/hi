@@ -54,7 +54,8 @@ class Signaling {
   Map<String, dynamic> _iceServers = {
     'iceServers': [
       {'url': 'stun:stun.l.google.com:19302'},
-      {'url': 'stun:stun1.l.google.com:19302'}
+      {'url': 'stun:stun1.l.google.com:19302'},
+      {'url': 'stun:stun2.l.google.com:19302'}
     ],
     'sdpSemantics': 'unified-plan'
   };
@@ -91,6 +92,7 @@ class Signaling {
     _remoteStream = null;
     _peerConnection?.close();
     if (_socket != null) _socket?.close();
+    _socket = null;
   }
 
   void switchCamera() {

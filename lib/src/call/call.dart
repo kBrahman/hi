@@ -26,7 +26,7 @@ class Call extends StatefulWidget {
   _CallState createState() => new _CallState(serverIP: ip);
 }
 
-class _CallState extends State<Call> {
+class _CallState extends State<Call> with WidgetsBindingObserver {
   static const TAG = '_CallState';
   late Signaling _signaling;
   RTCVideoRenderer _localRenderer = RTCVideoRenderer();
@@ -49,8 +49,8 @@ class _CallState extends State<Call> {
   InterstitialAd? interstitial;
 
   double? _h;
-
   double? _w;
+  var wasPaused = false;
 
   _CallState({@required this.serverIP}) {
     _signaling = Signaling(serverIP);
@@ -61,16 +61,39 @@ class _CallState extends State<Call> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (wasPaused) _signaling.msgNew(ww.model, '$_h:$_w');
+        break;
+      case AppLifecycleState.inactive:
+        print("app in inactive");
+        break;
+      case AppLifecycleState.paused:
+        _signaling.bye(true);
+        wasPaused = true;
+        print("app in paused");
+        break;
+      case AppLifecycleState.detached:
+        print("app in detached");
+        break;
+    }
+  }
+
+  @override
   initState() {
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     initRenderers();
     interstitial = InterstitialAd(
       adUnitId: _interstitialId(),
       request: AdRequest(),
-      listener: AdListener(onAdClosed: (ad) {
-        _signaling.msgNew(ww.model, '$_h:$_w');
-        ad.load();
-      }),
+      listener: AdListener(
+          onAdClosed: (ad) {
+            _signaling.msgNew(ww.model, '$_h:$_w');
+            ad.load();
+          },
+          onAdFailedToLoad: (ad, err) => log(TAG, err.message + ', code=>${err.code}')),
     )..load();
   }
 
@@ -227,7 +250,10 @@ class _CallState extends State<Call> {
 
   _hangUp() async {
     _signaling.close();
-    if (Platform.isAndroid) SystemNavigator.pop();
+    if (Platform.isAndroid)
+      SystemNavigator.pop();
+    else
+      exit(0);
   }
 
   _muteMic() {
@@ -261,11 +287,13 @@ class _CallState extends State<Call> {
     log(TAG, 'check conn');
   }
 
-  _interstitialId() => Platform.isIOS || kDebugMode ? _testInterstitialId() : INTERSTITIAL_ID;
+  _interstitialId() => kDebugMode ? _testInterstitialId() : _interstitialAdId();
 
   _testInterstitialId() => Platform.isAndroid
       ? 'ca-app-pub-3940256099942544/1033173712'
       : 'ca-app-pub-3940256099942544/4411468910';
+
+  _interstitialAdId() => Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;
 }
 
 class MaintenanceWidget extends StatelessWidget {
@@ -324,7 +352,8 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       request: AdRequest(),
       listener: AdListener(
           onAdOpened: (_) => widget.signaling?.bye(true),
-          onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}')),
+          onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}'),
+          onAdFailedToLoad: (ad, err) => log(TAG, err.message + ', code=>${err.code}')),
     )..load();
     super.initState();
   }
@@ -354,9 +383,11 @@ class _WaitingWidgetState extends State<WaitingWidget> {
     super.deactivate();
   }
 
-  _bannerId() => Platform.isIOS || kDebugMode ? _bannerTestAdUnitId() : BANNER_ID;
+  _bannerId() => kDebugMode ? _bannerTestAdUnitId() : _bannerAdId();
 
   _bannerTestAdUnitId() => Platform.isAndroid
       ? 'ca-app-pub-3940256099942544/6300978111'
       : 'ca-app-pub-3940256099942544/2934735716';
+
+  _bannerAdId() => Platform.isAndroid ? ANDROID_BANNER_ID : IOS_BANNER_ID;
 }

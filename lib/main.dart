@@ -17,10 +17,7 @@ void main() async {
   var iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   var props = Map.fromIterable(iterable, key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   var s = props['server'];
-  await [
-    Permission.camera,
-    Permission.microphone,
-  ]
+  await [Permission.camera, Permission.microphone]
       .request()
       .then((statuses) => statuses.values.any((e) => !e.isGranted) ? exit(0) : runApp(new Call(ip: s)));
   // Future.wait([Permission.camera.status, Permission.microphone.status])
