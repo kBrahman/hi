@@ -12,10 +12,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hi/l10n/locale.dart';
-import 'package:hi/src/util/util.dart';
+import 'package:hi/signal/signaling.dart';
+import 'package:hi/util/util.dart';
+import 'package:package_info/package_info.dart';
 import 'package:wakelock/wakelock.dart';
-
-import 'signaling.dart';
 
 class Call extends StatefulWidget {
   final String? ip;
@@ -47,16 +47,17 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   };
 
   InterstitialAd? interstitial;
-
   double? _h;
   double? _w;
-  var wasPaused = false;
+  String? version;
 
   _CallState({@required this.serverIP}) {
+    PackageInfo.fromPlatform().then((value) => version = value.version);
     _signaling = Signaling(serverIP);
     _h = WidgetsBinding.instance?.window.physicalSize.height;
     _w = WidgetsBinding.instance?.window.physicalSize.width;
-    checkConn();
+    hiLog(TAG, "_CallState");
+    checkAndConnect();
     //int id ca-app-pub-8761730220693010/2067844692
   }
 
@@ -64,18 +65,18 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        if (wasPaused) _signaling.msgNew(ww.model, '$_h:$_w');
+        _signaling.isClosed() ? checkAndConnect() : _signaling.msgNew(ww.model, '$_h:$_w', version);
+        hiLog(TAG, "app in resumed");
         break;
       case AppLifecycleState.inactive:
-        print("app in inactive");
+        hiLog(TAG, "app in inactive");
         break;
       case AppLifecycleState.paused:
-        _signaling.bye(true);
-        wasPaused = true;
-        print("app in paused");
+        _signaling.close();
+        hiLog(TAG, "app in paused");
         break;
       case AppLifecycleState.detached:
-        print("app in detached");
+        hiLog(TAG, "app in detached");
         break;
     }
   }
@@ -90,10 +91,10 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
       request: AdRequest(),
       listener: AdListener(
           onAdClosed: (ad) {
-            _signaling.msgNew(ww.model, '$_h:$_w');
+            // _signaling.msgNew(ww.model, '$_h:$_w');
             ad.load();
           },
-          onAdFailedToLoad: (ad, err) => log(TAG, err.message + ', code=>${err.code}')),
+          onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),
     )..load();
   }
 
@@ -114,63 +115,56 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: WillPopScope(
-        onWillPop: () {
-          log(TAG, "will pop");
-          _signaling.close();
-          return Future.value(true);
-        },
-        child: Scaffold(
-          appBar: _inCalling
-              ? null
-              : AppBar(
-                  title: Text('hi'),
-                ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-          floatingActionButton: _inCalling
-              ? SizedBox(
-                  width: 250.0,
-                  child: new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    FloatingActionButton(
-                      child: const Icon(Icons.switch_camera),
-                      onPressed: () {
-                        _signaling.switchCamera();
-                      },
-                    ),
-                    FloatingActionButton(
-                      onPressed: _hangUp,
-                      tooltip: 'Hangup',
-                      child: new Icon(Icons.call_end),
-                    ),
-                    FloatingActionButton(
-                      child: micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
-                      onPressed: _muteMic,
-                    ),
-                    FloatingActionButton(
-                      child: const Icon(Icons.skip_next),
-                      onPressed: () => _signaling.bye(++nextPressCount == adTrigger),
-                    )
-                  ]))
-              : null,
-          body: _inCalling
-              ? OrientationBuilder(builder: (context, orientation) {
-                  return Stack(children: <Widget>[
-                    RTCVideoView(_remoteRenderer),
-                    Positioned(
-                      left: 20.0,
-                      top: 10.0,
-                      width: 90,
-                      height: 120,
-                      child: RTCVideoView(_localRenderer),
-                    ),
-                  ]);
-                })
-              : _connOk && !_maintaining
-                  ? ww
-                  : !_connOk
-                      ? NoInternetWidget(checkConn)
-                      : MaintenanceWidget(),
-        ),
+      home: Scaffold(
+        appBar: _inCalling
+            ? null
+            : AppBar(
+                title: Text('hi'),
+              ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: _inCalling
+            ? SizedBox(
+                width: 250.0,
+                child: new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                  FloatingActionButton(
+                    child: const Icon(Icons.switch_camera),
+                    onPressed: () {
+                      _signaling.switchCamera();
+                    },
+                  ),
+                  FloatingActionButton(
+                    onPressed: _hangUp,
+                    tooltip: 'Hangup',
+                    child: new Icon(Icons.call_end),
+                  ),
+                  FloatingActionButton(
+                    child: micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
+                    onPressed: _muteMic,
+                  ),
+                  FloatingActionButton(
+                    child: const Icon(Icons.skip_next),
+                    onPressed: () => _signaling.bye(++nextPressCount == adTrigger),
+                  )
+                ]))
+            : null,
+        body: _inCalling
+            ? OrientationBuilder(builder: (context, orientation) {
+                return Stack(children: <Widget>[
+                  RTCVideoView(_remoteRenderer),
+                  Positioned(
+                    left: 20.0,
+                    top: 10.0,
+                    width: 90,
+                    height: 120,
+                    child: RTCVideoView(_localRenderer),
+                  ),
+                ]);
+              })
+            : _connOk && !_maintaining
+                ? ww
+                : !_connOk
+                    ? NoInternetWidget(checkAndConnect)
+                    : MaintenanceWidget(),
       ),
     );
   }
@@ -179,11 +173,10 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     if (nextPressCount == adTrigger) {
       nextPressCount = 0;
       adTrigger *= 2;
-      interstitial
-          ?.isLoaded()
-          .then((isLoaded) => isLoaded ? interstitial?.show() : _signaling.msgNew(ww.model, '$_h:$_w'));
+      interstitial?.isLoaded().then((isLoaded) =>
+          isLoaded ? interstitial?.show() : _signaling.msgNew(ww.model, '$_h:$_w', version));
     } else {
-      _signaling.msgNew(ww.model, '$_h:$_w');
+      _signaling.msgNew(ww.model, '$_h:$_w', version);
     }
   }
 
@@ -197,12 +190,13 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _signaling.close();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
+    hiLog(TAG, 'deactivate');
     super.deactivate();
   }
 
   void _connect(String? model, String localMC) async {
-    log(TAG, "conn");
-    _signaling.connect(model, localMC);
+    hiLog(TAG, "conn");
+    _signaling.connect(model, localMC, version);
 
     _signaling.onStateChange = (SignalingState state) {
       switch (state) {
@@ -263,7 +257,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _signaling.mute(micMuted);
   }
 
-  Future<void> checkConn() async {
+  Future<void> checkAndConnect() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     setState(() {
@@ -284,7 +278,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         ww.signaling = _signaling;
         ww.model = v.model;
       });
-    log(TAG, 'check conn');
+    hiLog(TAG, 'check conn');
   }
 
   _interstitialId() => kDebugMode ? _testInterstitialId() : _interstitialAdId();
@@ -342,6 +336,7 @@ class WaitingWidget extends StatefulWidget {
 
 class _WaitingWidgetState extends State<WaitingWidget> {
   static const TAG = '_WaitingWidgetState';
+  static const platform = const MethodChannel('hi_method_channel');
   late final BannerAd banner;
 
   @override
@@ -352,8 +347,8 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       request: AdRequest(),
       listener: AdListener(
           onAdOpened: (_) => widget.signaling?.bye(true),
-          onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}'),
-          onAdFailedToLoad: (ad, err) => log(TAG, err.message + ', code=>${err.code}')),
+          // onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}',widget.),
+          onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),
     )..load();
     super.initState();
   }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:camera/camera.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import '../util/util.dart';
@@ -35,7 +36,6 @@ class Signaling {
 
   String _selfId = randomNumeric(6);
   WebSocket? _socket;
-  var _sessionId;
   var _host;
   var _port = 4443;
   RTCPeerConnection? _peerConnection;
@@ -80,20 +80,23 @@ class Signaling {
     },
     'optional': [],
   };
-
   String? localMC;
+  var peerId;
 
   Signaling(this._host);
 
   close() {
+    bye(true);
     _localStream?.dispose();
     _localStream = null;
     _remoteStream?.dispose();
     _remoteStream = null;
     _peerConnection?.close();
-    if (_socket != null) _socket?.close();
+    _socket?.close();
     _socket = null;
   }
+
+  isClosed() => _socket == null;
 
   void switchCamera() {
     var videoTrack = _localStream?.getVideoTracks()[0];
@@ -102,7 +105,6 @@ class Signaling {
 
   void invite(peerId, String media, String remoteMC, useScreen) async {
     if (peerId == null) return;
-    this._sessionId = this._selfId + "-" + peerId;
     final pc = await _createPeerConnection(peerId, media, remoteMC, useScreen);
     _peerConnection = pc;
     if (media == 'data') {
@@ -113,7 +115,7 @@ class Signaling {
 
   void bye(bool isBusy) {
     _send('bye', <String, dynamic>{
-      'session_id': this._sessionId,
+      'to': peerId,
       'is_busy': isBusy,
     });
   }
@@ -125,27 +127,22 @@ class Signaling {
     switch (type) {
       case 'peer':
         {
-          log(TAG, 'on peer=>$data');
+          hiLog(TAG, 'on peer=>$data');
           invite(data['id'], 'video', data['mc'], false);
         }
         break;
       case 'offer':
         {
-          var id = data['from'];
+          peerId = data['from'];
           var description = data['description'];
           var media = data['media'];
-          var sessionId = data['session_id'];
-          this._sessionId = sessionId;
           final remoteMC = data['mc'];
-
           this.onStateChange?.call(SignalingState.CallStateNew);
-
-          var pc = await _createPeerConnection(id, media, remoteMC, false);
+          var pc = await _createPeerConnection(peerId, media, remoteMC, false);
           _peerConnection = pc;
           var sdp = description['sdp'];
-          print('sdp=>$sdp');
           await pc.setRemoteDescription(RTCSessionDescription(sdp, description['type']));
-          await _createAnswer(id, pc, media);
+          await _createAnswer(peerId, pc, media);
           if (this._remoteCandidates.length > 0) {
             _remoteCandidates.forEach((candidate) async {
               await pc.addCandidate(candidate);
@@ -155,14 +152,11 @@ class Signaling {
         }
         break;
       case 'answer':
-        log(TAG, 'answer');
         {
           var description = data['description'];
-          var pc = _peerConnection;
-          if (pc != null) {
-            await pc
-                .setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
-          }
+          peerId = data['from'];
+          await _peerConnection
+              ?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
         }
         this.onStateChange?.call(SignalingState.CallStateNew);
         break;
@@ -187,32 +181,25 @@ class Signaling {
           _peerConnection?.close();
           _dataChannels.remove(id);
           this.onStateChange?.call(SignalingState.CallStateBye);
-          this._sessionId = null;
         }
         break;
       case 'bye':
         {
-          var to = data['to'];
-          var sessionId = data['session_id'];
-
           _localStream?.dispose();
+          _remoteStream?.dispose();
+          _remoteStream = null;
           _localStream = null;
+          _peerConnection?.close();
 
-          var pc = _peerConnection;
-          if (pc != null) {
-            pc.close();
-          }
-
-          var dc = _dataChannels[to];
-          if (dc != null) {
-            dc.close();
-            _dataChannels.remove(to);
-          }
-
-          this._sessionId = null;
+          // var dc = _dataChannels[to];
+          // if (dc != null) {
+          // dc.close();
+          // _dataChannels.remove(to);
+          // }
           var onStateChangeIsNUll = this.onStateChange == null;
           if (!onStateChangeIsNUll) {
-            addOldPeerId(sessionId);
+            _oldPeerIds.add(peerId);
+            peerId = null;
             this.onStateChange?.call(SignalingState.CallStateBye);
           }
         }
@@ -225,14 +212,6 @@ class Signaling {
       default:
         break;
     }
-  }
-
-  void addOldPeerId(sessionId) {
-    if (sessionId == null) return;
-    var ids = sessionId.split('-');
-    var oldId = ids[1];
-    if (oldId == _selfId) oldId = ids[0];
-    _oldPeerIds.add(oldId);
   }
 
   Future<WebSocket> _connectForSelfSignedCert(String host, int port) async {
@@ -267,7 +246,7 @@ class Signaling {
     }
   }
 
-  void connect(String? model, String localMC) async {
+  void connect(String? model, String localMC, String? version) async {
     this.localMC = localMC;
     try {
       _socket = await _connectForSelfSignedCert(_host, _port);
@@ -280,21 +259,27 @@ class Signaling {
         this.onStateChange?.call(SignalingState.ConnectionClosed);
       });
 
-      msgNew(model, localMC);
+      msgNew(model, localMC, version);
     } catch (e) {
       var code = (e as SocketException).osError?.errorCode;
       this.onStateChange?.call(code == 101 ? SignalingState.NoInet : SignalingState.ConnectionError);
     }
   }
 
-  void msgNew(String? deviceInfo, String mediaConstraints) {
-    print('msgNew');
-    _send('new',
-        {'devInfo': deviceInfo, 'id': _selfId, 'mc': mediaConstraints, 'oldPeerIds': _oldPeerIds});
+  void msgNew(String? deviceInfo, String mediaConstraints, String? version) {
+    hiLog(TAG, 'msgNew');
+    _send('new', {
+      'd': deviceInfo,
+      'v': version,
+      'id': _selfId,
+      'mc': mediaConstraints,
+      'oldPeerIds': _oldPeerIds
+    });
   }
 
   Future<MediaStream> createStream(media, String? mc, userScreen) async {
-    log(TAG, 'mc=>$mc');
+    final cams = await availableCameras();
+    hiLog(TAG, 'mc=>$mc; num of cams=>${cams.length}');
     var remoteConstrains = {
       'audio': true,
       'video': mc == null
@@ -307,7 +292,7 @@ class Signaling {
                 'minHeight': mc.split(':').first.replaceAll(RegExp(r'\..+'), ''),
                 'minFrameRate': '20',
               },
-              'facingMode': 'user',
+              'facingMode': hasFrontCamera(cams) ? 'user' : 'environment'
               //   'optional': [],
             }
     };
@@ -331,8 +316,7 @@ class Signaling {
           'sdpMLineIndex': candidate.sdpMlineIndex,
           'sdpMid': candidate.sdpMid,
           'candidate': candidate.candidate,
-        },
-        'session_id': this._sessionId,
+        }
       });
     };
     pc.onIceConnectionState = (state) {};
@@ -340,7 +324,6 @@ class Signaling {
       print('onTrack=>${event.track.label}');
       if (event.track.kind == 'video' && event.streams.isNotEmpty) {
         var stream = event.streams[0];
-        print('New stream: ' + stream.id);
         this.onAddRemoteStream?.call(stream);
         _remoteStream = stream;
       }
@@ -374,11 +357,9 @@ class Signaling {
     try {
       RTCSessionDescription s = await pc.createOffer(media == 'data' ? _dcConstraints : _constraints);
       pc.setLocalDescription(s);
-      print('create offer mc=>$localMC');
       _send('offer', {
         'to': id,
         'description': {'sdp': s.sdp, 'type': s.type},
-        'session_id': this._sessionId,
         'media': media,
         'mc': localMC
       });
@@ -394,7 +375,6 @@ class Signaling {
       _send('answer', {
         'to': id,
         'description': {'sdp': s.sdp, 'type': s.type},
-        'session_id': this._sessionId,
       });
     } catch (e) {
       print(e.toString());
@@ -411,5 +391,13 @@ class Signaling {
     _remoteStream?.getAudioTracks().forEach((element) {
       element.enabled = !micMuted;
     });
+  }
+
+  bool hasFrontCamera(List<CameraDescription> cams) {
+    for (final cd in cams) {
+      hiLog(TAG, "cd=>$cd");
+      if (cd.lensDirection == CameraLensDirection.front) return true;
+    }
+    return false;
   }
 }

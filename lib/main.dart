@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'src/call/call.dart';
+import 'widget/call.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

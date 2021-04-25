@@ -32,4 +32,4 @@ String randomString(int length, {int from: ASCII_START, int to: ASCII_END}) {
 /// Generates a random string of [length] with only numeric characters.
 String randomNumeric(int length) => randomString(length, from: NUMERIC_START, to: NUMERIC_END);
 
-log(String tag, String msg) => print('$tag:$msg');
+hiLog(String tag, String msg) => print('$tag:$msg');
