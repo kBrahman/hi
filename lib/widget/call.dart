@@ -57,7 +57,6 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _h = WidgetsBinding.instance?.window.physicalSize.height;
     _w = WidgetsBinding.instance?.window.physicalSize.width;
     hiLog(TAG, "_CallState");
-    checkAndConnect();
     //int id ca-app-pub-8761730220693010/2067844692
   }
 
@@ -84,7 +83,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   @override
   initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    checkAndConnect();
     initRenderers();
     interstitial = InterstitialAd(
       adUnitId: _interstitialId(),
@@ -108,9 +107,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         AppLocalizations.delegate
       ],
       supportedLocales: LOCALES,
-      localeResolutionCallback: (locale, supportedLocales) => supportedLocales.firstWhere(
-          (element) => element.languageCode == locale?.languageCode,
-          orElse: () => supportedLocales.first),
+      localeResolutionCallback: (locale, supportedLocales) => supportedLocales
+          .firstWhere((element) => element.languageCode == locale?.languageCode, orElse: () => supportedLocales.first),
       theme: ThemeData(
         primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -173,8 +171,9 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     if (nextPressCount == adTrigger) {
       nextPressCount = 0;
       adTrigger *= 2;
-      interstitial?.isLoaded().then((isLoaded) =>
-          isLoaded ? interstitial?.show() : _signaling.msgNew(ww.model, '$_h:$_w', version));
+      interstitial
+          ?.isLoaded()
+          .then((isLoaded) => isLoaded ? interstitial?.show() : _signaling.msgNew(ww.model, '$_h:$_w', version));
     } else {
       _signaling.msgNew(ww.model, '$_h:$_w', version);
     }
@@ -261,8 +260,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     var connectivityResult = await (Connectivity().checkConnectivity());
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     setState(() {
-      _connOk = connectivityResult == ConnectivityResult.mobile ||
-          connectivityResult == ConnectivityResult.wifi;
+      _connOk = connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi;
     });
     if (Platform.isAndroid && _connOk)
       deviceInfo.androidInfo.then((v) {
@@ -271,21 +269,22 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         ww.model = v.model;
         ww.h = _h;
         ww.w = _w;
+        WidgetsBinding.instance?.addObserver(this);
       });
     else if (_connOk)
       deviceInfo.iosInfo.then((v) {
         _connect(v.model, '$_h:$_w');
         ww.signaling = _signaling;
         ww.model = v.model;
+        WidgetsBinding.instance?.addObserver(this);
       });
     hiLog(TAG, 'check conn');
   }
 
   _interstitialId() => kDebugMode ? _testInterstitialId() : _interstitialAdId();
 
-  _testInterstitialId() => Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/1033173712'
-      : 'ca-app-pub-3940256099942544/4411468910';
+  _testInterstitialId() =>
+      Platform.isAndroid ? 'ca-app-pub-3940256099942544/1033173712' : 'ca-app-pub-3940256099942544/4411468910';
 
   _interstitialAdId() => Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;
 }
@@ -295,8 +294,7 @@ class MaintenanceWidget extends StatelessWidget {
   Widget build(BuildContext context) => Center(
         child: Container(
           child: Text(
-            AppLocalizations.of(context)?.maintenance ??
-                'Maintenance works on server side, come later please',
+            AppLocalizations.of(context)?.maintenance ?? 'Maintenance works on server side, come later please',
           ),
           padding: EdgeInsets.only(left: 20, right: 10),
         ),
@@ -359,9 +357,7 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       child: new Column(
         children: <Widget>[
           Container(
-              child: AdWidget(ad: banner),
-              width: banner.size.width.toDouble(),
-              height: banner.size.height.toDouble()),
+              child: AdWidget(ad: banner), width: banner.size.width.toDouble(), height: banner.size.height.toDouble()),
           Padding(padding: EdgeInsets.only(top: 5)),
           CircularProgressIndicator(),
           Padding(padding: EdgeInsets.only(top: 10)),
@@ -380,9 +376,8 @@ class _WaitingWidgetState extends State<WaitingWidget> {
 
   _bannerId() => kDebugMode ? _bannerTestAdUnitId() : _bannerAdId();
 
-  _bannerTestAdUnitId() => Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/6300978111'
-      : 'ca-app-pub-3940256099942544/2934735716';
+  _bannerTestAdUnitId() =>
+      Platform.isAndroid ? 'ca-app-pub-3940256099942544/6300978111' : 'ca-app-pub-3940256099942544/2934735716';
 
   _bannerAdId() => Platform.isAndroid ? ANDROID_BANNER_ID : IOS_BANNER_ID;
 }
