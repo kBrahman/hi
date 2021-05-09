@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -13,18 +15,31 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
   Firebase.initializeApp();
+  FlutterError.onError = (error) => flutterErrorHandler(error);
+
   String data = await rootBundle.loadString('assets/local.properties');
   var iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   var props = Map.fromIterable(iterable, key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   var s = props['server'];
-  await [Permission.camera, Permission.microphone]
-      .request()
-      .then((statuses) => statuses.values.any((e) => !e.isGranted) ? exit(0) : runApp(new Call(ip: s)));
-  // Future.wait([Permission.camera.status, Permission.microphone.status])
-  //     .then((statuses) {
-  //   print('statuses=>$statuses');
-  //   runApp(StartWidget(s, statuses));
-  // });
+
+  await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
+      ? exit(0)
+      : runZonedGuarded<Future<void>>(
+          () async => runApp(new Call(ip: s)),
+          (error, stack) async {
+            debugPrint(error.toString());
+            // Whenever an error occurs, call the `reportCrash`
+            // to send Dart errors to Crashlytics
+            FirebaseCrashlytics.instance.recordError(error, stack);
+          },
+        ));
+}
+
+void flutterErrorHandler(FlutterErrorDetails details) {
+  FlutterError.dumpErrorToConsole(details);
+
+  // Report to the application zone to report to Crashlytics.
+  Zone.current.handleUncaughtError(details.exception, details.stack!);
 }
 
 // class StartWidget extends StatefulWidget {
