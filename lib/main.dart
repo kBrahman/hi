@@ -4,24 +4,36 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'util/util.dart';
 import 'widget/call.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
+  String s = 'Undefined';
+  var interstitialAd = InterstitialAd(
+      adUnitId: _interstitialId(), request: AdRequest(), listener: AdListener(onAdClosed: (ad) => start(s)))
+    ..load();
   Firebase.initializeApp();
   FlutterError.onError = (error) => flutterErrorHandler(error);
-
   String data = await rootBundle.loadString('assets/local.properties');
   var iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   var props = Map.fromIterable(iterable, key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
-  var s = props['server'];
+  s = props['server'];
+  if (await interstitialAd.isLoaded())
+    interstitialAd.show();
+  else
+    Future.delayed(
+        Duration(seconds: 7), () async => {if (await interstitialAd.isLoaded()) interstitialAd.show() else start(s)});
+}
 
+start(s) async {
   await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
       ? exit(0)
       : runZonedGuarded<Future<void>>(
@@ -37,125 +49,12 @@ void main() async {
 
 void flutterErrorHandler(FlutterErrorDetails details) {
   FlutterError.dumpErrorToConsole(details);
-
-  // Report to the application zone to report to Crashlytics.
   Zone.current.handleUncaughtError(details.exception, details.stack!);
 }
 
-// class StartWidget extends StatefulWidget {
-//   final ip;
-//
-//   final List<PermissionStatus> statuses;
-//
-//   StartWidget(this.ip, this.statuses);
-//
-//   @override
-//   State<StatefulWidget> createState() => StartState();
-// }
+_interstitialId() => kDebugMode ? _testInterstitialId() : _interstitialAdId();
 
-// class StartState extends State<StartWidget> {
-//   var uiState;
-//   List<String> restricted;
-//
-//   @override
-//   void initState() {
-//     if (widget.statuses.every((element) => element.isUndetermined)) {
-//       uiState = PermissionStatus.undetermined;
-//     } else if (widget.statuses.every((element) => element.isGranted)) {
-//       uiState = PermissionStatus.granted;
-//     } else if (widget.statuses
-//         .any((element) => element.isDenied || element.isPermanentlyDenied)) {
-//       uiState = PermissionStatus.denied;
-//       // restricted =
-//     }
-//     super.initState();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) => MaterialApp(
-//         localizationsDelegates: [
-//           GlobalMaterialLocalizations.delegate,
-//           GlobalWidgetsLocalizations.delegate,
-//           GlobalCupertinoLocalizations.delegate,
-//           AppLocalizations.delegate
-//         ],
-//         supportedLocales: [
-//           const Locale('en', ''),
-//           const Locale('hi', ''),
-//         ],
-//         theme: ThemeData(
-//           primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
-//           visualDensity: VisualDensity.adaptivePlatformDensity,
-//         ),
-//         home: Scaffold(
-//           appBar: AppBar(
-//             title: Text('hi'),
-//           ),
-//           body: Padding(
-//             padding: EdgeInsets.all(4),
-//             child: uiState == PermissionStatus.undetermined
-//                 ? Column(
-//                     children: [
-//                       Text(
-//                         'The core functionality of this app is based on video and audio streaming. For this reason it needs your explicit permission to use '
-//                         'Camera and Microphone',
-//                         style: TextStyle(fontSize: 30),
-//                       ),
-//                       Spacer(),
-//                       Padding(
-//                         padding: EdgeInsets.only(bottom: 8),
-//                         child: TextButton(
-//                           onPressed: () {
-//                             [Permission.camera, Permission.microphone]
-//                                 .request()
-//                                 .then((statuses) => setState(() {
-//                                       // granted = !statuses.values.any((e) => !e.isGranted);
-//                                     }));
-//                           },
-//                           child: Text(
-//                             'OK',
-//                             style: TextStyle(color: Colors.white),
-//                           ),
-//                           style: ButtonStyle(
-//                               backgroundColor: MaterialStateProperty.all(
-//                                   Color.fromRGBO(211, 10, 75, 1))),
-//                         ),
-//                       )
-//                     ],
-//                   )
-//                 : uiState == PermissionStatus.granted
-//                     ? Call(ip: widget.ip)
-//                     : Column(
-//                         children: [
-//                           Text(
-//                             'It looks like you have denied' + getStatus(),
-//                             style: TextStyle(fontSize: 30),
-//                           ),
-//                           Spacer(),
-//                           Padding(
-//                             padding: EdgeInsets.only(bottom: 8),
-//                             child: TextButton(
-//                               onPressed: () {
-//                                 [Permission.camera, Permission.microphone]
-//                                     .request()
-//                                     .then((statuses) => setState(() {
-//                                           // granted = !statuses.values.any((e) => !e.isGranted);
-//                                         }));
-//                               },
-//                               child: Text(
-//                                 'OK',
-//                                 style: TextStyle(color: Colors.white),
-//                               ),
-//                               style: ButtonStyle(
-//                                   backgroundColor: MaterialStateProperty.all(
-//                                       Color.fromRGBO(211, 10, 75, 1))),
-//                             ),
-//                           )
-//                         ],
-//                       ),
-//           ),
-//         ),
-//       );
-//
-//   String getStatus() {}
-// }
+_testInterstitialId() =>
+    Platform.isAndroid ? 'ca-app-pub-3940256099942544/1033173712' : 'ca-app-pub-3940256099942544/4411468910';
+
+_interstitialAdId() => Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;

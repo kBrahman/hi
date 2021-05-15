@@ -27,51 +27,48 @@ class Call extends StatefulWidget {
 }
 
 class _CallState extends State<Call> with WidgetsBindingObserver {
-  static const TAG = '_CallState';
+  static const TAG = 'Hi_CallState';
   late Signaling _signaling;
   RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
-  bool _inCalling = false;
   bool micMuted = false;
 
   final String? serverIP;
   bool _connOk = true;
   bool _maintaining = false;
-  final ww = WaitingWidget();
+  final waitingWidget = WaitingWidget();
 
-  var adTrigger = 1;
-  var nextPressCount = 0;
+  // var adTrigger = 1;
+  // var nextPressCount = 0;
   var colorCodes = {
     50: Color.fromRGBO(211, 10, 75, .1),
     for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
   };
 
-  InterstitialAd? interstitial;
+  // InterstitialAd? interstitial;
   double? _h;
   double? _w;
   String? version;
 
-  _CallState({@required this.serverIP}) {
-    PackageInfo.fromPlatform().then((value) => version = value.version);
-    _signaling = Signaling(serverIP);
-    _h = WidgetsBinding.instance?.window.physicalSize.height;
-    _w = WidgetsBinding.instance?.window.physicalSize.width;
-    hiLog(TAG, "_CallState");
-    //int id ca-app-pub-8761730220693010/2067844692
-  }
+  var inCall = false;
+
+  _CallState({@required this.serverIP});
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _signaling.isClosed() ? checkAndConnect() : _signaling.msgNew(ww.model, '$_h:$_w', version);
+        _signaling.isClosed() ? checkAndConnect() : _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
         hiLog(TAG, "app in resumed");
         break;
       case AppLifecycleState.inactive:
         hiLog(TAG, "app in inactive");
         break;
       case AppLifecycleState.paused:
+        _signaling.bye(true);
         _signaling.close();
+        _localRenderer.srcObject = null;
+        _remoteRenderer.srcObject = null;
         hiLog(TAG, "app in paused");
         break;
       case AppLifecycleState.detached:
@@ -83,18 +80,23 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   @override
   initState() {
     super.initState();
+    PackageInfo.fromPlatform().then((value) => version = value.version);
+    _signaling = Signaling(serverIP);
+    _h = WidgetsBinding.instance?.window.physicalSize.height;
+    _w = WidgetsBinding.instance?.window.physicalSize.width;
     checkAndConnect();
     initRenderers();
-    interstitial = InterstitialAd(
-      adUnitId: _interstitialId(),
-      request: AdRequest(),
-      listener: AdListener(
-          onAdClosed: (ad) {
-            // _signaling.msgNew(ww.model, '$_h:$_w');
-            ad.load();
-          },
-          onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),
-    )..load();
+    // interstitial = InterstitialAd(
+    //   adUnitId: _interstitialId(),
+    //   request: AdRequest(),
+    //   listener: AdListener(
+    //       onAdClosed: (ad) {
+    //         // _signaling.msgNew(ww.model, '$_h:$_w');
+    //         ad.load();
+    //       },
+    //       onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),
+    // )..load();
+    hiLog(TAG, 'init state');
   }
 
   @override
@@ -114,13 +116,13 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(
-        appBar: _inCalling
+        appBar: inCall
             ? null
             : AppBar(
                 title: Text('hi'),
               ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: _inCalling
+        floatingActionButton: inCall
             ? SizedBox(
                 width: 250.0,
                 child: new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
@@ -140,12 +142,16 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                     onPressed: _muteMic,
                   ),
                   FloatingActionButton(
-                    child: const Icon(Icons.skip_next),
-                    onPressed: () => _signaling.bye(++nextPressCount == adTrigger),
-                  )
+                      child: const Icon(Icons.skip_next),
+                      onPressed: () {
+                        // _signaling.bye(++nextPressCount == adTrigger);
+                        _signaling.bye(false);
+                        onNext();
+                        setState(() => inCall = false);
+                      })
                 ]))
             : null,
-        body: _inCalling
+        body: inCall
             ? OrientationBuilder(builder: (context, orientation) {
                 return Stack(children: <Widget>[
                   RTCVideoView(_remoteRenderer),
@@ -159,7 +165,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                 ]);
               })
             : _connOk && !_maintaining
-                ? ww
+                ? waitingWidget
                 : !_connOk
                     ? NoInternetWidget(checkAndConnect)
                     : MaintenanceWidget(),
@@ -168,15 +174,16 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   }
 
   onNext() {
-    if (nextPressCount == adTrigger) {
-      nextPressCount = 0;
-      adTrigger *= 2;
-      interstitial
-          ?.isLoaded()
-          .then((isLoaded) => isLoaded ? interstitial?.show() : _signaling.msgNew(ww.model, '$_h:$_w', version));
-    } else {
-      _signaling.msgNew(ww.model, '$_h:$_w', version);
-    }
+    hiLog(TAG, 'on next');
+    _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
+    // if (nextPressCount == adTrigger) {
+    //   nextPressCount = 0;
+    //   adTrigger *= 2;
+    //   interstitial?.isLoaded().then(
+    //       (isLoaded) => isLoaded ? interstitial?.show() : _signaling.msgNew(waitingWidget.model, '$_h:$_w', version));
+    // } else {
+    //   _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
+    // }
   }
 
   initRenderers() async {
@@ -194,27 +201,18 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   }
 
   void _connect(String? model, String localMC) async {
-    hiLog(TAG, "conn");
+    hiLog(TAG, "connect");
     _signaling.connect(model, localMC, version);
 
     _signaling.onStateChange = (SignalingState state) {
       switch (state) {
-        case SignalingState.CallStateNew:
-          this.setState(() {
-            _inCalling = true;
-          });
-          break;
         case SignalingState.CallStateBye:
-          this.setState(() {
-            _localRenderer.srcObject = null;
-            _remoteRenderer.srcObject = null;
-            _inCalling = false;
-          });
           onNext();
+          setState(() => inCall = false);
           break;
-        case SignalingState.CallStateInvite:
-        case SignalingState.CallStateConnected:
-        case SignalingState.CallStateRinging:
+        case SignalingState.CallStateInCall:
+          setState(() => inCall = true);
+          break;
         case SignalingState.ConnectionClosed:
           break;
         case SignalingState.ConnectionError:
@@ -229,20 +227,22 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     };
 
     _signaling.onLocalStream = ((stream) {
-      setState(() {
-        _localRenderer.srcObject = stream;
-      });
+      _localRenderer.srcObject = stream;
+      hiLog(TAG, 'onLocalStream');
     });
 
-    _signaling.onAddRemoteStream = ((stream) => setState(() => _remoteRenderer.srcObject = stream));
+    _signaling.onAddRemoteStream = ((stream) {
+      _remoteRenderer.srcObject = stream;
+      hiLog(TAG, 'onAddRemoteStream');
+    });
 
     _signaling.onRemoveRemoteStream = ((stream) {
       _remoteRenderer.srcObject = null;
+      hiLog(TAG, 'onRemoveRemoteStream');
     });
   }
 
   _hangUp() async {
-    _signaling.close();
     if (Platform.isAndroid)
       SystemNavigator.pop();
     else
@@ -264,29 +264,23 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     });
     if (Platform.isAndroid && _connOk)
       deviceInfo.androidInfo.then((v) {
+        hiLog(TAG, 'android info then');
         _connect(v.model, '$_h:$_w');
-        ww.signaling = _signaling;
-        ww.model = v.model;
-        ww.h = _h;
-        ww.w = _w;
+        waitingWidget.signaling = _signaling;
+        waitingWidget.model = v.model;
+        waitingWidget.h = _h;
+        waitingWidget.w = _w;
         WidgetsBinding.instance?.addObserver(this);
       });
     else if (_connOk)
       deviceInfo.iosInfo.then((v) {
         _connect(v.model, '$_h:$_w');
-        ww.signaling = _signaling;
-        ww.model = v.model;
+        waitingWidget.signaling = _signaling;
+        waitingWidget.model = v.model;
         WidgetsBinding.instance?.addObserver(this);
       });
-    hiLog(TAG, 'check conn');
+    hiLog(TAG, 'check connection');
   }
-
-  _interstitialId() => kDebugMode ? _testInterstitialId() : _interstitialAdId();
-
-  _testInterstitialId() =>
-      Platform.isAndroid ? 'ca-app-pub-3940256099942544/1033173712' : 'ca-app-pub-3940256099942544/4411468910';
-
-  _interstitialAdId() => Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;
 }
 
 class MaintenanceWidget extends StatelessWidget {
@@ -333,8 +327,7 @@ class WaitingWidget extends StatefulWidget {
 }
 
 class _WaitingWidgetState extends State<WaitingWidget> {
-  static const TAG = '_WaitingWidgetState';
-  static const platform = const MethodChannel('hi_method_channel');
+  static const TAG = 'Hi_WaitingWidgetState';
   late final BannerAd banner;
 
   @override
