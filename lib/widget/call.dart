@@ -51,6 +51,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   String? version;
 
   var inCall = false;
+  var connecting = false;
 
   _CallState({@required this.serverIP});
 
@@ -58,7 +59,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _signaling.isClosed() ? checkAndConnect() : _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
+        if (!connecting)
+          _signaling.isClosed() ? checkAndConnect() : _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
         hiLog(TAG, "app in resumed");
         break;
       case AppLifecycleState.inactive:
@@ -86,16 +88,6 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _w = WidgetsBinding.instance?.window.physicalSize.width;
     checkAndConnect();
     initRenderers();
-    // interstitial = InterstitialAd(
-    //   adUnitId: _interstitialId(),
-    //   request: AdRequest(),
-    //   listener: AdListener(
-    //       onAdClosed: (ad) {
-    //         // _signaling.msgNew(ww.model, '$_h:$_w');
-    //         ad.load();
-    //       },
-    //       onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),
-    // )..load();
     hiLog(TAG, 'init state');
   }
 
@@ -176,14 +168,6 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   onNext() {
     hiLog(TAG, 'on next');
     _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
-    // if (nextPressCount == adTrigger) {
-    //   nextPressCount = 0;
-    //   adTrigger *= 2;
-    //   interstitial?.isLoaded().then(
-    //       (isLoaded) => isLoaded ? interstitial?.show() : _signaling.msgNew(waitingWidget.model, '$_h:$_w', version));
-    // } else {
-    //   _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
-    // }
   }
 
   initRenderers() async {
@@ -202,6 +186,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
 
   void _connect(String? model, String localMC) async {
     hiLog(TAG, "connect");
+    connecting = true;
     _signaling.connect(model, localMC, version);
 
     _signaling.onStateChange = (SignalingState state) {
@@ -221,6 +206,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
           });
           break;
         case SignalingState.ConnectionOpen:
+          hiLog(TAG, 'ConnectionOpen');
+          connecting = false;
           Wakelock.enable();
           break;
       }

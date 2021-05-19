@@ -17,8 +17,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
   String s = 'Undefined';
-  var interstitialAd = InterstitialAd(
-      adUnitId: _interstitialId(), request: AdRequest(), listener: AdListener(onAdClosed: (ad) => start(s)))
+  InterstitialAd? interstitialAd;
+  interstitialAd = InterstitialAd(
+      adUnitId: _interstitialId(),
+      request: AdRequest(),
+      listener: AdListener(
+          onAdClosed: (ad) => start(s),
+          onAdFailedToLoad: (ad, err) => start(s),
+          onAdLoaded: (ad) {
+            interstitialAd?.show();
+            interstitialAd = null;
+          }))
     ..load();
   Firebase.initializeApp();
   FlutterError.onError = (error) => flutterErrorHandler(error);
@@ -26,22 +35,22 @@ void main() async {
   var iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   var props = Map.fromIterable(iterable, key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   s = props['server'];
-  if (await interstitialAd.isLoaded())
-    interstitialAd.show();
-  else
-    Future.delayed(
-        Duration(seconds: 7), () async => {if (await interstitialAd.isLoaded()) interstitialAd.show() else start(s)});
+  Future.delayed(Duration(seconds: 6), () {
+    if (interstitialAd != null) {
+      interstitialAd = null;
+      start(s);
+    }
+  });
 }
 
 start(s) async {
+  hiLog('Main', 'start');
   await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
       ? exit(0)
       : runZonedGuarded<Future<void>>(
           () async => runApp(new Call(ip: s)),
           (error, stack) async {
             debugPrint(error.toString());
-            // Whenever an error occurs, call the `reportCrash`
-            // to send Dart errors to Crashlytics
             FirebaseCrashlytics.instance.recordError(error, stack);
           },
         ));

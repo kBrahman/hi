@@ -178,12 +178,11 @@ class Signaling {
           // dc.close();
           // _dataChannels.remove(to);
           // }
-          var onStateChangeIsNUll = this.onStateChange == null;
-          if (!onStateChangeIsNUll) {
+          if (peerId != null) {
             _oldPeerIds.add(peerId);
             peerId = null;
-            this.onStateChange?.call(SignalingState.CallStateBye);
           }
+          this.onStateChange?.call(SignalingState.CallStateBye);
         }
         break;
       case 'keepalive':
@@ -275,7 +274,6 @@ class Signaling {
     MediaStream stream = userScreen
         ? await navigator.mediaDevices.getDisplayMedia(remoteConstrains)
         : await navigator.mediaDevices.getUserMedia(remoteConstrains);
-    hiLog(TAG, '_localStream=>$stream');
     return stream;
   }
 
