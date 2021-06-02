@@ -112,8 +112,10 @@ class Signaling {
       'to': peerId,
       'is_busy': isBusy,
     });
-    _oldPeerIds.add(peerId);
-    peerId = null;
+    if (peerId != null) {
+      _oldPeerIds.add(peerId);
+      peerId = null;
+    }
   }
 
   void onMessage(message) async {
