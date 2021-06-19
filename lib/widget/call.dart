@@ -38,8 +38,6 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   bool _maintaining = false;
   final waitingWidget = WaitingWidget();
 
-  // var adTrigger = 1;
-  // var nextPressCount = 0;
   var colorCodes = {
     50: Color.fromRGBO(211, 10, 75, .1),
     for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
@@ -136,9 +134,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                   FloatingActionButton(
                       child: const Icon(Icons.skip_next),
                       onPressed: () {
-                        // _signaling.bye(++nextPressCount == adTrigger);
                         _signaling.bye(false);
-                        onNext();
+                        next();
                         setState(() => inCall = false);
                       })
                 ]))
@@ -165,8 +162,12 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     );
   }
 
-  onNext() {
+  next() {
     hiLog(TAG, 'on next');
+    _remoteRenderer.srcObject = null;
+    _remoteRenderer.dispose();
+    _remoteRenderer = RTCVideoRenderer();
+    _remoteRenderer.initialize();
     _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
   }
 
@@ -180,19 +181,17 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _signaling.close();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
-    hiLog(TAG, 'deactivate');
     super.deactivate();
   }
 
   void _connect(String? model, String localMC) async {
-    hiLog(TAG, "connect");
     connecting = true;
     _signaling.connect(model, localMC, version);
 
     _signaling.onStateChange = (SignalingState state) {
       switch (state) {
         case SignalingState.CallStateBye:
-          onNext();
+          next();
           setState(() => inCall = false);
           break;
         case SignalingState.CallStateInCall:
@@ -251,7 +250,6 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     });
     if (Platform.isAndroid && _connOk)
       deviceInfo.androidInfo.then((v) {
-        hiLog(TAG, 'android info then');
         _connect(v.model, '$_h:$_w');
         waitingWidget.signaling = _signaling;
         waitingWidget.model = v.model;
@@ -266,7 +264,6 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         waitingWidget.model = v.model;
         WidgetsBinding.instance?.addObserver(this);
       });
-    hiLog(TAG, 'check connection');
   }
 }
 

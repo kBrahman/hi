@@ -43,18 +43,17 @@ void main() async {
   });
 }
 
-start(s) async {
-  hiLog('Main', 'start');
-  await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
-      ? exit(0)
-      : runZonedGuarded<Future<void>>(
-          () async => runApp(new Call(ip: s)),
-          (error, stack) async {
-            debugPrint(error.toString());
-            FirebaseCrashlytics.instance.recordError(error, stack);
-          },
-        ));
-}
+start(s) async => await [Permission.camera, Permission.microphone]
+    .request()
+    .then((statuses) => statuses.values.any((e) => !e.isGranted)
+        ? exit(0)
+        : runZonedGuarded<Future<void>>(
+            () async => runApp(Call(ip: s)),
+            (error, stack) async {
+              debugPrint(error.toString());
+              FirebaseCrashlytics.instance.recordError(error, stack);
+            },
+          ));
 
 void flutterErrorHandler(FlutterErrorDetails details) {
   FlutterError.dumpErrorToConsole(details);

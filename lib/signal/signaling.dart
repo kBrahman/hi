@@ -125,7 +125,6 @@ class Signaling {
     switch (type) {
       case 'peer':
         {
-          hiLog(TAG, 'on peer=>$data');
           invite(data['id'], 'video', data['mc'], false);
         }
         break;
@@ -229,7 +228,6 @@ class Signaling {
   }
 
   void connect(String? model, String localMC, String? version) async {
-    hiLog(TAG, 'connect');
     this.localMC = localMC;
     try {
       _socket = await _connectForSelfSignedCert(_host, _port);
@@ -249,10 +247,8 @@ class Signaling {
     }
   }
 
-  void msgNew(String? deviceInfo, String mediaConstraints, String? version) {
-    hiLog(TAG, 'msgNew');
-    _send('new', {'d': deviceInfo, 'v': version, 'id': _selfId, 'mc': mediaConstraints, 'oldPeerIds': _oldPeerIds});
-  }
+  void msgNew(String? deviceInfo, String mediaConstraints, String? version) =>
+      _send('new', {'d': deviceInfo, 'v': version, 'id': _selfId, 'mc': mediaConstraints, 'oldPeerIds': _oldPeerIds});
 
   Future<MediaStream> createStream(media, String? mc, userScreen) async {
     final cams = await availableCameras();
