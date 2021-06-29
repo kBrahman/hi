@@ -40,7 +40,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
 
   var colorCodes = {
     50: Color.fromRGBO(211, 10, 75, .1),
-    for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
+    for (var i = 100; i < 1000; i += 100)
+      i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
   };
 
   // InterstitialAd? interstitial;
@@ -58,7 +59,9 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         if (!connecting)
-          _signaling.isClosed() ? checkAndConnect() : _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
+          _signaling.isClosed()
+              ? checkAndConnect()
+              : _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
         hiLog(TAG, "app in resumed");
         break;
       case AppLifecycleState.inactive:
@@ -100,7 +103,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
       ],
       supportedLocales: LOCALES,
       localeResolutionCallback: (locale, supportedLocales) => supportedLocales
-          .firstWhere((element) => element.languageCode == locale?.languageCode, orElse: () => supportedLocales.first),
+          .firstWhere((element) => element.languageCode == locale?.languageCode,
+              orElse: () => supportedLocales.first),
       theme: ThemeData(
         primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -115,30 +119,34 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         floatingActionButton: inCall
             ? SizedBox(
                 width: 250.0,
-                child: new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                  FloatingActionButton(
-                    child: const Icon(Icons.switch_camera),
-                    onPressed: () {
-                      _signaling.switchCamera();
-                    },
-                  ),
-                  FloatingActionButton(
-                    onPressed: _hangUp,
-                    tooltip: 'Hangup',
-                    child: new Icon(Icons.call_end),
-                  ),
-                  FloatingActionButton(
-                    child: micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
-                    onPressed: _muteMic,
-                  ),
-                  FloatingActionButton(
-                      child: const Icon(Icons.skip_next),
-                      onPressed: () {
-                        _signaling.bye(false);
-                        next();
-                        setState(() => inCall = false);
-                      })
-                ]))
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      FloatingActionButton(
+                        child: const Icon(Icons.switch_camera),
+                        onPressed: () {
+                          _signaling.switchCamera();
+                        },
+                      ),
+                      FloatingActionButton(
+                        onPressed: _hangUp,
+                        tooltip: 'Hangup',
+                        child: new Icon(Icons.call_end),
+                      ),
+                      FloatingActionButton(
+                        child: micMuted
+                            ? const Icon(Icons.mic_off)
+                            : const Icon(Icons.mic),
+                        onPressed: _muteMic,
+                      ),
+                      FloatingActionButton(
+                          child: const Icon(Icons.skip_next),
+                          onPressed: () {
+                            _signaling.bye(false);
+                            next();
+                            setState(() => inCall = false);
+                          })
+                    ]))
             : null,
         body: inCall
             ? OrientationBuilder(builder: (context, orientation) {
@@ -246,7 +254,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     var connectivityResult = await (Connectivity().checkConnectivity());
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     setState(() {
-      _connOk = connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi;
+      _connOk = connectivityResult == ConnectivityResult.mobile ||
+          connectivityResult == ConnectivityResult.wifi;
     });
     if (Platform.isAndroid && _connOk)
       deviceInfo.androidInfo.then((v) {
@@ -272,7 +281,8 @@ class MaintenanceWidget extends StatelessWidget {
   Widget build(BuildContext context) => Center(
         child: Container(
           child: Text(
-            AppLocalizations.of(context)?.maintenance ?? 'Maintenance works on server side, come later please',
+            AppLocalizations.of(context)?.maintenance ??
+                'Maintenance works on server side, come later please',
           ),
           padding: EdgeInsets.only(left: 20, right: 10),
         ),
@@ -323,27 +333,29 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       listener: AdListener(
           onAdOpened: (_) => widget.signaling?.bye(true),
           // onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}',widget.),
-          onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),
+          onAdFailedToLoad: (ad, err) =>
+              hiLog(TAG, err.message + ', code=>${err.code}')),
     )..load();
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return new Center(
-      child: new Column(
-        children: <Widget>[
-          Container(
-              child: AdWidget(ad: banner), width: banner.size.width.toDouble(), height: banner.size.height.toDouble()),
-          Padding(padding: EdgeInsets.only(top: 5)),
-          CircularProgressIndicator(),
-          Padding(padding: EdgeInsets.only(top: 10)),
-          Text(AppLocalizations.of(context)?.waiting ?? 'Waiting for someone'),
-        ],
-        mainAxisAlignment: MainAxisAlignment.center,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Center(
+        child: new Column(
+          children: <Widget>[
+            Container(
+                child: AdWidget(ad: banner),
+                width: banner.size.width.toDouble(),
+                height: banner.size.height.toDouble()),
+            Padding(padding: EdgeInsets.only(top: 5)),
+            CircularProgressIndicator(),
+            Padding(padding: EdgeInsets.only(top: 10)),
+            Text(
+                AppLocalizations.of(context)?.waiting ?? 'Waiting for someone'),
+          ],
+          mainAxisAlignment: MainAxisAlignment.center,
+        ),
+      );
 
   @override
   void deactivate() {
@@ -353,8 +365,9 @@ class _WaitingWidgetState extends State<WaitingWidget> {
 
   _bannerId() => kDebugMode ? _bannerTestAdUnitId() : _bannerAdId();
 
-  _bannerTestAdUnitId() =>
-      Platform.isAndroid ? 'ca-app-pub-3940256099942544/6300978111' : 'ca-app-pub-3940256099942544/2934735716';
+  _bannerTestAdUnitId() => Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/6300978111'
+      : 'ca-app-pub-3940256099942544/2934735716';
 
   _bannerAdId() => Platform.isAndroid ? ANDROID_BANNER_ID : IOS_BANNER_ID;
 }
