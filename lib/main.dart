@@ -3,7 +3,6 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,10 +29,12 @@ void main() async {
           }))
     ..load();
   Firebase.initializeApp();
-  FlutterError.onError = (error) => flutterErrorHandler(error);
   String data = await rootBundle.loadString('assets/local.properties');
-  var iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
-  var props = Map.fromIterable(iterable, key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
+  var iterable = data
+      .split('\n')
+      .where((element) => !element.startsWith('#') && element.isNotEmpty);
+  var props = Map.fromIterable(iterable,
+      key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   s = props['server'];
   Future.delayed(Duration(seconds: 6), () {
     if (interstitialAd != null) {
@@ -47,22 +48,13 @@ start(s) async => await [Permission.camera, Permission.microphone]
     .request()
     .then((statuses) => statuses.values.any((e) => !e.isGranted)
         ? exit(0)
-        : runZonedGuarded<Future<void>>(
-            () async => runApp(Call(ip: s)),
-            (error, stack) async {
-              debugPrint(error.toString());
-              FirebaseCrashlytics.instance.recordError(error, stack);
-            },
-          ));
-
-void flutterErrorHandler(FlutterErrorDetails details) {
-  FlutterError.dumpErrorToConsole(details);
-  Zone.current.handleUncaughtError(details.exception, details.stack!);
-}
+        : runApp(Call(ip: s)));
 
 _interstitialId() => kDebugMode ? _testInterstitialId() : _interstitialAdId();
 
-_testInterstitialId() =>
-    Platform.isAndroid ? 'ca-app-pub-3940256099942544/1033173712' : 'ca-app-pub-3940256099942544/4411468910';
+_testInterstitialId() => Platform.isAndroid
+    ? 'ca-app-pub-3940256099942544/1033173712'
+    : 'ca-app-pub-3940256099942544/4411468910';
 
-_interstitialAdId() => Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;
+_interstitialAdId() =>
+    Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;
