@@ -40,8 +40,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
 
   var colorCodes = {
     50: Color.fromRGBO(211, 10, 75, .1),
-    for (var i = 100; i < 1000; i += 100)
-      i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
+    for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
   };
 
   // InterstitialAd? interstitial;
@@ -102,9 +101,9 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         AppLocalizations.delegate
       ],
       supportedLocales: LOCALES,
-      localeResolutionCallback: (locale, supportedLocales) => supportedLocales
-          .firstWhere((element) => element.languageCode == locale?.languageCode,
-              orElse: () => supportedLocales.first),
+      localeResolutionCallback: (locale, supportedLocales) => supportedLocales.firstWhere(
+          (element) => element.languageCode == locale?.languageCode,
+          orElse: () => supportedLocales.first),
       theme: ThemeData(
         primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -134,9 +133,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                         child: new Icon(Icons.call_end),
                       ),
                       FloatingActionButton(
-                        child: micMuted
-                            ? const Icon(Icons.mic_off)
-                            : const Icon(Icons.mic),
+                        child:
+                            micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
                         onPressed: _muteMic,
                       ),
                       FloatingActionButton(
@@ -333,8 +331,7 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       listener: AdListener(
           onAdOpened: (_) => widget.signaling?.bye(true),
           // onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}',widget.),
-          onAdFailedToLoad: (ad, err) =>
-              hiLog(TAG, err.message + ', code=>${err.code}')),
+          onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),
     )..load();
     super.initState();
   }
@@ -350,8 +347,7 @@ class _WaitingWidgetState extends State<WaitingWidget> {
             Padding(padding: EdgeInsets.only(top: 5)),
             CircularProgressIndicator(),
             Padding(padding: EdgeInsets.only(top: 10)),
-            Text(
-                AppLocalizations.of(context)?.waiting ?? 'Waiting for someone'),
+            Text(AppLocalizations.of(context)?.waiting ?? 'Waiting for someone'),
           ],
           mainAxisAlignment: MainAxisAlignment.center,
         ),
