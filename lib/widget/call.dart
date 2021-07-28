@@ -294,17 +294,13 @@ class NoInternetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Column(
-          children: <Widget>[
-            Text(AppLocalizations.of(context)?.no_inet ?? 'No internet'),
-            ElevatedButton(
-              onPressed: checkConn,
-              child: Text(AppLocalizations.of(context)?.refresh ?? 'Refresh'),
-            )
-          ],
-          mainAxisAlignment: MainAxisAlignment.center,
-        ),
-      );
+          child: Column(children: <Widget>[
+        Text(AppLocalizations.of(context)?.no_inet ?? 'No internet'),
+        ElevatedButton(
+          onPressed: checkConn,
+          child: Text(AppLocalizations.of(context)?.refresh ?? 'Refresh'),
+        )
+      ], mainAxisAlignment: MainAxisAlignment.center));
 }
 
 class WaitingWidget extends StatefulWidget {
@@ -328,7 +324,7 @@ class _WaitingWidgetState extends State<WaitingWidget> {
       adUnitId: _bannerId(),
       size: AdSize.mediumRectangle,
       request: AdRequest(),
-      listener: AdListener(
+      listener: BannerAdListener(
           onAdOpened: (_) => widget.signaling?.bye(true),
           // onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}',widget.),
           onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),

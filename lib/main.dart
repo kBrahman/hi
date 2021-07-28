@@ -13,32 +13,40 @@ import 'util/util.dart';
 import 'widget/call.dart';
 
 void main() async {
+  const TAG = 'Main';
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
   String s = 'Undefined';
   InterstitialAd? interstitialAd;
-  interstitialAd = InterstitialAd(
+  var timedOut = false;
+  InterstitialAd.load(
       adUnitId: _interstitialId(),
       request: AdRequest(),
-      listener: AdListener(
-          onAdClosed: (ad) => start(s),
-          onAdFailedToLoad: (ad, err) => start(s),
-          onAdLoaded: (ad) {
-            interstitialAd?.show();
-            interstitialAd = null;
-          }))
-    ..load();
+      adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (InterstitialAd ad) {
+        if (timedOut) {
+          ad.dispose();
+          return;
+        }
+        interstitialAd = ad
+          ..fullScreenContentCallback = FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
+            start(s);
+            ad.dispose();
+          });
+        interstitialAd?.show();
+      }, onAdFailedToLoad: (LoadAdError error) {
+        hiLog(TAG, 'ad failed to load=>$error');
+        if(timedOut)return;
+        start(s);
+        timedOut=true;
+      }));
   Firebase.initializeApp();
   String data = await rootBundle.loadString('assets/local.properties');
-  var iterable = data
-      .split('\n')
-      .where((element) => !element.startsWith('#') && element.isNotEmpty);
-  var props = Map.fromIterable(iterable,
-      key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
+  var iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
+  var props = Map.fromIterable(iterable, key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   s = props['server'];
   Future.delayed(Duration(seconds: 6), () {
-    if (interstitialAd != null) {
-      interstitialAd = null;
+    if (interstitialAd == null && !timedOut) {
+      timedOut = true;
       start(s);
     }
   });
@@ -46,15 +54,11 @@ void main() async {
 
 start(s) async => await [Permission.camera, Permission.microphone]
     .request()
-    .then((statuses) => statuses.values.any((e) => !e.isGranted)
-        ? exit(0)
-        : runApp(Call(ip: s)));
+    .then((statuses) => statuses.values.any((e) => !e.isGranted) ? exit(0) : runApp(Call(ip: s)));
 
 _interstitialId() => kDebugMode ? _testInterstitialId() : _interstitialAdId();
 
-_testInterstitialId() => Platform.isAndroid
-    ? 'ca-app-pub-3940256099942544/1033173712'
-    : 'ca-app-pub-3940256099942544/4411468910';
+_testInterstitialId() =>
+    Platform.isAndroid ? 'ca-app-pub-3940256099942544/1033173712' : 'ca-app-pub-3940256099942544/4411468910';
 
-_interstitialAdId() =>
-    Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;
+_interstitialAdId() => Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;
