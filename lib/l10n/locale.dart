@@ -26,5 +26,6 @@ const LOCALES = [
   const Locale('et', ''),
   const Locale('el', ''),
   const Locale('ky', ''),
-  const Locale('ja', '')
+  const Locale('ja', ''),
+  const Locale('ro', '')
 ];
