@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:camera/camera.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:dev_tok_rtc/dev_tok_rtc.dart';
 
 import '../util/util.dart';
 

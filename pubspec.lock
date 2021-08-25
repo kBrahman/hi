@@ -35,7 +35,7 @@ packages:
       name: camera
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.1+7"
+    version: "0.9.0"
   camera_platform_interface:
     dependency: transitive
     description:
@@ -120,6 +120,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  dev_tok_rtc:
+    dependency: "direct main"
+    description:
+      path: "../../local_plugins/dev_tok_rtc"
+      relative: true
+    source: path
+    version: "1.0.0+0"
   device_info:
     dependency: "direct main"
     description:
@@ -156,7 +163,7 @@ packages:
     source: hosted
     version: "6.1.1"
   firebase_core:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: firebase_core
       url: "https://pub.dartlang.org"
@@ -207,6 +214,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -217,13 +231,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_webrtc:
-    dependency: "direct main"
-    description:
-      path: "../../local_plugins/flutter-webrtc"
-      relative: true
-    source: path
-    version: "0.6.5"
   google_mobile_ads:
     dependency: "direct main"
     description:
