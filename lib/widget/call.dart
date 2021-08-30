@@ -211,7 +211,6 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
           });
           break;
         case SignalingState.ConnectionOpen:
-          hiLog(TAG, 'ConnectionOpen');
           connecting = false;
           Wakelock.enable();
           break;

@@ -1,9 +1,6 @@
 {
   "waiting": "Waiting for someone...",
   "maintenance": "Maintenance works on server side, come later please",
-  "@maintenance": {},
   "no_inet": "No internet access",
-  "@no_inet": {},
-  "refresh": "Refresh",
-  "@refresh": {}
+  "refresh": "Refresh"
 }
