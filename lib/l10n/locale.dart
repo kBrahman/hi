@@ -28,5 +28,6 @@ const LOCALES = [
   const Locale('ky', ''),
   const Locale('ja', ''),
   const Locale('ro', ''),
-  const Locale('pa', '')
+  const Locale('pa', ''),
+  const Locale('hu', '')
 ];

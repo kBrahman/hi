@@ -3,13 +3,13 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
-import 'package:dev_tok_rtc/dev_tok_rtc.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hi/l10n/locale.dart';
 import 'package:hi/signal/signaling.dart';
