@@ -1,0 +1,6 @@
+{
+  "waiting": "Esperando a alguien...",
+  "maintenance": "El mantenimiento funciona en el lado del servidor, ven más tarde por favor",
+  "no_inet": "Sin acceso a Internet",
+  "refresh": "Actualizar"
+}
