@@ -230,7 +230,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.7"
+    version: "0.6.10+hotfix.1"
   google_mobile_ads:
     dependency: "direct main"
     description:

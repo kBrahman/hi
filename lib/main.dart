@@ -44,7 +44,7 @@ void main() async {
   var iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   var props = Map.fromIterable(iterable, key: (v) => v.split('=')[0], value: (v) => v.split('=')[1]);
   s = props['server'];
-  Future.delayed(Duration(seconds: 6), () {
+  Future.delayed(Duration(seconds: 7), () {
     if (interstitialAd == null && !timedOut) {
       timedOut = true;
       start(s);
