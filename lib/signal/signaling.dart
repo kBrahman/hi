@@ -31,12 +31,12 @@ class Signaling {
 
   final _oldPeerIds = [];
 
-  String _selfId = randomNumeric(6);
+  final String _selfId = randomNumeric(6);
   WebSocket? _socket;
   var _host;
-  var _port = 4443;
+  final _port = 4443;
   RTCPeerConnection? _peerConnection;
-  var _dataChannels = new Map<String, RTCDataChannel?>();
+  final _dataChannels = <String, RTCDataChannel?>{};
 
   MediaStream? _localStream;
   MediaStream? _remoteStream;
@@ -45,17 +45,7 @@ class Signaling {
   StreamStateCallback? onAddRemoteStream;
   StreamStateCallback? onRemoveRemoteStream;
   DataChannelMessageCallback? onDataChannelMessage;
-  DataChannelCallback? onDataChannel;
-
-  Map<String, dynamic> _iceServers = {
-    'iceServers': [
-      {'url': 'stun:stun.l.google.com:19302'},
-      {'url': 'stun:stun1.l.google.com:19302'},
-      {'url': 'stun:stun2.l.google.com:19302'},
-      {'url': 'stun:stun.ekiga.net'}
-    ],
-    'sdpSemantics': 'unified-plan'
-  };
+  DataChannelCallback? _onDataChannel;
 
   final Map<String, dynamic> _config = {
     'mandatory': {},
@@ -78,9 +68,12 @@ class Signaling {
     'optional': [],
   };
   String? localMC;
-  var peerId;
+  String? peerId;
+  final String turnServer;
+  final String turnUname;
+  final String turnPass;
 
-  Signaling(this._host);
+  Signaling(this._host, this.turnServer, this.turnUname, this.turnPass);
 
   close() {
     _localStream?.dispose();
@@ -125,9 +118,7 @@ class Signaling {
     var type = mapData['type'];
     switch (type) {
       case 'peer':
-        {
-          invite(data['id'], 'video', data['mc'], false);
-        }
+        invite(data['id'], 'video', data['mc'], false);
         break;
       case 'offer':
         {
@@ -140,7 +131,7 @@ class Signaling {
           var sdp = description['sdp'];
           await _peerConnection?.setRemoteDescription(RTCSessionDescription(sdp, description['type']));
           await _createAnswer(peerId, _peerConnection, media);
-          this.onStateChange?.call(SignalingState.CallStateInCall);
+          onStateChange?.call(SignalingState.CallStateInCall);
         }
         break;
       case 'answer':
@@ -148,7 +139,7 @@ class Signaling {
           var description = data['description'];
           peerId = data['from'];
           await _peerConnection?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
-          this.onStateChange?.call(SignalingState.CallStateInCall);
+          onStateChange?.call(SignalingState.CallStateInCall);
         }
         break;
       case 'candidate':
@@ -238,13 +229,13 @@ class Signaling {
         JsonDecoder decoder = JsonDecoder();
         this.onMessage(decoder.convert(data));
       }, onDone: () {
-        this.onStateChange?.call(SignalingState.ConnectionClosed);
+        onStateChange?.call(SignalingState.ConnectionClosed);
       });
       msgNew(model, localMC, version);
     } catch (e) {
       hiLog(TAG, 'exception=>$e');
       var code = (e as SocketException).osError?.errorCode;
-      this.onStateChange?.call(code == 101 ? SignalingState.NoInet : SignalingState.ConnectionError);
+      onStateChange?.call(code == 101 ? SignalingState.NoInet : SignalingState.ConnectionError);
     }
   }
 
@@ -259,9 +250,7 @@ class Signaling {
           ? true
           : {
               'mandatory': {
-                // 'minWidth': 100,
                 'minWidth': mc.split(':').last.replaceAll(RegExp(r'\..+'), ''),
-                // 'minHeight': 100,
                 'minHeight': mc.split(':').first.replaceAll(RegExp(r'\..+'), ''),
                 'minFrameRate': '20',
               },
@@ -277,18 +266,28 @@ class Signaling {
 
   _createPeerConnection(id, media, String mc, userScreen) async {
     hiLog(TAG, 'creating peer connection');
+    final _iceServers = {
+      'iceServers': [
+        {'url': 'stun:stun.l.google.com:19302'},
+        {'url': 'stun:stun1.l.google.com:19302'},
+        {'url': 'stun:stun2.l.google.com:19302'},
+        {'url': 'stun:stun.ekiga.net'},
+        {'url': turnServer, 'credential': turnPass, 'username': turnUname}
+      ],
+      'sdpSemantics': 'unified-plan'
+    };
     RTCPeerConnection pc = await createPeerConnection(_iceServers, _config);
     if (media != 'data') {
       _localStream = await createStream(media, mc, userScreen);
       _localStream?.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
       hiLog(TAG, 'onLocalStream is null=>${onLocalStream == null}');
-      this.onLocalStream!(_localStream!);
+      onLocalStream!(_localStream!);
     }
     pc.onIceCandidate = (candidate) {
       _send('candidate', {
         'to': id,
         'candidate': {
-          'sdpMLineIndex': candidate.sdpMlineIndex,
+          'sdpMLineIndex': candidate.sdpMLineIndex,
           'sdpMid': candidate.sdpMid,
           'candidate': candidate.candidate,
         }
@@ -298,12 +297,12 @@ class Signaling {
       hiLog(TAG, 'onTrack=>${event.track.label}');
       if (event.track.kind == 'video' && event.streams.isNotEmpty) {
         var stream = event.streams[0];
-        this.onAddRemoteStream?.call(stream);
+        onAddRemoteStream?.call(stream);
         _remoteStream = stream;
       }
     };
     pc.onRemoveStream = (stream) {
-      this.onRemoveRemoteStream?.call(stream);
+      onRemoveRemoteStream?.call(stream);
     };
 
     pc.onDataChannel = (channel) {
@@ -318,7 +317,7 @@ class Signaling {
       this.onDataChannelMessage?.call(channel, data);
     };
     _dataChannels[id] = channel;
-    this.onDataChannel?.call(channel);
+    this._onDataChannel?.call(channel);
   }
 
   _createDataChannel(id, RTCPeerConnection? pc, {label: 'fileTransfer'}) async {
@@ -342,7 +341,7 @@ class Signaling {
     }
   }
 
-  _createAnswer(String id, RTCPeerConnection? pc, media) async {
+  _createAnswer(String? id, RTCPeerConnection? pc, media) async {
     hiLog(TAG, 'creating answer');
     try {
       RTCSessionDescription? s = await pc?.createAnswer(media == 'data' ? _dcConstraints : _constraints);
@@ -352,13 +351,13 @@ class Signaling {
         'description': {'sdp': s?.sdp, 'type': s?.type},
       });
     } catch (e) {
-      print(e.toString());
+      hiLog(TAG, e.toString());
     }
   }
 
   _send(event, data) {
     data['type'] = event;
-    JsonEncoder encoder = new JsonEncoder();
+    JsonEncoder encoder = const JsonEncoder();
     if (_socket != null) _socket?.add(encoder.convert(data));
   }
 
