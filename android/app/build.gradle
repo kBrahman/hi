@@ -50,10 +50,6 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
-    lintOptions {
-        disable 'InvalidPackage'
-        checkReleaseBuilds false
-    }
 
     defaultConfig {
         applicationId id
@@ -68,13 +64,13 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.zhet
-            firebaseCrashlytics {
-                nativeSymbolUploadEnabled true
-                unstrippedNativeLibsDir 'build/intermediates/merged_native_libs/release/out/lib'
-            }
         }
     }
     buildToolsVersion '30.0.3'
+    lint {
+        checkReleaseBuilds false
+        disable 'InvalidPackage'
+    }
 }
 
 flutter {
@@ -82,5 +78,5 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-crashlytics-ndk:18.2.1'
+    implementation 'com.facebook.android:audience-network-sdk:6.8.0'
 }

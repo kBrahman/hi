@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -20,11 +22,11 @@ enum SignalingState {
 /*
  * callbacks for Signaling API.
  */
-typedef void SignalingStateCallback(SignalingState state);
-typedef void StreamStateCallback(MediaStream stream);
-typedef void OtherEventCallback(dynamic event);
-typedef void DataChannelMessageCallback(RTCDataChannel dc, RTCDataChannelMessage data);
-typedef void DataChannelCallback(RTCDataChannel? dc);
+typedef SignalingStateCallback = void Function(SignalingState state);
+typedef StreamStateCallback = void Function(MediaStream stream);
+typedef OtherEventCallback = void Function(dynamic event);
+typedef DataChannelMessageCallback = void Function(RTCDataChannel dc, RTCDataChannelMessage data);
+typedef DataChannelCallback = void Function(RTCDataChannel? dc);
 
 class Signaling {
   static const TAG = 'Hi_Signaling';

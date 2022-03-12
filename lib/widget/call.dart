@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hi/l10n/locale.dart';
 import 'package:hi/signal/signaling.dart';
 import 'package:hi/util/util.dart';
@@ -125,7 +124,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                   FloatingActionButton(
                     onPressed: _hangUp,
                     tooltip: 'Hangup',
-                    child: new Icon(Icons.call_end),
+                    child: const Icon(Icons.call_end),
                   ),
                   FloatingActionButton(
                     child: micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
@@ -310,46 +309,29 @@ class WaitingWidget extends StatefulWidget {
 
 class _WaitingWidgetState extends State<WaitingWidget> {
   static const TAG = 'Hi_WaitingWidgetState';
-  late final BannerAd banner;
 
   @override
-  void initState() {
-    banner = BannerAd(
-      adUnitId: _bannerId(),
-      size: AdSize.mediumRectangle,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-          onAdOpened: (_) => widget.signaling?.bye(true),
-          // onAdClosed: (_) => widget.signaling?.msgNew(widget.model, '${widget.h}:${widget.w}',widget.),
-          onAdFailedToLoad: (ad, err) => hiLog(TAG, err.message + ', code=>${err.code}')),
-    )..load();
-    super.initState();
+  Widget build(BuildContext context) {
+    const String viewType = 'medium_rectangle';
+    final Map<String, dynamic> creationParams = <String, dynamic>{};
+    return Center(
+      child: Column(
+        children: <Widget>[
+          SizedBox(
+              child: AndroidView(
+                viewType: viewType,
+                layoutDirection: TextDirection.ltr,
+                creationParams: creationParams,
+                creationParamsCodec: const StandardMessageCodec(),
+              ),
+              height: 250),
+          const Padding(padding: EdgeInsets.only(top: 5)),
+          const CircularProgressIndicator(),
+          const Padding(padding: EdgeInsets.only(top: 10)),
+          Text(AppLocalizations.of(context)?.waiting ?? 'Waiting for someone'),
+        ],
+        mainAxisAlignment: MainAxisAlignment.center,
+      ),
+    );
   }
-
-  @override
-  Widget build(BuildContext context) => Center(
-        child: Column(
-          children: <Widget>[
-            SizedBox(child: AdWidget(ad: banner), width: banner.size.width.toDouble(), height: banner.size.height.toDouble()),
-            const Padding(padding: EdgeInsets.only(top: 5)),
-            const CircularProgressIndicator(),
-            const Padding(padding: EdgeInsets.only(top: 10)),
-            Text(AppLocalizations.of(context)?.waiting ?? 'Waiting for someone'),
-          ],
-          mainAxisAlignment: MainAxisAlignment.center,
-        ),
-      );
-
-  @override
-  void deactivate() {
-    banner.dispose();
-    super.deactivate();
-  }
-
-  _bannerId() => kDebugMode ? _bannerTestAdUnitId() : _bannerAdId();
-
-  _bannerTestAdUnitId() =>
-      Platform.isAndroid ? 'ca-app-pub-3940256099942544/6300978111' : 'ca-app-pub-3940256099942544/2934735716';
-
-  _bannerAdId() => Platform.isAndroid ? ANDROID_BANNER_ID : IOS_BANNER_ID;
 }

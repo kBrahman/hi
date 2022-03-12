@@ -20,7 +20,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="hi">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|locale|layoutDirection|screenLayout|density|uiMode"
             android:exported="true"
             android:hardwareAccelerated="true"

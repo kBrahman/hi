@@ -1,6 +1,10 @@
+// ignore_for_file: constant_identifier_names
+
 library random_string;
 
 import 'dart:math';
+
+import 'package:flutter/services.dart';
 
 const ASCII_START = 33;
 const ASCII_END = 126;
@@ -18,7 +22,7 @@ const IOS_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/7838433087';
 /// Generates a random integer where [from] <= [to].
 int randomBetween(int from, int to) {
   if (from > to) throw new Exception('$from cannot be > $to');
-  var rand = new Random();
+  var rand = Random();
   return ((to - from) * rand.nextDouble()).toInt() + from;
 }
 
@@ -26,7 +30,7 @@ int randomBetween(int from, int to) {
 /// between ascii [from] to [to].
 /// Defaults to characters of ascii '!' to '~'.
 String randomString(int length, {int from: ASCII_START, int to: ASCII_END}) {
-  return new String.fromCharCodes(new List.generate(length, (index) => randomBetween(from, to)));
+  return String.fromCharCodes(List.generate(length, (index) => randomBetween(from, to)));
 }
 
 /// Generates a random string of [length] with only numeric characters.

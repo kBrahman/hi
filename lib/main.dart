@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'util/util.dart';
@@ -16,33 +15,23 @@ import 'widget/call.dart';
 void main() async {
   const TAG = 'Main';
   WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize();
   String s = 'Undefined';
   late String turnServer;
   late String turnUname;
   late String turnPass;
-  InterstitialAd? interstitialAd;
-  var timedOut = false;
-  InterstitialAd.load(
-      adUnitId: _interstitialId(),
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (InterstitialAd ad) {
-        if (timedOut) {
-          ad.dispose();
-          return;
-        }
-        interstitialAd = ad
-          ..fullScreenContentCallback = FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
-            start(s, turnServer, turnUname, turnPass);
-            ad.dispose();
-          });
-        interstitialAd?.show();
-      }, onAdFailedToLoad: (LoadAdError error) {
-        hiLog(TAG, 'ad failed to load=>$error');
-        if (timedOut) return;
-        start(s, turnServer, turnUname, turnPass);
-        timedOut = true;
-      }));
+  var adShown = false;
+  final platform = const MethodChannel('hi.channel/app')
+    ..setMethodCallHandler((call) async {
+      hiLog(TAG, 'method=>${call.method}');
+      switch (call.method) {
+        case 'displayed':
+          adShown = true;
+          break;
+        case 'dismissed':
+          start(s, turnServer, turnUname, turnPass);
+      }
+    });
+
   Firebase.initializeApp();
   String data = await rootBundle.loadString('assets/local.properties');
   final iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
@@ -51,10 +40,11 @@ void main() async {
   turnServer = props['turnServer']!;
   turnUname = props['turnUname']!;
   turnPass = props['turnPass']!;
-  Future.delayed(const Duration(seconds: 7), () {
-    if (interstitialAd == null && !timedOut) {
-      timedOut = true;
+  Future.delayed(const Duration(seconds: 7), () async {
+    if (!adShown) {
+      await platform.invokeMethod('timeOut');
       start(s, turnServer, turnUname, turnPass);
+      hiLog(TAG, 'start');
     }
   });
 }
