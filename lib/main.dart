@@ -54,8 +54,5 @@ start(s, String turnServer, String turnUname, String turnPass) async =>
         ? exit(0)
         : runApp(Call(ip: s, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass)));
 
-_interstitialId() => kDebugMode ? _testInterstitialId() : _interstitialAdId();
 
-_testInterstitialId() => Platform.isAndroid ? 'ca-app-pub-3940256099942544/1033173712' : 'ca-app-pub-3940256099942544/4411468910';
 
-_interstitialAdId() => Platform.isAndroid ? ANDROID_INTERSTITIAL_ID : IOS_INTERSTITIAL_ID;

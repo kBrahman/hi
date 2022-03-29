@@ -269,6 +269,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
 }
 
 class MaintenanceWidget extends StatelessWidget {
+  const MaintenanceWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) => Center(
         child: Container(
@@ -283,7 +285,7 @@ class MaintenanceWidget extends StatelessWidget {
 class NoInternetWidget extends StatelessWidget {
   final checkConn;
 
-  NoInternetWidget(this.checkConn);
+  const NoInternetWidget(this.checkConn, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Center(
