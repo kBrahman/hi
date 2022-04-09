@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:ui';
 
 const LOCALES = [
@@ -31,5 +33,6 @@ const LOCALES = [
   Locale('pa', ''),
   Locale('hu', ''),
   Locale('es', ''),
-  Locale('lt', '')
+  Locale('lt', ''),
+  Locale('cs', '')
 ];
