@@ -1,4 +1,4 @@
-// ignore_for_file: constant_identifier_names
+// ignore_for_file: constant_identifier_names, avoid_print
 
 library random_string;
 
@@ -21,7 +21,7 @@ const IOS_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/7838433087';
 
 /// Generates a random integer where [from] <= [to].
 int randomBetween(int from, int to) {
-  if (from > to) throw new Exception('$from cannot be > $to');
+  if (from > to) throw Exception('$from cannot be > $to');
   var rand = Random();
   return ((to - from) * rand.nextDouble()).toInt() + from;
 }

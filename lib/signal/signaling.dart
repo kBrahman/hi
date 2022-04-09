@@ -1,4 +1,4 @@
-// ignore_for_file: constant_identifier_names
+// ignore_for_file: constant_identifier_names, curly_braces_in_flow_control_structures
 
 import 'dart:async';
 import 'dart:convert';
@@ -10,14 +10,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import '../util/util.dart';
 
-enum SignalingState {
-  CallStateBye,
-  ConnectionOpen,
-  ConnectionClosed,
-  ConnectionError,
-  CallStateInCall,
-  NoInet,
-}
+enum SignalingState { CallStateBye, ConnectionOpen, ConnectionClosed, ConnectionError, NoInet }
 
 /*
  * callbacks for Signaling API.
@@ -43,9 +36,9 @@ class Signaling {
   MediaStream? _localStream;
   MediaStream? _remoteStream;
   SignalingStateCallback? onStateChange;
-  StreamStateCallback? onLocalStream;
-  StreamStateCallback? onAddRemoteStream;
-  StreamStateCallback? onRemoveRemoteStream;
+  late StreamStateCallback onLocalStream;
+  late StreamStateCallback onRemoteStream;
+  late StreamStateCallback onRemoveRemoteStream;
   DataChannelMessageCallback? onDataChannelMessage;
   DataChannelCallback? _onDataChannel;
 
@@ -74,6 +67,10 @@ class Signaling {
   final String turnServer;
   final String turnUname;
   final String turnPass;
+  final decoder = const JsonDecoder();
+  final encoder = const JsonEncoder();
+
+  var candidateBuffer = [];
 
   Signaling(this._host, this.turnServer, this.turnUname, this.turnPass);
 
@@ -131,9 +128,14 @@ class Signaling {
           final remoteMC = data['mc'];
           _peerConnection = await _createPeerConnection(peerId, media, remoteMC, false);
           var sdp = description['sdp'];
-          await _peerConnection?.setRemoteDescription(RTCSessionDescription(sdp, description['type']));
-          await _createAnswer(peerId, _peerConnection, media);
-          onStateChange?.call(SignalingState.CallStateInCall);
+          if (_peerConnection == null) {
+            bye(false);
+            break;
+          }
+          if (candidateBuffer.isNotEmpty) for (var c in candidateBuffer) await _peerConnection!.addCandidate(c);
+          candidateBuffer.clear();
+          await _peerConnection!.setRemoteDescription(RTCSessionDescription(sdp, description['type']));
+          await _createAnswer(peerId, _peerConnection!, media);
         }
         break;
       case 'answer':
@@ -141,15 +143,18 @@ class Signaling {
           var description = data['description'];
           peerId = data['from'];
           await _peerConnection?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
-          onStateChange?.call(SignalingState.CallStateInCall);
         }
         break;
       case 'candidate':
         {
           var candidateMap = data['candidate'];
+          hiLog(TAG, 'candimap=>$candidateMap');
           RTCIceCandidate candidate =
               RTCIceCandidate(candidateMap['candidate'], candidateMap['sdpMid'], candidateMap['sdpMLineIndex']);
-          _peerConnection?.addCandidate(candidate);
+          if (_peerConnection != null)
+            _peerConnection?.addCandidate(candidate);
+          else
+            candidateBuffer.add(candidate);
         }
         break;
       case 'leave':
@@ -159,7 +164,7 @@ class Signaling {
           _localStream = null;
           _peerConnection?.close();
           _dataChannels.remove(id);
-          this.onStateChange?.call(SignalingState.CallStateBye);
+          onStateChange?.call(SignalingState.CallStateBye);
         }
         break;
       case 'bye':
@@ -167,7 +172,6 @@ class Signaling {
           _localStream?.dispose();
           _remoteStream?.dispose();
           _peerConnection?.close();
-          _peerConnection = null;
           // var dc = _dataChannels[to];
           // if (dc != null) {
           // dc.close();
@@ -177,7 +181,7 @@ class Signaling {
             _oldPeerIds.add(peerId);
             peerId = null;
           }
-          this.onStateChange?.call(SignalingState.CallStateBye);
+          onStateChange?.call(SignalingState.CallStateBye);
         }
         break;
       case 'keepalive':
@@ -197,6 +201,7 @@ class Signaling {
       SecurityContext securityContext = SecurityContext();
       HttpClient client = HttpClient(context: securityContext);
       client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+        hiLog(TAG, 'bad cert=>$cert');
         return true;
       };
 
@@ -207,7 +212,7 @@ class Signaling {
       request.headers.add('Sec-WebSocket-Key', key.toLowerCase());
 
       HttpClientResponse response = await request.close();
-      print(response.reasonPhrase);
+      print('reasonPhrase=>${response.reasonPhrase}');
       Socket socket = await response.detachSocket();
       // socket.close();
       var webSocket = WebSocket.fromUpgradedSocket(
@@ -217,7 +222,7 @@ class Signaling {
       );
       return webSocket;
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -225,11 +230,13 @@ class Signaling {
     this.localMC = localMC;
     try {
       _socket = await _connectForSelfSignedCert(_host, _port);
-      this.onStateChange?.call(SignalingState.ConnectionOpen);
-
-      _socket?.listen((data) {
-        JsonDecoder decoder = JsonDecoder();
-        this.onMessage(decoder.convert(data));
+      if (_socket == null) {
+        onStateChange?.call(SignalingState.ConnectionError);
+        return;
+      }
+      onStateChange?.call(SignalingState.ConnectionOpen);
+      _socket!.listen((data) {
+        onMessage(decoder.convert(data));
       }, onDone: () {
         onStateChange?.call(SignalingState.ConnectionClosed);
       });
@@ -282,10 +289,10 @@ class Signaling {
     if (media != 'data') {
       _localStream = await createStream(media, mc, userScreen);
       _localStream?.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
-      hiLog(TAG, 'onLocalStream is null=>${onLocalStream == null}');
-      onLocalStream!(_localStream!);
+      onLocalStream(_localStream!);
     }
     pc.onIceCandidate = (candidate) {
+      hiLog(TAG, 'on ice candidate=>${candidate.candidate}');
       _send('candidate', {
         'to': id,
         'candidate': {
@@ -296,15 +303,19 @@ class Signaling {
       });
     };
     pc.onTrack = (RTCTrackEvent event) {
-      hiLog(TAG, 'onTrack=>${event.track.label}');
+      hiLog(TAG, 'onTrack=>${event.track.kind}');
       if (event.track.kind == 'video' && event.streams.isNotEmpty) {
-        var stream = event.streams[0];
-        onAddRemoteStream?.call(stream);
+        var streams = event.streams;
+        for (var element in streams) {
+          hiLog(TAG, element.getVideoTracks().toString());
+        }
+        var stream = streams[0];
+        onRemoteStream(stream);
         _remoteStream = stream;
       }
     };
     pc.onRemoveStream = (stream) {
-      onRemoveRemoteStream?.call(stream);
+      onRemoveRemoteStream(stream);
     };
 
     pc.onDataChannel = (channel) {
@@ -316,14 +327,14 @@ class Signaling {
   _addDataChannel(id, RTCDataChannel? channel) {
     channel?.onDataChannelState = (e) {};
     channel?.onMessage = (RTCDataChannelMessage data) {
-      this.onDataChannelMessage?.call(channel, data);
+      onDataChannelMessage?.call(channel, data);
     };
     _dataChannels[id] = channel;
-    this._onDataChannel?.call(channel);
+    _onDataChannel?.call(channel);
   }
 
   _createDataChannel(id, RTCPeerConnection? pc, {label: 'fileTransfer'}) async {
-    RTCDataChannelInit dataChannelDict = new RTCDataChannelInit();
+    RTCDataChannelInit dataChannelDict = RTCDataChannelInit();
     RTCDataChannel? channel = await pc?.createDataChannel(label, dataChannelDict);
     _addDataChannel(id, channel);
   }
@@ -343,14 +354,15 @@ class Signaling {
     }
   }
 
-  _createAnswer(String? id, RTCPeerConnection? pc, media) async {
+  _createAnswer(String? id, RTCPeerConnection pc, media) async {
     hiLog(TAG, 'creating answer');
     try {
-      RTCSessionDescription? s = await pc?.createAnswer(media == 'data' ? _dcConstraints : _constraints);
-      pc?.setLocalDescription(s!);
+      RTCSessionDescription s = await pc.createAnswer(media == 'data' ? _dcConstraints : _constraints);
+      pc.setLocalDescription(s);
+      hiLog(TAG, 'sdp type=>${s.type}');
       _send('answer', {
         'to': id,
-        'description': {'sdp': s?.sdp, 'type': s?.type},
+        'description': {'sdp': s.sdp, 'type': s.type},
       });
     } catch (e) {
       hiLog(TAG, e.toString());
@@ -359,7 +371,6 @@ class Signaling {
 
   _send(event, data) {
     data['type'] = event;
-    JsonEncoder encoder = const JsonEncoder();
     if (_socket != null) _socket?.add(encoder.convert(data));
   }
 

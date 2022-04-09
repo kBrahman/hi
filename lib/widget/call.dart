@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:device_info/device_info.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -40,7 +39,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   bool _connOk = true;
   bool _maintaining = false;
   final waitingWidget = WaitingWidget();
-
+  var countToShowAd = 1;
+  var nextCount = 0;
   var colorCodes = {
     50: const Color.fromRGBO(211, 10, 75, .1),
     for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
@@ -53,6 +53,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
 
   var inCall = false;
   var connecting = false;
+  late MethodChannel platform;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -85,6 +86,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _h = WidgetsBinding.instance?.window.physicalSize.height;
     _w = WidgetsBinding.instance?.window.physicalSize.width;
     initRenderers();
+    platform = const MethodChannel('hi.channel/app');
     hiLog(TAG, 'init state');
   }
 
@@ -108,7 +110,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
         appBar: inCall
             ? null
             : AppBar(
-                title: Text('hi'),
+                title: const Text('hi'),
               ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: inCall
@@ -156,17 +158,21 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                 ? waitingWidget
                 : !_connOk
                     ? NoInternetWidget(checkAndConnect)
-                    : MaintenanceWidget(),
+                    : const MaintenanceWidget(),
       ),
     );
   }
 
-  next() {
+  next() async {
+    hiLog(TAG, 'nextCount=>$nextCount, countToShowAd=>$countToShowAd');
+    if (++nextCount == countToShowAd && await platform.invokeMethod('isLoaded')) {
+      platform.invokeMethod('show');
+      nextCount = 0;
+      countToShowAd *= 2;
+      return;
+    }
     hiLog(TAG, 'on next');
     _remoteRenderer.srcObject = null;
-    _remoteRenderer.dispose();
-    _remoteRenderer = RTCVideoRenderer();
-    _remoteRenderer.initialize();
     _signaling.msgNew(waitingWidget.model, '$_h:$_w', version);
   }
 
@@ -187,15 +193,11 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   void _connect(String? model, String localMC) async {
     connecting = true;
     _signaling.connect(model, localMC, version);
-
     _signaling.onStateChange = (SignalingState state) {
       switch (state) {
         case SignalingState.CallStateBye:
           next();
           setState(() => inCall = false);
-          break;
-        case SignalingState.CallStateInCall:
-          setState(() => inCall = true);
           break;
         case SignalingState.ConnectionClosed:
           break;
@@ -216,11 +218,12 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
       hiLog(TAG, 'onLocalStream');
     });
 
-    _signaling.onAddRemoteStream = ((stream) {
+    _signaling.onRemoteStream = ((stream) {
       setState(() {
         _remoteRenderer.srcObject = stream;
+        inCall = true;
       });
-      hiLog(TAG, 'onAddRemoteStream');
+      hiLog(TAG, 'onRemoteStream');
     });
 
     _signaling.onRemoveRemoteStream = ((stream) {
