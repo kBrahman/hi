@@ -277,20 +277,14 @@ class Signaling {
     hiLog(TAG, 'creating peer connection');
     final _iceServers = {
       'iceServers': [
-        {'url': 'stun:stun.l.google.com:19302'},
         {'url': 'stun:stun1.l.google.com:19302'},
-        {'url': 'stun:stun2.l.google.com:19302'},
         {'url': 'stun:stun.ekiga.net'},
         {'url': turnServer, 'credential': turnPass, 'username': turnUname}
       ],
       'sdpSemantics': 'unified-plan'
     };
     RTCPeerConnection pc = await createPeerConnection(_iceServers, _config);
-    if (media != 'data') {
-      _localStream = await createStream(media, mc, userScreen);
-      _localStream?.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
-      onLocalStream(_localStream!);
-    }
+
     pc.onIceCandidate = (candidate) {
       hiLog(TAG, 'on ice candidate=>${candidate.candidate}');
       _send('candidate', {
@@ -302,6 +296,12 @@ class Signaling {
         }
       });
     };
+    if (media != 'data') {
+      _localStream = await createStream(media, mc, userScreen);
+      _localStream?.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
+      onLocalStream(_localStream!);
+    }
+
     pc.onTrack = (RTCTrackEvent event) {
       hiLog(TAG, 'onTrack=>${event.track.kind}');
       if (event.track.kind == 'video' && event.streams.isNotEmpty) {
@@ -310,8 +310,8 @@ class Signaling {
           hiLog(TAG, element.getVideoTracks().toString());
         }
         var stream = streams[0];
-        onRemoteStream(stream);
         _remoteStream = stream;
+        onRemoteStream(stream);
       }
     };
     pc.onRemoveStream = (stream) {

@@ -86,6 +86,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _h = WidgetsBinding.instance?.window.physicalSize.height;
     _w = WidgetsBinding.instance?.window.physicalSize.width;
     initRenderers();
+    checkAndConnect();
     platform = const MethodChannel('hi.channel/app');
     hiLog(TAG, 'init state');
   }
@@ -135,7 +136,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                   FloatingActionButton(
                       child: const Icon(Icons.skip_next),
                       onPressed: () {
-                        _signaling.bye(false);
+                        _signaling.bye(true);
                         next();
                         setState(() => inCall = false);
                       })
@@ -179,7 +180,6 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   initRenderers() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
-    checkAndConnect();
   }
 
   @override
