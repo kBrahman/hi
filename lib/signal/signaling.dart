@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import '../util/util.dart';
@@ -16,7 +17,7 @@ enum SignalingState { CallStateBye, ConnectionOpen, ConnectionClosed, Connection
  * callbacks for Signaling API.
  */
 typedef SignalingStateCallback = void Function(SignalingState state);
-typedef StreamStateCallback = void Function(MediaStream stream);
+typedef StreamStateCallback = void Function(MediaStream _remoteStream, MediaStream _localStream);
 typedef OtherEventCallback = void Function(dynamic event);
 typedef DataChannelMessageCallback = void Function(RTCDataChannel dc, RTCDataChannelMessage data);
 typedef DataChannelCallback = void Function(RTCDataChannel? dc);
@@ -28,24 +29,18 @@ class Signaling {
 
   final String _selfId = randomNumeric(6);
   WebSocket? _socket;
-  var _host;
+  final String _ip;
   final _port = 4443;
   RTCPeerConnection? _peerConnection;
   final _dataChannels = <String, RTCDataChannel?>{};
 
   MediaStream? _localStream;
   MediaStream? _remoteStream;
-  SignalingStateCallback? onStateChange;
-  late StreamStateCallback onLocalStream;
-  late StreamStateCallback onRemoteStream;
-  late StreamStateCallback onRemoveRemoteStream;
+  late SignalingStateCallback onStateChange;
+  late StreamStateCallback onStreams;
+  late VoidCallback onRemoveRemoteStream;
   DataChannelMessageCallback? onDataChannelMessage;
   DataChannelCallback? _onDataChannel;
-
-  final Map<String, dynamic> _config = {
-    'mandatory': {},
-    'optional': [],
-  };
 
   final Map<String, dynamic> _constraints = {
     'mandatory': {
@@ -62,42 +57,51 @@ class Signaling {
     },
     'optional': [],
   };
-  String? localMC;
+  final String screenSize;
   String? peerId;
   final String turnServer;
   final String turnUname;
   final String turnPass;
   final decoder = const JsonDecoder();
   final encoder = const JsonEncoder();
+  late int lastIceCandidateTime;
+  final String _version;
+  final String model;
+  late RTCSessionDescription _localDesc;
 
-  var candidateBuffer = [];
-
-  Signaling(this._host, this.turnServer, this.turnUname, this.turnPass);
+  Signaling(this._ip, this.turnServer, this.turnUname, this.turnPass, this.screenSize, this.model, this._version);
 
   close() {
     _localStream?.dispose();
     _localStream = null;
     _remoteStream?.dispose();
     _remoteStream = null;
+    _peerConnection?.dispose();
     _peerConnection?.close();
+    _peerConnection = null;
+  }
+
+  disconnect() {
     _socket?.close();
     _socket = null;
   }
 
-  isClosed() => _socket == null;
+  isDisconnected() => _socket == null;
 
   void switchCamera() {
     var videoTrack = _localStream?.getVideoTracks().firstWhere((track) => track.kind == 'video');
     if (videoTrack != null) Helper.switchCamera(videoTrack);
   }
 
-  void invite(peerId, String media, String remoteMC, useScreen) async {
-    if (peerId == null) return;
-    _peerConnection = await _createPeerConnection(peerId, media, remoteMC, useScreen);
-    if (media == 'data') {
-      _createDataChannel(peerId, _peerConnection);
+  void invite(peerId, mc) async {
+    _peerConnection = await _createPeerConnection(mc);
+    if (_peerConnection == null) {
+      onStateChange(SignalingState.ConnectionError);
+    } else {
+      _localDesc = await _createOffer(_peerConnection);
+      _offer(peerId, _localDesc, screenSize);
+      hiLog(TAG, 'offer sent');
     }
-    _createOffer(peerId, _peerConnection, media, localMC);
   }
 
   void bye(bool isBusy) {
@@ -105,10 +109,8 @@ class Signaling {
       'to': peerId,
       'is_busy': isBusy,
     });
-    if (peerId != null) {
-      _oldPeerIds.add(peerId);
-      peerId = null;
-    }
+    if (peerId != null) _oldPeerIds.add(peerId);
+    peerId = null;
   }
 
   void onMessage(message) async {
@@ -117,44 +119,31 @@ class Signaling {
     var type = mapData['type'];
     switch (type) {
       case 'peer':
-        invite(data['id'], 'video', data['mc'], false);
+        invite(data['id'], data['mc']);
         break;
       case 'offer':
         {
           peerId = data['from'];
-          hiLog(TAG, 'offer from =>$peerId');
-          var description = data['description'];
-          var media = data['media'];
-          final remoteMC = data['mc'];
-          _peerConnection = await _createPeerConnection(peerId, media, remoteMC, false);
-          var sdp = description['sdp'];
-          if (_peerConnection == null) {
-            bye(false);
-            break;
-          }
-          if (candidateBuffer.isNotEmpty) for (var c in candidateBuffer) await _peerConnection!.addCandidate(c);
-          candidateBuffer.clear();
-          await _peerConnection!.setRemoteDescription(RTCSessionDescription(sdp, description['type']));
-          await _createAnswer(peerId, _peerConnection!, media);
+          hiLog(TAG, 'offer from $peerId');
+          final description = data['description'];
+          _accept(description['sdp'], description['type'], peerId!, data['mc']);
         }
         break;
       case 'answer':
         {
-          var description = data['description'];
+          final description = data['description'];
           peerId = data['from'];
+          await _peerConnection?.setLocalDescription(_localDesc);
           await _peerConnection?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
         }
         break;
       case 'candidate':
         {
           var candidateMap = data['candidate'];
-          hiLog(TAG, 'candimap=>$candidateMap');
+          hiLog(TAG, 'remote candidate=>$candidateMap');
           RTCIceCandidate candidate =
               RTCIceCandidate(candidateMap['candidate'], candidateMap['sdpMid'], candidateMap['sdpMLineIndex']);
-          if (_peerConnection != null)
-            _peerConnection?.addCandidate(candidate);
-          else
-            candidateBuffer.add(candidate);
+          _peerConnection?.addCandidate(candidate);
         }
         break;
       case 'leave':
@@ -164,7 +153,7 @@ class Signaling {
           _localStream = null;
           _peerConnection?.close();
           _dataChannels.remove(id);
-          onStateChange?.call(SignalingState.CallStateBye);
+          onStateChange(SignalingState.CallStateBye);
         }
         break;
       case 'bye':
@@ -172,16 +161,9 @@ class Signaling {
           _localStream?.dispose();
           _remoteStream?.dispose();
           _peerConnection?.close();
-          // var dc = _dataChannels[to];
-          // if (dc != null) {
-          // dc.close();
-          // _dataChannels.remove(to);
-          // }
-          if (peerId != null) {
-            _oldPeerIds.add(peerId);
-            peerId = null;
-          }
-          onStateChange?.call(SignalingState.CallStateBye);
+          if (peerId != null) _oldPeerIds.add(peerId);
+          peerId = null;
+          onStateChange(SignalingState.CallStateBye);
         }
         break;
       case 'keepalive':
@@ -194,25 +176,33 @@ class Signaling {
     }
   }
 
-  Future<WebSocket> _connectForSelfSignedCert(String host, int port) async {
+  _accept(sdp, type, String id, mc) async {
+    _peerConnection = await _createPeerConnection(mc);
+    if (_peerConnection == null) {
+      bye(false);
+      return;
+    }
+    await _peerConnection!.setRemoteDescription(RTCSessionDescription(sdp, type));
+    _localDesc = await _createAnswer(_peerConnection!);
+    await _peerConnection!.setLocalDescription(_localDesc);
+    _answer(id, _localDesc);
+  }
+
+  Future<WebSocket> _connectForSelfSignedCert(String ip, int port) async {
     try {
       Random r = Random();
       String key = base64.encode(List<int>.generate(8, (_) => r.nextInt(255)));
       SecurityContext securityContext = SecurityContext();
       HttpClient client = HttpClient(context: securityContext);
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-        hiLog(TAG, 'bad cert=>$cert');
-        return true;
-      };
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
-      HttpClientRequest request = await client.getUrl(Uri.parse('https://$host:$port/ws')); // form the correct url here
+      HttpClientRequest request = await client.getUrl(Uri.parse('https://$ip:$port/ws')); // form the correct url here
       request.headers.add('Connection', 'Upgrade');
       request.headers.add('Upgrade', 'websocket');
       request.headers.add('Sec-WebSocket-Version', '13'); // insert the correct version here
       request.headers.add('Sec-WebSocket-Key', key.toLowerCase());
 
       HttpClientResponse response = await request.close();
-      print('reasonPhrase=>${response.reasonPhrase}');
       Socket socket = await response.detachSocket();
       // socket.close();
       var webSocket = WebSocket.fromUpgradedSocket(
@@ -226,32 +216,30 @@ class Signaling {
     }
   }
 
-  void connect(String? model, String localMC, String? version) async {
-    this.localMC = localMC;
+  void connect() async {
     try {
-      _socket = await _connectForSelfSignedCert(_host, _port);
+      _socket = await _connectForSelfSignedCert(_ip, _port);
       if (_socket == null) {
-        onStateChange?.call(SignalingState.ConnectionError);
+        onStateChange(SignalingState.ConnectionError);
         return;
       }
-      onStateChange?.call(SignalingState.ConnectionOpen);
+      onStateChange(SignalingState.ConnectionOpen);
       _socket!.listen((data) {
         onMessage(decoder.convert(data));
       }, onDone: () {
-        onStateChange?.call(SignalingState.ConnectionClosed);
+        onStateChange(SignalingState.ConnectionClosed);
       });
-      msgNew(model, localMC, version);
+      msgNew();
     } catch (e) {
       hiLog(TAG, 'exception=>$e');
       var code = (e as SocketException).osError?.errorCode;
-      onStateChange?.call(code == 101 ? SignalingState.NoInet : SignalingState.ConnectionError);
+      onStateChange(code == 101 ? SignalingState.NoInet : SignalingState.ConnectionError);
     }
   }
 
-  void msgNew(String? deviceInfo, String mediaConstraints, String? version) =>
-      _send('new', {'d': deviceInfo, 'v': version, 'id': _selfId, 'mc': mediaConstraints, 'oldPeerIds': _oldPeerIds});
+  void msgNew() => _send('new', {'d': model, 'v': _version, 'id': _selfId, 'mc': screenSize, 'oldPeerIds': _oldPeerIds});
 
-  Future<MediaStream> createStream(media, String? mc, userScreen) async {
+  Future<MediaStream> _createStream(String? mc) async {
     final cams = await availableCameras();
     var remoteConstrains = {
       'audio': true,
@@ -267,13 +255,10 @@ class Signaling {
               //   'optional': [],
             }
     };
-    MediaStream stream = userScreen
-        ? await navigator.mediaDevices.getDisplayMedia(remoteConstrains)
-        : await navigator.mediaDevices.getUserMedia(remoteConstrains);
-    return stream;
+    return await navigator.mediaDevices.getUserMedia(remoteConstrains);
   }
 
-  _createPeerConnection(id, media, String mc, userScreen) async {
+  Future<RTCPeerConnection> _createPeerConnection(mc) async {
     hiLog(TAG, 'creating peer connection');
     final _iceServers = {
       'iceServers': [
@@ -283,11 +268,35 @@ class Signaling {
       ],
       'sdpSemantics': 'unified-plan'
     };
-    RTCPeerConnection pc = await createPeerConnection(_iceServers, _config);
+    _localStream = await _createStream(mc);
+    final pc = await createPeerConnection(_iceServers, _constraints)
+      ..onTrack = (RTCTrackEvent event) {
+        hiLog(TAG, 'onTrack=>${event.track.kind}');
+        if (event.track.kind == 'video' && event.streams.isNotEmpty) {
+          var streams = event.streams;
+          var stream = streams[0];
+          _remoteStream = stream;
+          onStreams(stream, _localStream!);
+        }
+      }
+      ..onIceCandidate = (candidate) {
+        hiLog(TAG, 'on ice candidate=>${candidate.candidate}');
+        _sendCandidate(peerId, candidate);
+      }
+      ..onRemoveStream = (stream) {
+        onRemoveRemoteStream();
+      }
+      ..onDataChannel = (channel) {
+        // _addDataChannel(id, channel);
+      }
+      ..onConnectionState = (s) {
+        hiLog(TAG, 'onConnectionState=>$s');
+      };
+    _localStream!.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
+    return pc;
+  }
 
-    pc.onIceCandidate = (candidate) {
-      hiLog(TAG, 'on ice candidate=>${candidate.candidate}');
-      _send('candidate', {
+  void _sendCandidate(id, RTCIceCandidate candidate) => _send('candidate', {
         'to': id,
         'candidate': {
           'sdpMLineIndex': candidate.sdpMLineIndex,
@@ -295,34 +304,6 @@ class Signaling {
           'candidate': candidate.candidate,
         }
       });
-    };
-    if (media != 'data') {
-      _localStream = await createStream(media, mc, userScreen);
-      _localStream?.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
-      onLocalStream(_localStream!);
-    }
-
-    pc.onTrack = (RTCTrackEvent event) {
-      hiLog(TAG, 'onTrack=>${event.track.kind}');
-      if (event.track.kind == 'video' && event.streams.isNotEmpty) {
-        var streams = event.streams;
-        for (var element in streams) {
-          hiLog(TAG, element.getVideoTracks().toString());
-        }
-        var stream = streams[0];
-        _remoteStream = stream;
-        onRemoteStream(stream);
-      }
-    };
-    pc.onRemoveStream = (stream) {
-      onRemoveRemoteStream(stream);
-    };
-
-    pc.onDataChannel = (channel) {
-      _addDataChannel(id, channel);
-    };
-    return pc;
-  }
 
   _addDataChannel(id, RTCDataChannel? channel) {
     channel?.onDataChannelState = (e) {};
@@ -339,35 +320,34 @@ class Signaling {
     _addDataChannel(id, channel);
   }
 
-  _createOffer(String id, RTCPeerConnection? pc, String media, String? localMC) async {
+  _createOffer(RTCPeerConnection? pc) async {
     try {
-      RTCSessionDescription? s = await pc?.createOffer(media == 'data' ? _dcConstraints : _constraints);
-      pc?.setLocalDescription(s!);
-      _send('offer', {
-        'to': id,
-        'description': {'sdp': s?.sdp, 'type': s?.type},
-        'media': media,
-        'mc': localMC
-      });
+      return await pc?.createOffer(_constraints);
     } catch (e) {
-      print(e.toString());
+      rethrow;
     }
   }
 
-  _createAnswer(String? id, RTCPeerConnection pc, media) async {
+  void _offer(id, RTCSessionDescription? desc, String? screenSize) => _send('offer', {
+        'to': id,
+        'description': {'sdp': desc?.sdp, 'type': desc?.type},
+        'mc': screenSize
+      });
+
+  _createAnswer(RTCPeerConnection pc) async {
     hiLog(TAG, 'creating answer');
     try {
-      RTCSessionDescription s = await pc.createAnswer(media == 'data' ? _dcConstraints : _constraints);
-      pc.setLocalDescription(s);
-      hiLog(TAG, 'sdp type=>${s.type}');
-      _send('answer', {
-        'to': id,
-        'description': {'sdp': s.sdp, 'type': s.type},
-      });
+      return await pc.createAnswer(_constraints);
     } catch (e) {
       hiLog(TAG, e.toString());
     }
   }
+
+  void _answer(String? id, RTCSessionDescription desc) => _send('answer', {
+        'to': id,
+        'description': {'sdp': desc.sdp, 'type': desc.type},
+        'size': screenSize
+      });
 
   _send(event, data) {
     data['type'] = event;

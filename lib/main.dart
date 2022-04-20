@@ -1,20 +1,25 @@
 // ignore_for_file: constant_identifier_names
-
-import 'dart:core';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hi/util/util.dart';
+import 'package:hi/widget/call.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'widget/call.dart';
+import 'l10n/locale.dart';
+
+var colorCodes = {
+  50: const Color.fromRGBO(211, 10, 75, .1),
+  for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
+};
 
 void main() async {
   const TAG = 'Main';
   WidgetsFlutterBinding.ensureInitialized();
-  String s = 'Undefined';
-  late String turnServer;
   late String turnUname;
   late String turnPass;
 
@@ -22,14 +27,46 @@ void main() async {
   String data = await rootBundle.loadString('assets/local.properties');
   final iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   final props = {for (final v in iterable) v.split('=')[0]: v.split('=')[1]};
-  s = props['server']!;
-  turnServer = props['turnServer']!;
+  final String ip = props['server']!;
+  final turnServer = props['turnServer']!;
   turnUname = props['turnUname']!;
   turnPass = props['turnPass']!;
-  start(s, turnServer, turnUname, turnPass);
+  hiLog(TAG, 'before start');
+  start(ip, turnServer, turnUname, turnPass);
 }
 
-start(s, String turnServer, String turnUname, String turnPass) async =>
+start(String ip, String turnServer, String turnUname, String turnPass) async =>
     await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
         ? exit(0)
-        : runApp(Call(ip: s, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass)));
+        : runApp(Hi(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass)));
+
+class Hi extends StatelessWidget {
+  final String ip;
+  final String turnServer;
+  final String turnUname;
+  final String turnPass;
+
+  static const TAG = 'Hi';
+
+  const Hi({Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          AppLocalizations.delegate
+        ],
+        supportedLocales: LOCALES,
+        localeResolutionCallback: (locale, supportedLocales) => supportedLocales
+            .firstWhere((element) => element.languageCode == locale?.languageCode, orElse: () => supportedLocales.first),
+        theme: ThemeData(
+          primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: Call(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass));
+  }
+}

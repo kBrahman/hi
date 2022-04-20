@@ -54,7 +54,7 @@ public class MainActivity extends FlutterActivity {
 
                             @Override
                             public void onAdLoaded(Ad ad) {
-                                Log.d(TAG, "Interstitial ad is loaded and ready to be displayed! time out=>");
+                                Log.d(TAG, "Interstitial ad is loaded and ready to be displayed!");
 
                             }
 
