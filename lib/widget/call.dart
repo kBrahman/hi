@@ -39,7 +39,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
   var nextCount = 0;
   var inCall = false;
 
-  // late MethodChannel platform;
+  late MethodChannel platform;
   String? model;
 
   @override
@@ -74,7 +74,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     super.initState();
     initRenderers();
     initSignalingServer();
-    // if (Platform.isAndroid) platform = const MethodChannel('hi.channel/app');
+    if (Platform.isAndroid) platform = const MethodChannel('hi.channel/app');
     hiLog(TAG, 'init state');
   }
 
@@ -88,7 +88,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _signaling.onStateChange = (SignalingState state) {
       switch (state) {
         case SignalingState.CallStateBye:
-          next(inCall);
+          next(true);
           setState(() => inCall = false);
           break;
         case SignalingState.ConnectionClosed:
@@ -126,9 +126,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     WidgetsBinding.instance?.addObserver(this);
   }
 
-  showSnack() {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('complete'), duration: Duration(seconds: 2)));
-  }
+  showSnack(String s) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s), duration: const Duration(seconds: 2)));
 
   @override
   Widget build(BuildContext context) {
@@ -138,34 +137,17 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
           : AppBar(
               title: const Text('hi'),
             ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: inCall
-          ? SizedBox(
-              width: 250.0,
-              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                FloatingActionButton(
-                  child: const Icon(Icons.switch_camera),
-                  onPressed: () {
-                    _signaling.switchCamera();
-                  },
-                ),
-                FloatingActionButton(
-                  onPressed: _hangUp,
-                  tooltip: 'Hangup',
-                  child: const Icon(Icons.call_end),
-                ),
-                FloatingActionButton(
-                  child: micMuted ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
-                  onPressed: _muteMic,
-                ),
-                FloatingActionButton(
-                    child: const Icon(Icons.skip_next),
-                    onPressed: () {
-                      _signaling.bye(true);
-                      next(false);
-                      setState(() => inCall = false);
-                    })
-              ]))
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(
+                  5,
+                  (i) => ElevatedButton(
+                      child: icon(i),
+                      style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(15)),
+                      onPressed: onPressed(i))))
           : null,
       body: inCall
           ? OrientationBuilder(builder: (context, orientation) {
@@ -188,14 +170,68 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     );
   }
 
-  next(bool inCall) async {
+  Icon? icon(int i) => Icon(i == 0
+      ? Icons.switch_camera
+      : i == 1
+          ? Icons.call_end
+          : i == 2
+              ? (micMuted ? Icons.mic_off : Icons.mic)
+              : i == 3
+                  ? Icons.skip_next
+                  : Icons.block);
+
+  VoidCallback? onPressed(int i) {
+    switch (i) {
+      case 0:
+        return _signaling.switchCamera;
+      case 1:
+        return _hangUp;
+      case 2:
+        return _muteMic;
+      case 3:
+        return () {
+          setState(() {
+            inCall = false;
+          });
+          _signaling.bye(true);
+          next(true);
+        };
+      case 4:
+        return block;
+      default:
+        return null;
+    }
+  }
+
+  block() => showDialog(
+      context: context,
+      builder: (_) => AlertDialog(content: const Text('You can block or report this user'), actions: [
+            TextButton(onPressed: Navigator.of(context).pop, child: const Text('Cancel')),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showSnack('Report sent');
+                },
+                child: const Text('Report')),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showSnack('User is blocked');
+                  _signaling.bye(false);
+                  next(false);
+                  setState(() => inCall = false);
+                },
+                child: const Text('BLOCK'))
+          ]));
+
+  next(bool canShowAd) async {
     hiLog(TAG, 'nextCount=>$nextCount, countToShowAd=>$countToShowAd');
-    // if (Platform.isAndroid && !inCall && ++nextCount == countToShowAd && await platform.invokeMethod('isLoaded')) {
-    // platform.invokeMethod('show');
-    // nextCount = 0;
-    // countToShowAd *= 2;
-    // return;
-    // }
+    if (canShowAd && Platform.isAndroid && ++nextCount == countToShowAd && await platform.invokeMethod('isLoaded')) {
+      platform.invokeMethod('show');
+      nextCount = 0;
+      countToShowAd *= 2;
+      return;
+    }
     hiLog(TAG, 'on next');
     _remoteRenderer.srcObject = null;
     _signaling.close();

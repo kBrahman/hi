@@ -104,10 +104,10 @@ class Signaling {
     }
   }
 
-  void bye(bool isBusy) {
+  void bye(bool busy) {
     _send('bye', <String, dynamic>{
       'to': peerId,
-      'is_busy': isBusy,
+      'is_busy': busy,
     });
     if (peerId != null) _oldPeerIds.add(peerId);
     peerId = null;
@@ -292,7 +292,7 @@ class Signaling {
       ..onConnectionState = (s) {
         hiLog(TAG, 'onConnectionState=>$s');
       };
-    _localStream!.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
+    _localStream?.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
     return pc;
   }
 
