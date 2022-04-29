@@ -2,5 +2,11 @@
   "waiting": "Asteptand pe cineva...",
   "maintenance": "Întreținerea funcționează pe partea serverului, veniți mai târziu, vă rog",
   "no_inet": "Fara acces la internet",
-  "refresh": "Reîmprospăta"
+  "refresh": "Reîmprospăta",
+  "block_report": "Puteți bloca sau raporta o reclamație asupra acestui utilizator",
+  "cancel": "Anulare",
+  "report_sent": "Reclamație trimisă",
+  "blocked": "Utilizatorul este blocat",
+  "block": "BLOC",
+  "complaint": "Plângere"
 }

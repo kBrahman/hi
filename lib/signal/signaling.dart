@@ -68,6 +68,7 @@ class Signaling {
   final String _version;
   final String model;
   late RTCSessionDescription _localDesc;
+  int restartCount = 0;
 
   Signaling(this._ip, this.turnServer, this.turnUname, this.turnPass, this.screenSize, this.model, this._version);
 
@@ -163,6 +164,7 @@ class Signaling {
           _peerConnection?.close();
           if (peerId != null) _oldPeerIds.add(peerId);
           peerId = null;
+          hiLog(TAG, 'received bye');
           onStateChange(SignalingState.CallStateBye);
         }
         break;
@@ -276,7 +278,6 @@ class Signaling {
           var streams = event.streams;
           var stream = streams[0];
           _remoteStream = stream;
-          onStreams(stream, _localStream!);
         }
       }
       ..onIceCandidate = (candidate) {
@@ -289,11 +290,32 @@ class Signaling {
       ..onDataChannel = (channel) {
         // _addDataChannel(id, channel);
       }
+      ..onIceConnectionState = (s) {
+        hiLog(TAG, 'onIceConnectionState=>$s');
+        if (s == RTCIceConnectionState.RTCIceConnectionStateFailed) restartOrBye();
+      }
       ..onConnectionState = (s) {
         hiLog(TAG, 'onConnectionState=>$s');
+        if (s == RTCPeerConnectionState.RTCPeerConnectionStateConnected)
+          onStreams(_remoteStream!, _localStream!);
+        else if (s == RTCPeerConnectionState.RTCPeerConnectionStateFailed) restartOrBye();
+      }
+      ..onRenegotiationNeeded = () {
+        hiLog(TAG, 'on negotiation needed');
       };
     _localStream?.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
     return pc;
+  }
+
+  void restartOrBye() {
+    hiLog(TAG, 'restartOrBye restart count=>$restartCount');
+    if (restartCount++ < ICE_RESTART_COUNT_THRESHOLD)
+      _peerConnection?.restartIce();
+    else {
+      restartCount = 0;
+      bye(true);
+      msgNew();
+    }
   }
 
   void _sendCandidate(id, RTCIceCandidate candidate) => _send('candidate', {

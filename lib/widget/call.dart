@@ -41,6 +41,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
 
   late MethodChannel platform;
   String? model;
+  bool blockDialogShown = false;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -88,7 +89,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     _signaling.onStateChange = (SignalingState state) {
       switch (state) {
         case SignalingState.CallStateBye:
-          next(true);
+          if (!blockDialogShown) next(inCall);
           setState(() => inCall = false);
           break;
         case SignalingState.ConnectionClosed:
@@ -147,7 +148,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                   (i) => ElevatedButton(
                       child: icon(i),
                       style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(15)),
-                      onPressed: onPressed(i))))
+                      onPressed: onPressed(i, context))))
           : null,
       body: inCall
           ? OrientationBuilder(builder: (context, orientation) {
@@ -180,7 +181,7 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
                   ? Icons.skip_next
                   : Icons.block);
 
-  VoidCallback? onPressed(int i) {
+  VoidCallback? onPressed(int i, BuildContext context) {
     switch (i) {
       case 0:
         return _signaling.switchCamera;
@@ -197,32 +198,49 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
           next(true);
         };
       case 4:
-        return block;
+        return () => block(context);
       default:
         return null;
     }
   }
 
-  block() => showDialog(
-      context: context,
-      builder: (_) => AlertDialog(content: const Text('You can block or report this user'), actions: [
-            TextButton(onPressed: Navigator.of(context).pop, child: const Text('Cancel')),
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  showSnack('Report sent');
-                },
-                child: const Text('Report')),
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  showSnack('User is blocked');
-                  _signaling.bye(false);
-                  next(false);
-                  setState(() => inCall = false);
-                },
-                child: const Text('BLOCK'))
-          ]));
+  block(BuildContext context) async {
+    blockDialogShown = true;
+    var res = await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+                content: Text(AppLocalizations.of(context)?.block_report ?? 'You can block or report a complaint on this user'),
+                actions: [
+                  TextButton(onPressed: Navigator.of(context).pop, child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
+                  TextButton(
+                      onPressed: () => Navigator.pop(context, 'complaint'),
+                      child: Text(AppLocalizations.of(context)?.complaint ?? 'Complaint')),
+                  TextButton(
+                      onPressed: () => Navigator.pop(context, 'block'),
+                      child: Text(AppLocalizations.of(context)?.block ?? 'BLOCK'))
+                ]));
+    switch (res) {
+      case 'block':
+        hiLog(TAG, 'result is block');
+        showSnack(AppLocalizations.of(context)?.blocked ?? 'User is blocked');
+        Future.delayed(const Duration(milliseconds: 250), () {
+          if (inCall) _signaling.bye(true);
+          next(false);
+          setState(() => inCall = false);
+        });
+        break;
+      case 'complaint':
+        hiLog(TAG, 'result is complaint');
+        showSnack(AppLocalizations.of(context)?.report_sent ?? 'Complaint sent');
+        sendReport();
+        if (!inCall) next(false);
+        break;
+      case null:
+        hiLog(TAG, 'result is null');
+        if (!inCall) next(false);
+    }
+    blockDialogShown = false;
+  }
 
   next(bool canShowAd) async {
     hiLog(TAG, 'nextCount=>$nextCount, countToShowAd=>$countToShowAd');
@@ -265,6 +283,8 @@ class _CallState extends State<Call> with WidgetsBindingObserver {
     });
     if (_connOk) _signaling.connect();
   }
+
+  void sendReport() {}
 }
 
 class MaintenanceWidget extends StatelessWidget {

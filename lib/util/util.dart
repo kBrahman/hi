@@ -4,8 +4,6 @@ library random_string;
 
 import 'dart:math';
 
-import 'package:flutter/services.dart';
-
 const ASCII_START = 33;
 const ASCII_END = 126;
 const NUMERIC_START = 48;
@@ -18,6 +16,7 @@ const ANDROID_BANNER_ID = 'ca-app-pub-8761730220693010/9359738284';
 const IOS_BANNER_ID = 'ca-app-pub-8761730220693010/8787379216';
 const ANDROID_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/2067844692';
 const IOS_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/7838433087';
+const ICE_RESTART_COUNT_THRESHOLD = 2;
 
 /// Generates a random integer where [from] <= [to].
 int randomBetween(int from, int to) {

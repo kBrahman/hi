@@ -2,5 +2,11 @@
   "waiting": "Várni valakire...",
   "maintenance": "A karbantartás szerveroldalon működik, kérem később",
   "no_inet": "Nincs internet hozzaferes",
-  "refresh": "Frissítés"
+  "refresh": "Frissítés",
+  "block_report":"Letilthatja ezt a felhasználót, vagy panaszt jelenthet be",
+  "cancel":"Megszünteti",
+  "report_sent":"Panasz elküldve",
+  "blocked":"A felhasználó le van tiltva",
+  "block":"BLOKK",
+  "complaint":"Panasz"
 }

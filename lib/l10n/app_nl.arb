@@ -2,5 +2,11 @@
   "waiting": "Op iemand wachten...",
   "maintenance": "Onderhoud werkt aan serverzijde, kom later aub",
   "no_inet": "Geen toegang tot het internet",
-  "refresh": "Vernieuwen"
+  "refresh": "Vernieuwen",
+  "block_report": "U kunt een klacht over deze gebruiker blokkeren of melden",
+  "cancel": "Annuleren",
+  "report_sent": "Klacht verzonden",
+  "blocked": "Gebruiker is geblokkeerd",
+  "block": "BLOK",
+  "complaint": "Klacht"
 }

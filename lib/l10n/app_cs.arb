@@ -2,5 +2,11 @@
   "waiting": "Čekat na někoho...",
   "maintenance": "Údržba funguje na straně serveru, přijďte později",
   "no_inet": "Žádný přístup k internetu",
-  "refresh": "Obnovit"
+  "refresh": "Obnovit",
+  "block_report": "Tohoto uživatele můžete zablokovat nebo nahlásit stížnost",
+  "cancel": "zrušení",
+  "report_sent": "Stížnost odeslána",
+  "blocked": "Uživatel je zablokován",
+  "block": "BLOK",
+  "complaint": "Stížnost"
 }

@@ -2,5 +2,11 @@
   "waiting": "Birisini gözləyirəm ...",
   "maintenance": "Texniki baxım server tərəfində, daha sonra gəlin xahiş edirəm",
   "no_inet": "İnternet yoxdur",
-  "refresh": "Təzələmək"
+  "refresh": "Təzələmək",
+  "block_report": "Siz bu istifadəçini bloklaya və ya şikayət edə bilərsiniz",
+  "cancel": "Ləğv et",
+  "report_sent": "Şikayət göndərildi",
+  "blocked": "İstifadəçi bloklanıb",
+  "block": "BLOK",
+   "complaint":"Şikayət"
 }

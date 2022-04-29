@@ -2,5 +2,11 @@
   "waiting": "Väntar på någon...",
   "maintenance": "Underhåll fungerar på serversidan, kom gärna senare",
   "no_inet": "Ingen internetuppkoppling",
-  "refresh": "Uppdatera"
+  "refresh": "Uppdatera",
+  "block_report": "Du kan blockera eller rapportera ett klagomål på denna användare",
+  "cancel": "Avbryt",
+  "report_sent": "Klagomål skickat",
+  "blocked": "Användaren är blockerad",
+  "block": "BLOCKERA",
+  "complaint": "Klagomål"
 }

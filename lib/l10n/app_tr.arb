@@ -2,5 +2,11 @@
   "waiting": "Birini bekliyoruz ...",
   "maintenance": "Sunucu tarafında bakım çalışmaları, daha sonra gelin lütfen",
   "no_inet": "İnternet erişimi yok",
-  "refresh": "Yenile"
+  "refresh": "Yenile",
+  "block_report": "Bu kullanıcıyla ilgili bir şikayeti engelleyebilir veya bildirebilirsiniz",
+  "cancel": "İptal etmek",
+  "report_sent": "Şikayet gönderildi",
+  "blocked": "Kullanıcı engellendi",
+  "block": "ENGELLEMEK",
+  "complaint": "Şikayet"
 }

@@ -2,5 +2,11 @@
   "waiting": "Menunggu seseorang...",
   "maintenance": "Pemeliharaan berfungsi di sisi server, silakan datang nanti",
   "no_inet": "Tidak ada akses internet",
-  "refresh": "Menyegarkan"
+  "refresh": "Menyegarkan",
+  "block_report":"Anda dapat memblokir atau melaporkan keluhan pada pengguna ini",
+  "cancel":"Membatalkan",
+  "report_sent":"Keluhan terkirim",
+  "blocked":"Pengguna diblokir",
+  "block":"MEMBLOKIR",
+  "complaint":"Keluhan"
 }

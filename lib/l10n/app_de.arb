@@ -2,5 +2,11 @@
   "waiting": "Auf jemanden warten ...",
   "maintenance": "Die Wartung funktioniert auf der Serverseite, bitte kommen Sie später",
   "no_inet": "Kein Internetzugang",
-  "refresh": "Aktualisierung"
+  "refresh": "Aktualisierung",
+  "block_report": "Sie können diesen Benutzer blockieren oder eine Beschwerde melden",
+  "cancel": "Absagen",
+  "report_sent": "Reklamation gesendet",
+  "blocked": "Benutzer ist gesperrt",
+  "block": "BLOCK",
+  "complaint": "Beschwerde"
 }

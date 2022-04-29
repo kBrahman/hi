@@ -2,5 +2,11 @@
   "waiting": "Waiting for someone...",
   "maintenance": "Maintenance works on server side, come later please",
   "no_inet": "No internet access",
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "block_report": "You can block or report a complaint on this user",
+  "cancel": "Cancel",
+  "report_sent": "Complaint sent",
+  "blocked": "User is blocked",
+  "block": "BLOCK",
+  "complaint": "Complaint"
 }

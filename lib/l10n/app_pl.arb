@@ -2,5 +2,11 @@
   "waiting": "Czekać na kogoś...",
   "maintenance": "Prace konserwacyjne po stronie serwera, przyjdź później",
   "no_inet": "Brak dostępu do internetu",
-  "refresh": "Odświeżać"
+  "refresh": "Odświeżać",
+  "block_report": "Możesz zablokować lub zgłosić skargę na tego użytkownika",
+  "cancel": "Anulować",
+  "report_sent": "Reklamacja wysłana",
+  "blocked": "Użytkownik jest zablokowany",
+  "block": "BLOK",
+  "complaint": "Reklamacja"
 }
