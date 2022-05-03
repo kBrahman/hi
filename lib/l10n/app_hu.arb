@@ -8,5 +8,7 @@
   "report_sent":"Panasz elküldve",
   "blocked":"A felhasználó le van tiltva",
   "block":"BLOKK",
-  "complaint":"Panasz"
+  "complaint":"Panasz",
+  "accept": "ELFOGADÁSA",
+  "decline": "ELUTASÍTÁSA"
 }

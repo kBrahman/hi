@@ -8,5 +8,8 @@
   "report_sent": "불만 사항이 전송됨",
   "blocked": "사용자가 차단됨",
   "block": "차단하다",
-  "complaint": "불평"
+  "complaint": "불평",
+  "accept": "약관 동의",
+  "decline": "약관 거부"
+
 }

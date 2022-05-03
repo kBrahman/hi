@@ -13,20 +13,20 @@ import 'package:hi/util/util.dart';
 import 'package:package_info/package_info.dart';
 import 'package:wakelock/wakelock.dart';
 
-class Call extends StatefulWidget {
+class CallWidget extends StatefulWidget {
   final String ip;
   final String turnServer;
   final String turnUname;
   final String turnPass;
 
-  const Call({Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
+  const CallWidget({Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
       : super(key: key);
 
   @override
-  _CallState createState() => _CallState();
+  _CallWidgetState createState() => _CallWidgetState();
 }
 
-class _CallState extends State<Call> with WidgetsBindingObserver {
+class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   static const TAG = 'Hi_CallState';
   late Signaling _signaling;
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();

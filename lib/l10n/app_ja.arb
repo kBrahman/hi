@@ -8,5 +8,8 @@
   "report_sent":"苦情が送信されました",
   "blocked":"ユーザーがブロックされています",
   "block":"ブロック",
-  "complaint":"苦情"
+  "complaint":"苦情",
+  "accept": "利用規約に同意する",
+  "decline": "条件の拒否"
+
 }

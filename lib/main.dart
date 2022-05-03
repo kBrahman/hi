@@ -7,8 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hi/util/util.dart';
-import 'package:hi/widget/call.dart';
+import 'package:hi/widget/widget_main.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'l10n/locale.dart';
 
@@ -31,24 +32,32 @@ void main() async {
   final turnServer = props['turnServer']!;
   turnUname = props['turnUname']!;
   turnPass = props['turnPass']!;
-  hiLog(TAG, 'before start');
-  start(ip, turnServer, turnUname, turnPass);
+  final instance = await SharedPreferences.getInstance();
+  final termsAccepted = instance.getBool(TERMS_ACCEPTED) ?? false;
+  start(ip, turnServer, turnUname, turnPass, termsAccepted);
 }
 
-start(String ip, String turnServer, String turnUname, String turnPass) async =>
+start(String ip, String turnServer, String turnUname, String turnPass, bool termsAccepted) async =>
     await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
         ? exit(0)
-        : runApp(Hi(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass)));
+        : runApp(Hi(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass, termsAccepted: termsAccepted)));
 
 class Hi extends StatelessWidget {
+  static const TAG = 'Hi';
+
   final String ip;
   final String turnServer;
   final String turnUname;
   final String turnPass;
+  final bool termsAccepted;
 
-  static const TAG = 'Hi';
-
-  const Hi({Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
+  const Hi(
+      {Key? key,
+      required this.ip,
+      required this.turnServer,
+      required this.turnUname,
+      required this.turnPass,
+      required this.termsAccepted})
       : super(key: key);
 
   @override
@@ -67,6 +76,6 @@ class Hi extends StatelessWidget {
           primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: Call(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass));
+        home: MainWidget(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass, termsAccepted: termsAccepted));
   }
 }

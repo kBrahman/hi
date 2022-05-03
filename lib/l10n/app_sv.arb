@@ -8,5 +8,7 @@
   "report_sent": "Klagomål skickat",
   "blocked": "Användaren är blockerad",
   "block": "BLOCKERA",
-  "complaint": "Klagomål"
+  "complaint": "Klagomål",
+  "accept": "ACCEPTERA",
+  "decline": "AVVISA VILLKOR"
 }

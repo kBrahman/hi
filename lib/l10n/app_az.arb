@@ -8,5 +8,7 @@
   "report_sent": "Şikayət göndərildi",
   "blocked": "İstifadəçi bloklanıb",
   "block": "BLOK",
-   "complaint":"Şikayət"
+   "complaint":"Şikayət",
+  "accept": "QƏBUL EDİN",
+  "decline": "İMTİNA"
 }

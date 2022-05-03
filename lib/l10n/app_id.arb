@@ -8,5 +8,8 @@
   "report_sent":"Keluhan terkirim",
   "blocked":"Pengguna diblokir",
   "block":"MEMBLOKIR",
-  "complaint":"Keluhan"
+  "complaint":"Keluhan",
+  "accept": "TERIMA PERSYARATAN",
+  "decline": "KETENTUAN PENOLAKAN"
+
 }

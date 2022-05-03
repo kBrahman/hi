@@ -8,5 +8,8 @@
   "report_sent": "Reklamacja wysłana",
   "blocked": "Użytkownik jest zablokowany",
   "block": "BLOK",
-  "complaint": "Reklamacja"
+  "complaint": "Reklamacja",
+  "accept": "ZAAKCEPTOWAĆ",
+  "decline": "ODRZUCENIE WARUNKÓW"
+
 }

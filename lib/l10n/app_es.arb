@@ -8,5 +8,7 @@
   "report_sent":"Reclamación enviada",
   "blocked":"El usuario está bloqueado",
   "block":"CUADRA",
-  "complaint":"Queja"
+  "complaint":"Queja",
+  "accept": "ACEPTAR",
+  "decline": "RECHAZAR"
 }

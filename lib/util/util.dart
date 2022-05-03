@@ -4,6 +4,14 @@ library random_string;
 
 import 'dart:math';
 
+const TERMS_DEFAULT =
+    "'Zhet' ('we' or 'us' or 'our') respects human dignity of our users ('user' or 'you'). We do not support any kind of "
+    "discrimination, threats, bullying, harassment and abuse. This Terms of user/user Policy explains how we moderate such an "
+    "objectionable content which features discrimination, threats, bullying, harassment or abuse. Please read this Privacy Policy "
+    "carefully. IF YOU DO NOT AGREE WITH THE TERMS OF THIS POLICY, PLEASE DO NOT ACCESS THE APPLICATION. We reserve the right to "
+    "make changes to this Policy at any time and for any reason. You MUST accept the terms of this policy in order to use the app"
+    "APP USAGE";
+
 const ASCII_START = 33;
 const ASCII_END = 126;
 const NUMERIC_START = 48;
@@ -17,6 +25,7 @@ const IOS_BANNER_ID = 'ca-app-pub-8761730220693010/8787379216';
 const ANDROID_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/2067844692';
 const IOS_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/7838433087';
 const ICE_RESTART_COUNT_THRESHOLD = 2;
+const TERMS_ACCEPTED = 'terms_accepted';
 
 /// Generates a random integer where [from] <= [to].
 int randomBetween(int from, int to) {

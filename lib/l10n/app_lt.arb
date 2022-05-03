@@ -3,10 +3,12 @@
   "maintenance": "Priežiūra veikia serverio pusėje, prašau atvykti vėliau",
   "no_inet": "Nėra interneto prieigos",
   "refresh": "Atnaujinti",
-  "block_report":"Galite užblokuoti arba pranešti apie skundą dėl šio vartotojo",
-  "cancel":"Atšaukti",
-  "report_sent":"Skundas išsiųstas",
-  "blocked":"Vartotojas užblokuotas",
-  "block":"BLOKAS",
-  "complaint":"Skundas"
+  "block_report": "Galite užblokuoti arba pranešti apie skundą dėl šio vartotojo",
+  "cancel": "Atšaukti",
+  "report_sent": "Skundas išsiųstas",
+  "blocked": "Vartotojas užblokuotas",
+  "block": "BLOKAS",
+  "complaint": "Skundas",
+  "accept": "SUTINKA SĄLYGOMIS",
+  "decline": "ATMESTI"
 }

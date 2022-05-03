@@ -8,5 +8,9 @@
   "report_sent": "Stížnost odeslána",
   "blocked": "Uživatel je zablokován",
   "block": "BLOK",
-  "complaint": "Stížnost"
+  "complaint": "Stížnost",
+  "accept": "PŘIJÍMEJTE PODMÍNKY",
+  "decline": "ODMÍTNOUT PODMÍNKY"
+
+
 }

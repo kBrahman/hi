@@ -6,7 +6,9 @@
   "block_report":"Puoi bloccare o segnalare un reclamo su questo utente",
   "cancel":"Annulla",
   "report_sent":"Reclamo inviato",
-  "blocked":"L&#39;utente è bloccato",
+  "blocked":"L'utente è bloccato",
   "block":"BLOCCARE",
-  "complaint":"Rimostranza"
+  "complaint":"Rimostranza",
+  "accept": "ACCETTARE",
+  "decline": "DECLINO"
 }

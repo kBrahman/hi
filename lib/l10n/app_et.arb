@@ -8,5 +8,7 @@
   "report_sent": "Kaebus saadetud",
   "blocked": "Kasutaja on blokeeritud",
   "block": "BLOKKI",
-  "complaint": "Kaebus"
+  "complaint": "Kaebus",
+  "accept": "NÕUSTU",
+  "decline": "KEELDUS"
 }

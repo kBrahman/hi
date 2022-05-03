@@ -8,5 +8,7 @@
   "report_sent": "Reklamation gesendet",
   "blocked": "Benutzer ist gesperrt",
   "block": "BLOCK",
-  "complaint": "Beschwerde"
+  "complaint": "Beschwerde",
+  "accept": "ANNEHMEN",
+  "decline": "ABLEHNEN"
 }

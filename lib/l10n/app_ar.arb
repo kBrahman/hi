@@ -8,5 +8,7 @@
   "report_sent": "تم إرسال الشكوى",
   "blocked": "المستخدم محظور",
   "block": "منع",
-  "complaint":"شكوى"
+  "complaint":"شكوى",
+  "accept": "قبول الشروط",
+  "decline": "شروط الرفض"
 }

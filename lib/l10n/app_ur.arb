@@ -8,5 +8,8 @@
   "report_sent": "شکایت بھیج دی گئی۔",
   "blocked": "صارف مسدود ہے۔",
   "block": "بلاک",
-  "complaint": "شکایت"
+  "complaint": "شکایت",
+  "accept": "قبول کریں۔",
+  "decline": "شرائط مسترد کریں۔",
+  "terms_title": "Terms of user/user policy"
 }

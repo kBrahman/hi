@@ -8,5 +8,7 @@
   "report_sent": "Klacht verzonden",
   "blocked": "Gebruiker is geblokkeerd",
   "block": "BLOK",
-  "complaint": "Klacht"
+  "complaint": "Klacht",
+  "accept": "AANVAARDEN",
+  "decline": "AFWIJZEN"
 }

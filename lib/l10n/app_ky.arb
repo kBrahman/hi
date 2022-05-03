@@ -8,5 +8,7 @@
   "report_sent": "Арыз жөнөтүлдү",
   "blocked": "Колдонуучу бөгөттөлгөн",
   "block": "БЛОК",
-  "complaint": "Арыз"
+  "complaint": "Арыз",
+  "accept": "ҚАБЫЛДАУ",
+  "decline": "ҚАБЫЛДАМАУ"
 }

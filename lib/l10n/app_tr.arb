@@ -8,5 +8,7 @@
   "report_sent": "Şikayet gönderildi",
   "blocked": "Kullanıcı engellendi",
   "block": "ENGELLEMEK",
-  "complaint": "Şikayet"
+  "complaint": "Şikayet",
+  "accept": "KABUL ETMEK",
+  "decline": "REDDETMEK"
 }

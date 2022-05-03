@@ -8,5 +8,7 @@
   "report_sent":"נשלחה תלונה",
   "blocked":"המשתמש חסום",
   "block":"לַחסוֹם",
-  "complaint":"תְלוּנָה"
+  "complaint":"תְלוּנָה",
+  "accept": "קבל את התנאים",
+  "decline": "דחיית תנאים"
 }

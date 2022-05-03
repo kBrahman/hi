@@ -8,5 +8,7 @@
   "report_sent": "Reclamație trimisă",
   "blocked": "Utilizatorul este blocat",
   "block": "BLOC",
-  "complaint": "Plângere"
+  "complaint": "Plângere",
+  "decline": "DECLIN"
+
 }

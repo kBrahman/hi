@@ -6,7 +6,9 @@
   "block_report": "Vous pouvez bloquer ou signaler une plainte sur cet utilisateur",
   "cancel": "Annuler",
   "report_sent": "Réclamation envoyée",
-  "blocked": "L&#39;utilisateur est bloqué",
+  "blocked": "L'utilisateur est bloqué",
   "block": "BLOC",
-  "complaint": "Plainte"
+  "complaint": "Plainte",
+  "accept": "J'ACCEPTE",
+  "decline": "DÉCLIN"
 }
