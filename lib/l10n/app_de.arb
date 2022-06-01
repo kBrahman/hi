@@ -10,5 +10,6 @@
   "block": "BLOCK",
   "complaint": "Beschwerde",
   "accept": "ANNEHMEN",
-  "decline": "ABLEHNEN"
+  "decline": "ABLEHNEN",
+  "terms_title": "Benutzerbedingungen/Benutzerrichtlinie"
 }

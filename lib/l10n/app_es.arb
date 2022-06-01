@@ -10,5 +10,6 @@
   "block":"CUADRA",
   "complaint":"Queja",
   "accept": "ACEPTAR",
-  "decline": "RECHAZAR"
+  "decline": "RECHAZAR",
+  "terms_title": "Términos de usuario/política de usuario"
 }

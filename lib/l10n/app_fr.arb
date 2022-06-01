@@ -10,5 +10,6 @@
   "block": "BLOC",
   "complaint": "Plainte",
   "accept": "J'ACCEPTE",
-  "decline": "DÉCLIN"
+  "decline": "DÉCLIN",
+  "terms_title": "Conditions d'utilisation/politique d'utilisation"
 }

@@ -12,7 +12,7 @@ class TermsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('hi')),
+        appBar: appBarWithTitle,
         body: Column(
           children: [
             Text(AppLocalizations.of(context)?.terms_title ?? 'Terms of user/user policy',

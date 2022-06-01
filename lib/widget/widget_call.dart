@@ -2,15 +2,18 @@
 import 'dart:core';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:hi/signal/signaling.dart';
+import 'package:hi/util/signaling.dart';
 import 'package:hi/util/util.dart';
 import 'package:package_info/package_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:wakelock/wakelock.dart';
 
 class CallWidget extends StatefulWidget {
@@ -18,8 +21,13 @@ class CallWidget extends StatefulWidget {
   final String turnServer;
   final String turnUname;
   final String turnPass;
+  final VoidCallback onBack;
+  final Function(int, Timestamp, String) blockUnblock;
+  final Database _db;
+  final String _name;
 
-  const CallWidget({Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
+  const CallWidget(this.onBack, this.blockUnblock, this._db, this._name,
+      {Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
       : super(key: key);
 
   @override
@@ -28,7 +36,7 @@ class CallWidget extends StatefulWidget {
 
 class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   static const TAG = 'Hi_CallState';
-  late Signaling _signaling;
+  Signaling? _signaling;
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool micMuted = false;
@@ -47,26 +55,15 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _signaling.isDisconnected() ? checkAndConnect() : _signaling.msgNew();
+        _signaling?.isDisconnected() ? checkAndConnect() : _signaling?.msgNew();
         hiLog(TAG, "app in resumed");
         break;
-      case AppLifecycleState.inactive:
-        hiLog(TAG, "app in inactive");
-        break;
       case AppLifecycleState.paused:
-        _signaling.bye(true);
+        _signaling?.bye(true);
         _localRenderer.srcObject = null;
         _remoteRenderer.srcObject = null;
-        setState(() {
-          inCall = false;
-        });
-        hiLog(TAG, "app in paused");
-        break;
-      case AppLifecycleState.detached:
-        _signaling.close();
-        _signaling.disconnect();
-        hiLog(TAG, "app in detached");
-        break;
+        setState(() => inCall = false);
+        hiLog(TAG, 'paused');
     }
   }
 
@@ -74,19 +71,36 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   initState() {
     super.initState();
     initRenderers();
-    initSignalingServer();
     if (Platform.isAndroid) platform = const MethodChannel('hi.channel/app');
+    _checkBlock(widget._name);
     hiLog(TAG, 'init state');
   }
 
-  void initSignalingServer() async {
+  _checkBlock(String name) async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final login = sharedPrefs.getString(LOGIN) ?? '';
+    final DocumentSnapshot doc;
+    if (login.isNotEmpty &&
+        (doc = await FirebaseFirestore.instance.doc('user/$login').get()).exists &&
+        doc[BLOCK_PERIOD] != BLOCK_NO) {
+      final periodCode = doc[BLOCK_PERIOD];
+      final blockTime = doc[BLOCK_TIME];
+      sharedPrefs.setInt(BLOCK_PERIOD, periodCode);
+      sharedPrefs.setInt(BLOCK_TIME, (blockTime as Timestamp).seconds);
+      return widget.blockUnblock(periodCode, blockTime, login);
+    }
+    _initSignalingServer(login, name);
+  }
+
+  void _initSignalingServer(String login, String name) async {
     final version = (await PackageInfo.fromPlatform()).version;
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     final model = Platform.isAndroid ? (await deviceInfo.androidInfo).model : (await deviceInfo.iosInfo).model;
-    final height = WidgetsBinding.instance?.window.physicalSize.height;
-    final width = WidgetsBinding.instance?.window.physicalSize.width;
-    _signaling = Signaling(widget.ip, widget.turnServer, widget.turnUname, widget.turnPass, '$height:$width', model, version);
-    _signaling.onStateChange = (SignalingState state) {
+    final height = WidgetsBinding.instance.window.physicalSize.height;
+    final width = WidgetsBinding.instance.window.physicalSize.width;
+    _signaling = Signaling(login, name, widget.ip, widget.turnServer, widget.turnUname, widget.turnPass, '$height:$width', model,
+        version, widget._db);
+    _signaling?.onStateChange = (SignalingState state) {
       switch (state) {
         case SignalingState.CallStateBye:
           if (!blockDialogShown) next(inCall);
@@ -107,10 +121,11 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         case SignalingState.ConnectionOpen:
           Wakelock.enable();
           break;
+        case SignalingState.BLOCK:
       }
     };
 
-    _signaling.onStreams = ((rStream, lStream) {
+    _signaling?.onStreams = ((rStream, lStream) {
       setState(() {
         _remoteRenderer.srcObject = rStream;
         _localRenderer.srcObject = lStream;
@@ -119,25 +134,18 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
       hiLog(TAG, 'onRemoteStream');
     });
 
-    _signaling.onRemoveRemoteStream = (() {
+    _signaling?.onRemoveRemoteStream = (() {
       _remoteRenderer.srcObject = null;
       hiLog(TAG, 'onRemoveRemoteStream');
     });
     checkAndConnect();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
-
-  showSnack(String s) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s), duration: const Duration(seconds: 2)));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: inCall
-          ? null
-          : AppBar(
-              title: const Text('hi'),
-            ),
+      appBar: inCall ? null : AppBar(title: nameWidget, leading: BackButton(onPressed: widget.onBack)),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: inCall
           ? Row(
@@ -171,6 +179,15 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     );
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _signaling?.bye(true);
+    _signaling?.close();
+    hiLog(TAG, 'dispose');
+    super.dispose();
+  }
+
   Icon? icon(int i) => Icon(i == 0
       ? Icons.switch_camera
       : i == 1
@@ -184,7 +201,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   VoidCallback? onPressed(int i, BuildContext context) {
     switch (i) {
       case 0:
-        return _signaling.switchCamera;
+        return _signaling?.switchCamera;
       case 1:
         return _hangUp;
       case 2:
@@ -194,7 +211,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           setState(() {
             inCall = false;
           });
-          _signaling.bye(true);
+          _signaling?.bye(true);
           next(true);
         };
       case 4:
@@ -220,19 +237,20 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
                       child: Text(AppLocalizations.of(context)?.block ?? 'BLOCK'))
                 ]));
     switch (res) {
-      case 'block':
+      case BLOCK:
         hiLog(TAG, 'result is block');
-        showSnack(AppLocalizations.of(context)?.blocked ?? 'User is blocked');
+        _signaling?.block();
+        showSnack(AppLocalizations.of(context)?.blocked ?? 'User is blocked', 4, context);
         Future.delayed(const Duration(milliseconds: 250), () {
-          if (inCall) _signaling.bye(true);
+          if (inCall) _signaling?.bye(true);
           next(false);
           setState(() => inCall = false);
         });
         break;
       case 'complaint':
         hiLog(TAG, 'result is complaint');
-        showSnack(AppLocalizations.of(context)?.report_sent ?? 'Complaint sent');
-        sendReport();
+        showSnack(AppLocalizations.of(context)?.report_sent ?? 'Complaint sent', 4, context);
+        _signaling?.report();
         if (!inCall) next(false);
         break;
       case null:
@@ -252,8 +270,8 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     }
     hiLog(TAG, 'on next');
     _remoteRenderer.srcObject = null;
-    _signaling.close();
-    _signaling.msgNew();
+    _signaling?.close();
+    _signaling?.msgNew();
   }
 
   initRenderers() async {
@@ -262,7 +280,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   _hangUp() async {
-    _signaling.bye(true);
+    _signaling?.bye(true);
     if (Platform.isAndroid)
       SystemNavigator.pop();
     else
@@ -273,7 +291,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     setState(() {
       micMuted = !micMuted;
     });
-    _signaling.mute(micMuted);
+    _signaling?.mute(micMuted);
   }
 
   checkAndConnect() async {
@@ -281,10 +299,8 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     setState(() {
       _connOk = connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi;
     });
-    if (_connOk) _signaling.connect();
+    if (_connOk) _signaling?.connect();
   }
-
-  void sendReport() {}
 }
 
 class MaintenanceWidget extends StatelessWidget {

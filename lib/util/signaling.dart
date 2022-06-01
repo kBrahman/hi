@@ -4,14 +4,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:camera/camera.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:hi/util/util.dart';
+import 'package:sqflite/sqflite.dart';
 
-import '../util/util.dart';
-
-enum SignalingState { CallStateBye, ConnectionOpen, ConnectionClosed, ConnectionError, NoInet }
+enum SignalingState { CallStateBye, ConnectionOpen, ConnectionClosed, ConnectionError, NoInet, BLOCK }
 
 /*
  * callbacks for Signaling API.
@@ -25,9 +26,9 @@ typedef DataChannelCallback = void Function(RTCDataChannel? dc);
 class Signaling {
   static const TAG = 'Hi_Signaling';
 
-  final _oldPeerIds = [];
+  late List<String?> _oldPeerIds;
 
-  final String _selfId = randomNumeric(6);
+  final String _selfId;
   WebSocket? _socket;
   final String _ip;
   final _port = 4443;
@@ -58,7 +59,7 @@ class Signaling {
     'optional': [],
   };
   final String screenSize;
-  String? peerId;
+  String? _peerId;
   final String turnServer;
   final String turnUname;
   final String turnPass;
@@ -69,8 +70,27 @@ class Signaling {
   final String model;
   late RTCSessionDescription _localDesc;
   int restartCount = 0;
+  final Database _db;
+  final String _selfName;
+  late String _peerName;
+  late List<String?> _reports;
+  late int lastBlockedPeriod;
 
-  Signaling(this._ip, this.turnServer, this.turnUname, this.turnPass, this.screenSize, this.model, this._version);
+  Signaling(this._selfId, this._selfName, this._ip, this.turnServer, this.turnUname, this.turnPass, this.screenSize, this.model,
+      this._version, this._db) {
+    _db
+        .query(BLOCKED_USER, columns: [BLOCKED_LOGIN], where: '$LOGIN=?', whereArgs: [_selfId])
+        .then((bLogins) => _oldPeerIds = bLogins.map((uMap) => uMap[BLOCKED_LOGIN] as String).toList());
+    _db
+        .query(REPORT, columns: [REPORTER_LOGIN], where: '$LOGIN=?', whereArgs: [_selfId])
+        .then((reporters) => reporters.map((r) => r[REPORTER_LOGIN] as String).toList())
+        .then((mapped) {
+      _reports = mapped;
+      hiLog(TAG, 'got report from db=>$_reports');
+    });
+    _db.query(TABLE_USER,
+        columns: [LAST_BLOCK_PERIOD]).then((value) => lastBlockedPeriod = value.first[LAST_BLOCK_PERIOD] as int);
+  }
 
   close() {
     _localStream?.dispose();
@@ -107,11 +127,11 @@ class Signaling {
 
   void bye(bool busy) {
     _send('bye', <String, dynamic>{
-      'to': peerId,
+      'to': _peerId,
       'is_busy': busy,
     });
-    if (peerId != null) _oldPeerIds.add(peerId);
-    peerId = null;
+    if (_peerId != null) _oldPeerIds.add(_peerId);
+    _peerId = null;
   }
 
   void onMessage(message) async {
@@ -119,21 +139,32 @@ class Signaling {
     var data = mapData['data'];
     var type = mapData['type'];
     switch (type) {
-      case 'peer':
-        invite(data['id'], data['mc']);
-        break;
-      case 'offer':
-        {
-          peerId = data['from'];
-          hiLog(TAG, 'offer from $peerId');
-          final description = data['description'];
-          _accept(description['sdp'], description['type'], peerId!, data['mc']);
+      case REPORT:
+        if (_reports.length < 15) {
+          _reports.add(_peerId);
+          _db.insert(REPORT, {REPORTER_LOGIN: _peerId, LOGIN: _selfId});
+          FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$_peerId').set({});
+        } else {
+          onStateChange(SignalingState.BLOCK);
+          _db.update(TABLE_USER, {LAST_BLOCK_PERIOD: getBlockPeriod(lastBlockedPeriod)});
+          _reports.forEach(delete);
+          _reports.clear();
         }
         break;
-      case 'answer':
+      case PEER:
+        _peerName = data[NAME] ?? 'unknown';
+        invite(data['id'], data['mc']);
+        break;
+      case OFFER:
+        _peerId = data['from'];
+        hiLog(TAG, 'offer from $_peerId');
+        final description = data['description'];
+        _accept(description['sdp'], description['type'], _peerId!, data['mc']);
+        break;
+      case ANSWER:
         {
           final description = data['description'];
-          peerId = data['from'];
+          _peerId = data['from'];
           await _peerConnection?.setLocalDescription(_localDesc);
           await _peerConnection?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
         }
@@ -162,8 +193,8 @@ class Signaling {
           _localStream?.dispose();
           _remoteStream?.dispose();
           _peerConnection?.close();
-          if (peerId != null) _oldPeerIds.add(peerId);
-          peerId = null;
+          if (_peerId != null) _oldPeerIds.add(_peerId);
+          _peerId = null;
           hiLog(TAG, 'received bye');
           onStateChange(SignalingState.CallStateBye);
         }
@@ -172,8 +203,6 @@ class Signaling {
         {
           print('keepalive response!');
         }
-        break;
-      default:
         break;
     }
   }
@@ -239,7 +268,8 @@ class Signaling {
     }
   }
 
-  void msgNew() => _send('new', {'d': model, 'v': _version, 'id': _selfId, 'mc': screenSize, 'oldPeerIds': _oldPeerIds});
+  void msgNew() =>
+      _send('new', {'d': model, 'v': _version, 'id': _selfId, 'name': _selfName, 'mc': screenSize, 'oldPeerIds': _oldPeerIds});
 
   Future<MediaStream> _createStream(String? mc) async {
     final cams = await availableCameras();
@@ -282,7 +312,7 @@ class Signaling {
       }
       ..onIceCandidate = (candidate) {
         hiLog(TAG, 'on ice candidate=>${candidate.candidate}');
-        _sendCandidate(peerId, candidate);
+        _sendCandidate(_peerId, candidate);
       }
       ..onRemoveStream = (stream) {
         onRemoveRemoteStream();
@@ -371,7 +401,7 @@ class Signaling {
         'size': screenSize
       });
 
-  _send(event, data) {
+  void _send(event, data) {
     data['type'] = event;
     if (_socket != null) _socket?.add(encoder.convert(data));
   }
@@ -386,4 +416,16 @@ class Signaling {
     for (final cd in cams) if (cd.lensDirection == CameraLensDirection.front) return true;
     return false;
   }
+
+  void block() {
+    _oldPeerIds.add(_peerId);
+    _db.insert(BLOCKED_USER, {BLOCKED_LOGIN: _peerId, NAME: _peerName, LOGIN: _selfId});
+    FirebaseFirestore.instance.doc('user/$_selfId/$BLOCKED_USER/$_peerId').set({NAME: _peerName});
+  }
+
+  void report() => _send('report', {'to': _peerId});
+
+  void delete(String? element) => FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$element').delete();
+
+  int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
 }

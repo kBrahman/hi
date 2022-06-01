@@ -10,5 +10,6 @@
   "block": "BLOKKI",
   "complaint": "Kaebus",
   "accept": "NÕUSTU",
-  "decline": "KEELDUS"
+  "decline": "KEELDUS",
+  "terms_title": "Kasutajatingimused/kasutajapoliitika"
 }

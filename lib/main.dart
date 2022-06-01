@@ -6,10 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hi/util/util.dart';
 import 'package:hi/widget/widget_main.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'l10n/locale.dart';
 
@@ -23,7 +21,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   late String turnUname;
   late String turnPass;
-
   Firebase.initializeApp();
   String data = await rootBundle.loadString('assets/local.properties');
   final iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
@@ -32,15 +29,13 @@ void main() async {
   final turnServer = props['turnServer']!;
   turnUname = props['turnUname']!;
   turnPass = props['turnPass']!;
-  final instance = await SharedPreferences.getInstance();
-  final termsAccepted = instance.getBool(TERMS_ACCEPTED) ?? false;
-  start(ip, turnServer, turnUname, turnPass, termsAccepted);
+  start(ip, turnServer, turnUname, turnPass);
 }
 
-start(String ip, String turnServer, String turnUname, String turnPass, bool termsAccepted) async =>
+start(String ip, String turnServer, String turnUname, String turnPass) async =>
     await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
         ? exit(0)
-        : runApp(Hi(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass, termsAccepted: termsAccepted)));
+        : runApp(Hi(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass)));
 
 class Hi extends StatelessWidget {
   static const TAG = 'Hi';
@@ -49,15 +44,8 @@ class Hi extends StatelessWidget {
   final String turnServer;
   final String turnUname;
   final String turnPass;
-  final bool termsAccepted;
 
-  const Hi(
-      {Key? key,
-      required this.ip,
-      required this.turnServer,
-      required this.turnUname,
-      required this.turnPass,
-      required this.termsAccepted})
+  const Hi({Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
       : super(key: key);
 
   @override
@@ -76,6 +64,6 @@ class Hi extends StatelessWidget {
           primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: MainWidget(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass, termsAccepted: termsAccepted));
+        home: MainWidget(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass));
   }
 }

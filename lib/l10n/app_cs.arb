@@ -10,7 +10,6 @@
   "block": "BLOK",
   "complaint": "Stížnost",
   "accept": "PŘIJÍMEJTE PODMÍNKY",
-  "decline": "ODMÍTNOUT PODMÍNKY"
-
-
+  "decline": "ODMÍTNOUT PODMÍNKY",
+  "terms_title": "Podmínky uživatelských/uživatelských zásad"
 }
