@@ -24,6 +24,7 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
   var _name = '';
   var _login = '';
   late Database _db;
+  var _showNameEmpty = false;
 
   @override
   void initState() {
@@ -40,15 +41,21 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
             padding: const EdgeInsets.all(12),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Logged in as: $_login', style: const TextStyle(color: Colors.grey)),
-              Row(children: [
-                const Text('Your name:', style: bold20),
-                Expanded(
-                    child: Padding(
-                        padding: edgeInsetsLR8,
-                        child: TextField(
-                            style: const TextStyle(fontSize: 20),
-                            onChanged: (v) => _name = v,
-                            controller: TextEditingController(text: _name))))
+              Column(children: [
+                Row(children: [
+                  const Text('Your name:', style: bold20),
+                  Expanded(
+                      child: Padding(
+                          padding: edgeInsetsLR8,
+                          child: TextField(
+                              style: const TextStyle(fontSize: 20),
+                              onChanged: (v) {
+                                _name = v;
+                                if (_showNameEmpty) setState(() => _showNameEmpty = false);
+                              },
+                              controller: TextEditingController(text: _name))))
+                ]),
+                if (_showNameEmpty) const Text('Enter your name please', style: TextStyle(fontSize: 12, color: Colors.red)),
               ]),
               const Padding(padding: edgeInsetsTop16, child: Text('Blocked users:', style: bold20)),
               Expanded(
@@ -69,7 +76,7 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
                       child: ElevatedButton(
                           onPressed: () {
                             if (_name.isEmpty)
-                              showSnack('Enter your name please', 1, context);
+                              setState(() => _showNameEmpty = true);
                             else {
                               widget.onStart(_name);
                               widget.sp.setString(NAME, _name);
