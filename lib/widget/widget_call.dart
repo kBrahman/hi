@@ -59,7 +59,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         hiLog(TAG, "app in resumed");
         break;
       case AppLifecycleState.paused:
-        _signaling?.bye(true);
+        _signaling?.bye(true, false);
         _localRenderer.srcObject = null;
         _remoteRenderer.srcObject = null;
         setState(() => inCall = false);
@@ -182,7 +182,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _signaling?.bye(true);
+    _signaling?.bye(true, false);
     _signaling?.close();
     hiLog(TAG, 'dispose');
     super.dispose();
@@ -211,7 +211,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           setState(() {
             inCall = false;
           });
-          _signaling?.bye(true);
+          _signaling?.bye(true, true);
           next(true);
         };
       case 4:
@@ -242,7 +242,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         _signaling?.block();
         showSnack(AppLocalizations.of(context)?.blocked ?? 'User is blocked', 4, context);
         Future.delayed(const Duration(milliseconds: 250), () {
-          if (inCall) _signaling?.bye(true);
+          if (inCall) _signaling?.bye(true, true);
           next(false);
           setState(() => inCall = false);
         });
@@ -280,7 +280,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   _hangUp() async {
-    _signaling?.bye(true);
+    _signaling?.bye(true, false);
     if (Platform.isAndroid)
       SystemNavigator.pop();
     else

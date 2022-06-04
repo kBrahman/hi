@@ -125,12 +125,12 @@ class Signaling {
     }
   }
 
-  void bye(bool busy) {
+  void bye(bool busy, bool addToAld) {
     _send('bye', <String, dynamic>{
       'to': _peerId,
       'is_busy': busy,
     });
-    if (_peerId != null) _oldPeerIds.add(_peerId);
+    if (_peerId != null && addToAld) _oldPeerIds.add(_peerId);
     _peerId = null;
   }
 
@@ -210,7 +210,7 @@ class Signaling {
   _accept(sdp, type, String id, mc) async {
     _peerConnection = await _createPeerConnection(mc);
     if (_peerConnection == null) {
-      bye(false);
+      bye(false, false);
       return;
     }
     await _peerConnection!.setRemoteDescription(RTCSessionDescription(sdp, type));
@@ -343,7 +343,7 @@ class Signaling {
       _peerConnection?.restartIce();
     else {
       restartCount = 0;
-      bye(true);
+      bye(true, false);
       msgNew();
     }
   }
