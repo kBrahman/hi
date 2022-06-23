@@ -55,7 +55,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _signaling?.isDisconnected() ? checkAndConnect() : _signaling?.msgNew();
+        if (_signaling?.isConnecting() == false) _signaling?.isDisconnected() ? checkAndConnect() : _signaling?.msgNew();
         hiLog(TAG, "app in resumed");
         break;
       case AppLifecycleState.paused:
@@ -271,7 +271,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     hiLog(TAG, 'on next');
     _remoteRenderer.srcObject = null;
     _signaling?.close();
-    _signaling?.msgNew();
+    _signaling?.connect();
   }
 
   initRenderers() async {

@@ -75,6 +75,7 @@ class Signaling {
   late String _peerName;
   late List<String?> _reports;
   late int lastBlockedPeriod;
+  bool _connecting = false;
 
   Signaling(this._selfId, this._selfName, this._ip, this.turnServer, this.turnUname, this.turnPass, this.screenSize, this.model,
       this._version, this._db) {
@@ -124,6 +125,7 @@ class Signaling {
     } else {
       _localDesc = await _createOffer(_peerConnection);
       _offer(peerId, _localDesc, screenSize);
+      _connecting = true;
       hiLog(TAG, 'offer sent');
     }
   }
@@ -165,12 +167,11 @@ class Signaling {
         _accept(description['sdp'], description['type'], _peerId!, data['mc']);
         break;
       case ANSWER:
-        {
-          final description = data['description'];
-          _peerId = data['from'];
-          await _peerConnection?.setLocalDescription(_localDesc);
-          await _peerConnection?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
-        }
+        final description = data['description'];
+        _peerId = data['from'];
+        await _peerConnection?.setLocalDescription(_localDesc);
+        await _peerConnection?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
+        _connecting = false;
         break;
       case 'candidate':
         {
@@ -431,4 +432,6 @@ class Signaling {
   void delete(String? element) => FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$element').delete();
 
   int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
+
+  bool isConnecting() => _connecting;
 }
