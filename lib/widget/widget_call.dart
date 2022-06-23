@@ -22,11 +22,11 @@ class CallWidget extends StatefulWidget {
   final String turnUname;
   final String turnPass;
   final VoidCallback onBack;
-  final Function(int, Timestamp, String) blockUnblock;
+  final Function(String, DateTime, int) _block;
   final Database _db;
   final String _name;
 
-  const CallWidget(this.onBack, this.blockUnblock, this._db, this._name,
+  const CallWidget(this.onBack, this._block, this._db, this._name,
       {Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
       : super(key: key);
 
@@ -46,11 +46,11 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   var countToShowAd = 1;
   var nextCount = 0;
   var inCall = false;
-
+  late String _login;
   late MethodChannel platform;
   String? model;
   bool blockDialogShown = false;
-
+  late int lastBlockedPeriod;
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
@@ -78,18 +78,21 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
 
   _checkBlock(String name) async {
     final sharedPrefs = await SharedPreferences.getInstance();
-    final login = sharedPrefs.getString(LOGIN) ?? '';
+    _login = sharedPrefs.getString(LOGIN) ?? '';
     final DocumentSnapshot doc;
-    if (login.isNotEmpty &&
-        (doc = await FirebaseFirestore.instance.doc('user/$login').get()).exists &&
+    if (_login.isNotEmpty &&
+        (doc = await FirebaseFirestore.instance.doc('user/$_login').get()).exists &&
         doc[BLOCK_PERIOD] != BLOCK_NO) {
       final periodCode = doc[BLOCK_PERIOD];
       final blockTime = doc[BLOCK_TIME];
       sharedPrefs.setInt(BLOCK_PERIOD, periodCode);
       sharedPrefs.setInt(BLOCK_TIME, (blockTime as Timestamp).seconds);
-      return widget.blockUnblock(periodCode, blockTime, login);
-    }
-    _initSignalingServer(login, name);
+      widget._db.update(
+          TABLE_USER, {BLOCK_PERIOD: periodCode, LAST_BLOCK_PERIOD: periodCode, BLOCK_TIME: blockTime.millisecondsSinceEpoch},
+          where: '$_login=?', whereArgs: [_login]);
+      widget._block(_login, blockTime.toDate().add(Duration(minutes: getMinutes(periodCode))), periodCode);
+    } else
+      _initSignalingServer(_login, name);
   }
 
   void _initSignalingServer(String login, String name) async {
@@ -122,6 +125,12 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           Wakelock.enable();
           break;
         case SignalingState.BLOCK:
+          final now = DateTime.now();
+          final blockPeriodCode = getBlockPeriod(lastBlockedPeriod);
+          widget._db.update(TABLE_USER,
+              {BLOCK_PERIOD: blockPeriodCode, BLOCK_TIME: now.millisecondsSinceEpoch, LAST_BLOCK_PERIOD: blockPeriodCode},
+              where: '$_login=?', whereArgs: [_login]);
+          widget._block(_login, now.add(Duration(minutes: getMinutes(blockPeriodCode))), blockPeriodCode);
       }
     };
 
@@ -141,6 +150,8 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     checkAndConnect();
     WidgetsBinding.instance.addObserver(this);
   }
+
+  int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +214,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
       case 0:
         return _signaling?.switchCamera;
       case 1:
-        return _hangUp;
+        return widget.onBack;
       case 2:
         return _muteMic;
       case 3:
@@ -277,14 +288,6 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   initRenderers() async {
     _localRenderer.initialize();
     _remoteRenderer.initialize();
-  }
-
-  _hangUp() async {
-    _signaling?.bye(true, false);
-    if (Platform.isAndroid)
-      SystemNavigator.pop();
-    else
-      exit(0);
   }
 
   _muteMic() {

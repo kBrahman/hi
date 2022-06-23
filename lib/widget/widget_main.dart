@@ -101,7 +101,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     switch (_uiState) {
       case UIState.CALL:
-        return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _blockUnblock, _db, _name,
+        return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _block, _db, _name,
             ip: widget.ip, turnServer: widget.turnServer, turnUname: widget.turnUname, turnPass: widget.turnPass);
       case UIState.TERMS:
         return TermsWidget(() {
