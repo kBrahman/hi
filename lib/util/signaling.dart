@@ -100,6 +100,8 @@ class Signaling {
     _peerConnection?.dispose();
     _peerConnection?.close();
     _peerConnection = null;
+    _socket?.close();
+    _socket = null;
   }
 
   disconnect() {
@@ -115,6 +117,7 @@ class Signaling {
   }
 
   void invite(peerId, mc) async {
+    hiLog(TAG, 'invite');
     _peerConnection = await _createPeerConnection(mc);
     if (_peerConnection == null) {
       onStateChange(SignalingState.ConnectionError);
