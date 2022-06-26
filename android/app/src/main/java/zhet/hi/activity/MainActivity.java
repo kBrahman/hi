@@ -41,14 +41,14 @@ public class MainActivity extends FlutterFragmentActivity {
     @Override
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SoLoader.init(this, false);
-
-        if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
-            FlipperClient client = AndroidFlipperClient.getInstance(this);
-            client.addPlugin(new SharedPreferencesFlipperPlugin(this));
-            client.addPlugin(new DatabasesFlipperPlugin(this));
-            client.start();
-        }
+//        SoLoader.init(this, false);
+//
+//        if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
+//            FlipperClient client = AndroidFlipperClient.getInstance(this);
+//            client.addPlugin(new SharedPreferencesFlipperPlugin(this));
+//            client.addPlugin(new DatabasesFlipperPlugin(this));
+//            client.start();
+//        }
         AudienceNetworkInitializer.initialize(this);
         interstitialAd = new InterstitialAd(this, "3797187196981029_5287545084611892");
 //        AdSettings.addTestDevice("df7ae421-a3f3-4ea8-b57a-7c17c1cf3ca9");
