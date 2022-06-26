@@ -21,7 +21,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   late String turnUname;
   late String turnPass;
-  Firebase.initializeApp();
+  await Firebase.initializeApp();
   String data = await rootBundle.loadString('assets/local.properties');
   final iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   final props = {for (final v in iterable) v.split('=')[0]: v.split('=')[1]};

@@ -45,11 +45,6 @@ android {
 
     compileSdkVersion 32
 
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
-
-
     defaultConfig {
         applicationId id
         minSdkVersion 23
@@ -77,9 +72,9 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.facebook.android:audience-network-sdk:6.10.0'
-    //debugImplementation 'com.facebook.flipper:flipper:0.147.0'
-    //debugImplementation 'com.facebook.soloader:soloader:0.10.3'
+    implementation 'com.facebook.android:audience-network-sdk:6.11.0'
+    debugImplementation 'com.facebook.flipper:flipper:0.147.0'
+    debugImplementation 'com.facebook.soloader:soloader:0.10.3'
 
   //  releaseImplementation 'com.facebook.flipper:flipper-noop:0.147.0'
 }

@@ -422,6 +422,7 @@ class Signaling {
   }
 
   void block() {
+    if (_peerId?.contains('@') == false) return;
     _oldPeerIds.add(_peerId);
     _db.insert(BLOCKED_USER, {BLOCKED_LOGIN: _peerId, NAME: _peerName, LOGIN: _selfId});
     FirebaseFirestore.instance.doc('user/$_selfId/$BLOCKED_USER/$_peerId').set({NAME: _peerName});

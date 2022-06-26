@@ -226,13 +226,13 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           next(true);
         };
       case 4:
-        return () => block(context);
+        return () => _block(context);
       default:
         return null;
     }
   }
 
-  block(BuildContext context) async {
+  _block(BuildContext context) async {
     blockDialogShown = true;
     var res = await showDialog(
         context: context,

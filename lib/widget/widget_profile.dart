@@ -95,7 +95,7 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
 
   void _getBlockedUsers(SharedPreferences sp) async => openDatabase(join(await getDatabasesPath(), DB_NAME))
       .then((db) => db.query(BLOCKED_USER, where: '$LOGIN=?', whereArgs: [_login]))
-      .then((value) => setState(() => _blockedUsers = value));
+      .then((value) => setState(() => _blockedUsers = value.toList()));
 
   _getCreds(SharedPreferences sp) async {
     setState(() {
@@ -105,9 +105,10 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
     _getBlockedUsers(sp);
   }
 
-  void _unblock(Map<String, Object?> m) {
+  void _unblock(Map<String, Object?> m) async {
     _blockedUsers.removeWhere((uMap) => uMap[BLOCKED_LOGIN] == m[BLOCKED_LOGIN] && uMap[LOGIN] == m[LOGIN]);
     hiLog(TAG, 'removed from list');
+    _db = await openDatabase(join(await getDatabasesPath(), DB_NAME));
     _db.delete(BLOCKED_USER, where: '$BLOCKED_LOGIN=? AND $LOGIN=?', whereArgs: [m[BLOCKED_LOGIN], m[LOGIN]]);
     FirebaseFirestore.instance.doc('user/$_login/$BLOCKED_USER/${m[BLOCKED_LOGIN]}').delete();
     hiLog(TAG, 'unblock=>$m');
