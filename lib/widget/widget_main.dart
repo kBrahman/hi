@@ -37,7 +37,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   DateTime? _unblockTime;
   bool _termsAccepted = false;
   bool _signedIn = false;
-  final stateStack = <UIState>[];
+  final _stateStack = <UIState>[];
   late SharedPreferences sharedPrefs;
   late String _name;
 
@@ -98,52 +98,12 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
       }, version: DB_VERSION_1);
 
   @override
-  Widget build(BuildContext context) {
-    switch (_uiState) {
-      case UIState.CALL:
-        return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _block, _db, _name,
-            ip: widget.ip, turnServer: widget.turnServer, turnUname: widget.turnUname, turnPass: widget.turnPass);
-      case UIState.TERMS:
-        return TermsWidget(() {
-          setState(() => _uiState = getState(_signedIn, true));
-          SharedPreferences.getInstance().then((sp) => sp.setBool(TERMS_ACCEPTED, true));
-        });
-      case UIState.SIGN_IN_UP:
-        return SignInOrRegWidget((login) {
-          _login = login;
-          _signedIn = true;
-          setState(() => _uiState = UIState.PROFILE);
-        }, _block, _connectedToInet);
-      case UIState.PROFILE:
-        return ProfileWidget(_startChat, _exit, sharedPrefs);
-      case UIState.BLOCKED:
-        return Scaffold(
-            appBar: AppBar(title: nameWidget, actions: [IconButton(onPressed: _exit, icon: const Icon(Icons.exit_to_app))]),
-            body: Center(
-                child: Padding(
-                    padding: edgeInsetsLR8,
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      const Text('Your account is blocked.', style: bold20),
-                      Text('Block period:${getPeriod(_blockPeriod)}', style: bold20),
-                      if (_blockPeriod != BLOCK_FOREVER)
-                        Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16),
-                            child: Text(
-                                'Your account will be unblocked on ${DateFormat.yMMMMd().format(_unblockTime!)} at'
-                                ' ${DateFormat.Hm().format(_unblockTime!)}',
-                                textAlign: TextAlign.center))
-                    ]))));
-      case UIState.LOADING:
-        return Scaffold(appBar: appBarWithTitle, body: const Center(child: CircularProgressIndicator()));
-      default:
-        throw UnimplementedError();
-    }
-  }
+  Widget build(BuildContext context) => getChild();
 
   void _startChat(name) {
     _name = name;
     setState(() => _uiState = UIState.CALL);
-    stateStack.add(UIState.CALL);
+    _stateStack.add(UIState.CALL);
   }
 
   void _checkConnection() async {
@@ -252,6 +212,48 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   void dispose() {
     hiLog(TAG, 'dispose');
     super.dispose();
+  }
+
+  getChild() {
+    switch (_uiState) {
+      case UIState.CALL:
+        return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _block, _db, _name,
+            ip: widget.ip, turnServer: widget.turnServer, turnUname: widget.turnUname, turnPass: widget.turnPass);
+      case UIState.TERMS:
+        return TermsWidget(() {
+          setState(() => _uiState = getState(_signedIn, true));
+          SharedPreferences.getInstance().then((sp) => sp.setBool(TERMS_ACCEPTED, true));
+        });
+      case UIState.SIGN_IN_UP:
+        return SignInOrRegWidget((login) {
+          _login = login;
+          _signedIn = true;
+          setState(() => _uiState = UIState.PROFILE);
+        }, _block, _connectedToInet);
+      case UIState.PROFILE:
+        return ProfileWidget(_startChat, _exit, sharedPrefs);
+      case UIState.BLOCKED:
+        return Scaffold(
+            appBar: AppBar(title: nameWidget, actions: [IconButton(onPressed: _exit, icon: const Icon(Icons.exit_to_app))]),
+            body: Center(
+                child: Padding(
+                    padding: edgeInsetsLR8,
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      const Text('Your account is blocked.', style: bold20),
+                      Text('Block period:${getPeriod(_blockPeriod)}', style: bold20),
+                      if (_blockPeriod != BLOCK_FOREVER)
+                        Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 16),
+                            child: Text(
+                                'Your account will be unblocked on ${DateFormat.yMMMMd().format(_unblockTime!)} at'
+                                ' ${DateFormat.Hm().format(_unblockTime!)}',
+                                textAlign: TextAlign.center))
+                    ]))));
+      case UIState.LOADING:
+        return Scaffold(appBar: appBarWithTitle, body: const Center(child: CircularProgressIndicator()));
+      default:
+        throw UnimplementedError();
+    }
   }
 }
 

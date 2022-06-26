@@ -51,6 +51,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   String? model;
   bool blockDialogShown = false;
   late int lastBlockedPeriod;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
@@ -101,8 +102,17 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     final model = Platform.isAndroid ? (await deviceInfo.androidInfo).model : (await deviceInfo.iosInfo).model;
     final height = WidgetsBinding.instance.window.physicalSize.height;
     final width = WidgetsBinding.instance.window.physicalSize.width;
-    _signaling = Signaling(login, name, widget.ip, widget.turnServer, widget.turnUname, widget.turnPass, '$height:$width', model,
-        version, widget._db);
+    _signaling = Signaling(
+        login,
+        name,
+        widget.ip,
+        widget.turnServer,
+        widget.turnUname,
+        widget.turnPass,
+        '$height:$width',
+        model,
+        version,
+        widget._db);
     _signaling?.onStateChange = (SignalingState state) {
       switch (state) {
         case SignalingState.CallStateBye:
@@ -154,23 +164,25 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: inCall ? null : AppBar(title: nameWidget, leading: BackButton(onPressed: widget.onBack)),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
-      floatingActionButton: inCall
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(
-                  5,
-                  (i) => ElevatedButton(
-                      child: icon(i),
-                      style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(15)),
-                      onPressed: onPressed(i, context))))
-          : null,
-      body: inCall
-          ? OrientationBuilder(builder: (context, orientation) {
+  Widget build(BuildContext context) =>
+      WillPopScope(
+          child: Scaffold(
+            appBar: inCall ? null : AppBar(title: nameWidget, leading: BackButton(onPressed: widget.onBack)),
+            floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
+            floatingActionButton: inCall
+                ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                    5,
+                        (i) =>
+                        ElevatedButton(
+                            child: icon(i),
+                            style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(15)),
+                            onPressed: onPressed(i, context))))
+                : null,
+            body: inCall
+                ? OrientationBuilder(builder: (context, orientation) {
               return Stack(children: <Widget>[
                 RTCVideoView(_remoteRenderer),
                 Positioned(
@@ -182,13 +194,16 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
                 ),
               ]);
             })
-          : _connOk && !_maintaining
-              ? const WaitingWidget()
-              : !_connOk
-                  ? NoInternetWidget(checkAndConnect)
-                  : const MaintenanceWidget(),
-    );
-  }
+                : _connOk && !_maintaining
+                ? const WaitingWidget()
+                : !_connOk
+                ? NoInternetWidget(checkAndConnect)
+                : const MaintenanceWidget(),
+          ),
+          onWillPop: () {
+            widget.onBack();
+            return Future.value(false);
+          });
 
   @override
   void dispose() {
@@ -199,15 +214,16 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Icon? icon(int i) => Icon(i == 0
-      ? Icons.switch_camera
-      : i == 1
+  Icon? icon(int i) =>
+      Icon(i == 0
+          ? Icons.switch_camera
+          : i == 1
           ? Icons.call_end
           : i == 2
-              ? (micMuted ? Icons.mic_off : Icons.mic)
-              : i == 3
-                  ? Icons.skip_next
-                  : Icons.block);
+          ? (micMuted ? Icons.mic_off : Icons.mic)
+          : i == 3
+          ? Icons.skip_next
+          : Icons.block);
 
   VoidCallback? onPressed(int i, BuildContext context) {
     switch (i) {
@@ -236,22 +252,35 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     blockDialogShown = true;
     var res = await showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-                content: Text(AppLocalizations.of(context)?.block_report ?? 'You can block or report a complaint on this user'),
+        builder: (_) =>
+            AlertDialog(
+                content: Text(AppLocalizations
+                    .of(context)
+                    ?.block_report ?? 'You can block or report a complaint on this user'),
                 actions: [
-                  TextButton(onPressed: Navigator.of(context).pop, child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
+                  TextButton(onPressed: Navigator
+                      .of(context)
+                      .pop, child: Text(AppLocalizations
+                      .of(context)
+                      ?.cancel ?? 'Cancel')),
                   TextButton(
                       onPressed: () => Navigator.pop(context, 'complaint'),
-                      child: Text(AppLocalizations.of(context)?.complaint ?? 'Complaint')),
+                      child: Text(AppLocalizations
+                          .of(context)
+                          ?.complaint ?? 'Complaint')),
                   TextButton(
                       onPressed: () => Navigator.pop(context, 'block'),
-                      child: Text(AppLocalizations.of(context)?.block ?? 'BLOCK'))
+                      child: Text(AppLocalizations
+                          .of(context)
+                          ?.block ?? 'BLOCK'))
                 ]));
     switch (res) {
       case BLOCK:
         hiLog(TAG, 'result is block');
         _signaling?.block();
-        showSnack(AppLocalizations.of(context)?.blocked ?? 'User is blocked', 4, context);
+        showSnack(AppLocalizations
+            .of(context)
+            ?.blocked ?? 'User is blocked', 4, context);
         Future.delayed(const Duration(milliseconds: 250), () {
           if (inCall) _signaling?.bye(true, true);
           next(false);
@@ -260,7 +289,9 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         break;
       case 'complaint':
         hiLog(TAG, 'result is complaint');
-        showSnack(AppLocalizations.of(context)?.report_sent ?? 'Complaint sent', 4, context);
+        showSnack(AppLocalizations
+            .of(context)
+            ?.report_sent ?? 'Complaint sent', 4, context);
         _signaling?.report();
         if (!inCall) next(false);
         break;
@@ -310,10 +341,13 @@ class MaintenanceWidget extends StatelessWidget {
   const MaintenanceWidget({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => Center(
+  Widget build(BuildContext context) =>
+      Center(
         child: Container(
           child: Text(
-            AppLocalizations.of(context)?.maintenance ?? 'Maintenance works on server side, come later please',
+            AppLocalizations
+                .of(context)
+                ?.maintenance ?? 'Maintenance works on server side, come later please',
           ),
           padding: const EdgeInsets.only(left: 20, right: 10),
         ),
@@ -326,14 +360,19 @@ class NoInternetWidget extends StatelessWidget {
   const NoInternetWidget(this.checkConn, {Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => Center(
+  Widget build(BuildContext context) =>
+      Center(
           child: Column(children: <Widget>[
-        Text(AppLocalizations.of(context)?.no_inet ?? 'No internet'),
-        ElevatedButton(
-          onPressed: checkConn,
-          child: Text(AppLocalizations.of(context)?.refresh ?? 'Refresh'),
-        )
-      ], mainAxisAlignment: MainAxisAlignment.center));
+            Text(AppLocalizations
+                .of(context)
+                ?.no_inet ?? 'No internet'),
+            ElevatedButton(
+              onPressed: checkConn,
+              child: Text(AppLocalizations
+                  .of(context)
+                  ?.refresh ?? 'Refresh'),
+            )
+          ], mainAxisAlignment: MainAxisAlignment.center));
 }
 
 class WaitingWidget extends StatelessWidget {
@@ -360,7 +399,9 @@ class WaitingWidget extends StatelessWidget {
           const Padding(padding: EdgeInsets.only(top: 5)),
           const CircularProgressIndicator(),
           const Padding(padding: EdgeInsets.only(top: 10)),
-          Text(AppLocalizations.of(context)?.waiting ?? 'Waiting for someone'),
+          Text(AppLocalizations
+              .of(context)
+              ?.waiting ?? 'Waiting for someone'),
         ],
         mainAxisAlignment: MainAxisAlignment.center,
       ),
