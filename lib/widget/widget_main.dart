@@ -15,11 +15,11 @@ import 'widget_call.dart';
 
 class MainWidget extends StatefulWidget {
   final String ip;
-  final String turnServer;
+  final Iterable<String> turnServers;
   final String turnUname;
   final String turnPass;
 
-  const MainWidget({Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
+  const MainWidget({Key? key, required this.ip, required this.turnServers, required this.turnUname, required this.turnPass})
       : super(key: key);
 
   @override
@@ -218,7 +218,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
     switch (_uiState) {
       case UIState.CALL:
         return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _block, _db, _name,
-            ip: widget.ip, turnServer: widget.turnServer, turnUname: widget.turnUname, turnPass: widget.turnPass);
+            ip: widget.ip, turnServers: widget.turnServers, turnUname: widget.turnUname, turnPass: widget.turnPass);
       case UIState.TERMS:
         return TermsWidget(() {
           setState(() => _uiState = getState(_signedIn, true));

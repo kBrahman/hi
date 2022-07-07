@@ -26,26 +26,26 @@ void main() async {
   final iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   final props = {for (final v in iterable) v.split('=')[0]: v.split('=')[1]};
   final String ip = props['server']!;
-  final turnServer = props['turnServer']!;
+  final turnServers = props['turnServers']!.split(':').map((e) => 'turn:$e:3478');
   turnUname = props['turnUname']!;
   turnPass = props['turnPass']!;
-  start(ip, turnServer, turnUname, turnPass);
+  start(ip, turnServers, turnUname, turnPass);
 }
 
-start(String ip, String turnServer, String turnUname, String turnPass) async =>
+start(String ip, Iterable<String> turnServers, String turnUname, String turnPass) async =>
     await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
         ? exit(0)
-        : runApp(Hi(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass)));
+        : runApp(Hi(ip: ip, turnServers: turnServers, turnUname: turnUname, turnPass: turnPass)));
 
 class Hi extends StatelessWidget {
   static const TAG = 'Hi';
 
   final String ip;
-  final String turnServer;
+  final Iterable<String> turnServers;
   final String turnUname;
   final String turnPass;
 
-  const Hi({Key? key, required this.ip, required this.turnServer, required this.turnUname, required this.turnPass})
+  const Hi({Key? key, required this.ip, required this.turnServers, required this.turnUname, required this.turnPass})
       : super(key: key);
 
   @override
@@ -64,6 +64,6 @@ class Hi extends StatelessWidget {
           primarySwatch: MaterialColor(0xFFE10A50, colorCodes),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: MainWidget(ip: ip, turnServer: turnServer, turnUname: turnUname, turnPass: turnPass));
+        home: MainWidget(ip: ip, turnServers: turnServers, turnUname: turnUname, turnPass: turnPass));
   }
 }

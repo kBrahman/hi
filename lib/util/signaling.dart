@@ -60,7 +60,7 @@ class Signaling {
   };
   final String screenSize;
   String? _peerId;
-  final String turnServer;
+  final Iterable<String> turnServers;
   final String turnUname;
   final String turnPass;
   final decoder = const JsonDecoder();
@@ -77,7 +77,7 @@ class Signaling {
   late int lastBlockedPeriod;
   bool _connecting = false;
 
-  Signaling(this._selfId, this._selfName, this._ip, this.turnServer, this.turnUname, this.turnPass, this.screenSize, this.model,
+  Signaling(this._selfId, this._selfName, this._ip, this.turnServers, this.turnUname, this.turnPass, this.screenSize, this.model,
       this._version, this._db) {
     _db
         .query(BLOCKED_USER, columns: [BLOCKED_LOGIN], where: '$LOGIN=?', whereArgs: [_selfId])
@@ -299,8 +299,7 @@ class Signaling {
     final _iceServers = {
       'iceServers': [
         {'url': 'stun:stun1.l.google.com:19302'},
-        {'url': 'stun:stun.ekiga.net'},
-        {'url': turnServer, 'credential': turnPass, 'username': turnUname}
+        {'url': 'stun:stun.ekiga.net'}, ...turnServers.map((e) => {'url': e, 'credential': turnPass, 'username': turnUname}),
       ],
       'sdpSemantics': 'unified-plan'
     };
