@@ -32,13 +32,13 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   bool _connectedToInet = true;
   var _showPasswdForm = true;
   var _login = '';
-  late Database _db;
+  Database? _db;
   int _blockPeriod = 0;
   DateTime? _unblockTime;
   bool _termsAccepted = false;
   bool _signedIn = false;
   final _stateStack = <UIState>[];
-  late SharedPreferences sharedPrefs;
+  SharedPreferences? sharedPrefs;
   late String _name;
 
   @override
@@ -65,24 +65,25 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
             _uiState = UIState.PROFILE;
             _unblockTime = null;
           });
-          _db.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: 0}, where: '$LOGIN=?', whereArgs: [_login]);
+          _db?.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: 0}, where: '$LOGIN=?', whereArgs: [_login]);
           FirebaseFirestore.instance.doc('user/$_login').set({BLOCK_PERIOD: BLOCK_NO}, SetOptions(merge: true));
         } else if (_login.isNotEmpty)
           FirebaseFirestore.instance.doc('user/$_login').get().then((doc) {
             if (doc.exists && doc[BLOCK_PERIOD] != BLOCK_NO) {
               _blockUnblock(doc[BLOCK_PERIOD], doc[BLOCK_TIME], _login);
-              sharedPrefs.setInt(BLOCK_PERIOD, doc[BLOCK_PERIOD]);
+              sharedPrefs?.setInt(BLOCK_PERIOD, doc[BLOCK_PERIOD]);
               final millis = (doc[BLOCK_TIME] as Timestamp).millisecondsSinceEpoch;
-              sharedPrefs.setInt(BLOCK_TIME, millis);
-              _db.update(TABLE_USER, {BLOCK_PERIOD: doc[BLOCK_PERIOD], BLOCK_TIME: millis, LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD]},
+              sharedPrefs?.setInt(BLOCK_TIME, millis);
+              _db?.update(TABLE_USER, {BLOCK_PERIOD: doc[BLOCK_PERIOD], BLOCK_TIME: millis, LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD]},
                   where: '$LOGIN=?', whereArgs: [_login]);
             }
           });
         else {
+          hiLog(TAG, 'resumed in else');
           setState(() => getState(_signedIn, _termsAccepted));
-          sharedPrefs.remove(BLOCK_PERIOD);
-          sharedPrefs.remove(BLOCK_TIME);
-          _db.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: 0}, where: '$LOGIN=?', whereArgs: [_login]);
+          sharedPrefs?.remove(BLOCK_PERIOD);
+          sharedPrefs?.remove(BLOCK_TIME);
+          _db?.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: 0}, where: '$LOGIN=?', whereArgs: [_login]);
         }
     }
   }
@@ -128,10 +129,10 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
           : UIState.TERMS;
 
   void _exit() {
-    sharedPrefs.remove(SIGNED_IN);
-    sharedPrefs.remove(NAME);
-    sharedPrefs.remove(BLOCK_PERIOD);
-    sharedPrefs.remove(BLOCK_TIME);
+    sharedPrefs?.remove(SIGNED_IN);
+    sharedPrefs?.remove(NAME);
+    sharedPrefs?.remove(BLOCK_PERIOD);
+    sharedPrefs?.remove(BLOCK_TIME);
     setState(() {
       _uiState = UIState.SIGN_IN_UP;
     });
@@ -158,8 +159,8 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
       _unblockTime = null;
       setState(() => _uiState = UIState.PROFILE);
       FirebaseFirestore.instance.doc('user/$login').set({BLOCK_PERIOD: BLOCK_NO}, SetOptions(merge: true));
-      sharedPrefs.remove(BLOCK_PERIOD);
-      sharedPrefs.remove(BLOCK_TIME);
+      sharedPrefs?.remove(BLOCK_PERIOD);
+      sharedPrefs?.remove(BLOCK_TIME);
     }
     hiLog(TAG, 'check blocked');
   }
@@ -188,20 +189,20 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
 
   _setState() async {
     sharedPrefs = await SharedPreferences.getInstance();
-    _termsAccepted = sharedPrefs.getBool(TERMS_ACCEPTED) ?? false;
-    _signedIn = sharedPrefs.getBool(SIGNED_IN) ?? false;
-    _login = sharedPrefs.getString(LOGIN) ?? '';
-    final blocked = sharedPrefs.getInt(BLOCK_PERIOD) ?? BLOCK_NO;
+    _termsAccepted = sharedPrefs?.getBool(TERMS_ACCEPTED) ?? false;
+    _signedIn = sharedPrefs?.getBool(SIGNED_IN) ?? false;
+    _login = sharedPrefs?.getString(LOGIN) ?? '';
+    final blocked = sharedPrefs?.getInt(BLOCK_PERIOD) ?? BLOCK_NO;
     if (blocked != BLOCK_NO)
-      return _blockUnblock(blocked, Timestamp(sharedPrefs.getInt(BLOCK_TIME)!, 0), _login);
+      return _blockUnblock(blocked, Timestamp(sharedPrefs!.getInt(BLOCK_TIME)!, 0), _login);
     else if (_login.isNotEmpty) {
       final doc = await FirebaseFirestore.instance.doc('user/$_login').get();
       if (doc.exists && doc[BLOCK_PERIOD] != BLOCK_NO) {
         final periodCode = doc[BLOCK_PERIOD];
         final blockTime = doc[BLOCK_TIME] as Timestamp;
         _blockUnblock(periodCode, blockTime, _login);
-        sharedPrefs.setInt(BLOCK_PERIOD, periodCode);
-        sharedPrefs.setInt(BLOCK_TIME, blockTime.seconds);
+        sharedPrefs?.setInt(BLOCK_PERIOD, periodCode);
+        sharedPrefs?.setInt(BLOCK_TIME, blockTime.seconds);
         return;
       }
     }
@@ -217,7 +218,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   getChild() {
     switch (_uiState) {
       case UIState.CALL:
-        return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _block, _db, _name,
+        return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _block, _db!, _name,
             ip: widget.ip, turnServers: widget.turnServers, turnUname: widget.turnUname, turnPass: widget.turnPass);
       case UIState.TERMS:
         return TermsWidget(() {
@@ -231,7 +232,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
           setState(() => _uiState = UIState.PROFILE);
         }, _block, _connectedToInet);
       case UIState.PROFILE:
-        return ProfileWidget(_startChat, _exit, sharedPrefs);
+        return ProfileWidget(_startChat, _exit, sharedPrefs!);
       case UIState.BLOCKED:
         return Scaffold(
             appBar: AppBar(title: nameWidget, actions: [IconButton(onPressed: _exit, icon: const Icon(Icons.exit_to_app))]),
