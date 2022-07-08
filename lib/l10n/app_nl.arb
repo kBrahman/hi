@@ -10,5 +10,33 @@
   "block": "BLOK",
   "complaint": "Klacht",
   "accept": "AANVAARDEN",
-  "decline": "AFWIJZEN"
+  "decline": "AFWIJZEN",
+  "terms_title": "Gebruiksvoorwaarden/gebruikersbeleid",
+  "sign_in_google":"Inloggen met Google",
+"terms":"'Zhet' ('wij' of 'ons' of 'onze') respecteert de menselijke waardigheid van onze gebruikers ('gebruiker' of 'u'). We ondersteunen geen enkele vorm van discriminatie, bedreiging, pesten, intimidatie en misbruik. In deze Gebruiksvoorwaarden/gebruikersbeleid wordt uitgelegd hoe we dergelijke aanstootgevende inhoud met discriminatie, bedreigingen, pesterijen, intimidatie of misbruik modereren. Lees dit beleid aandachtig door. ALS U NIET AKKOORD GAAT MET DE VOORWAARDEN VAN DIT BELEID, GA DAN GEEN TOEGANG TOT DE TOEPASSING.\nWe behouden ons het recht voor om op elk moment en om welke reden dan ook wijzigingen aan te brengen in dit Beleid. U MOET de voorwaarden van dit beleid accepteren om de app\n\nBELANGRIJKE INHOUD EN GEDRAG te gebruiken:\nWe definiëren elke vorm van discriminatie, bedreiging, pesten, intimidatie en misbruik als aanstootgevend gedrag.\nWe definiëren seksueel expliciete inhoud als aanstootgevende inhoud .\n\nAPP-GEBRUIK:\nTijdens het gebruik van deze app ga je ermee akkoord geen aanstootgevende inhoud of aanstootgevend gedrag tegen andere gebruikers te tonen. Als u de voorwaarden van dit beleid schendt, wordt u tijdelijk uitgesloten van het gebruik van deze app. In het geval van voortdurende schending, dwz als we klachtenmeldingen van andere gebruikers op uw account blijven ontvangen, wordt uw account beëindigd en kunt u deze app nooit meer gebruiken.",
+  "name":"Uw naam",
+  "name_enter":"Vul alstublieft uw naam in",
+  "blocked_users":"Geblokkeerde gebruikers",
+  "start":"BEGIN CHAT",
+  "account_blocked":"Uw account is geblokkeerd.",
+  "week":"een week",
+  "month":"een maand",
+  "three_months":"drie maanden",
+  "six_months":"zes maanden",
+  "year":"een jaar",
+  "forever":"voor altijd",
+  "unblock_time":"Uw account wordt gedeblokkeerd op {day} om {time}",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Blokperiode:",
+"err_conn":"Verbindingsfout, probeer het opnieuw a.u.b.",
+"logged_in_as":"Ingelogd als:"
 }

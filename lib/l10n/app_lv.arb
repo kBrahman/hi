@@ -1,0 +1,42 @@
+{
+  "waiting": "Gaidu kādu...",
+  "maintenance": "Apkope darbojas servera pusē, lūdzu nāc vēlāk",
+  "no_inet": "Nav piekļuves internetam",
+  "refresh": "atjaunot",
+  "block_report": "Varat bloķēt šo lietotāju vai ziņot par sūdzību",
+  "cancel": "Atcelt",
+  "report_sent": "Sūdzība nosūtīta",
+  "blocked": "Lietotājs ir bloķēts",
+  "block": "BLOĶĒT",
+  "complaint": "Sūdzība",
+  "accept": "AKCEPT",
+  "decline": "NORAIDĪT",
+  "terms_title": "Lietotāja/lietotāja politikas noteikumi",
+  "sign_in_google": "Pierakstieties ar Google",
+  "terms": "'Zhet' ('mēs' vai 'mēs' vai 'mūsu') respektē mūsu lietotāju ('lietotājs' vai 'jūs') cilvēka cieņu. Mēs neatbalstām nekāda veida diskrimināciju, draudus, iebiedēšanu, uzmākšanos un ļaunprātīgu izmantošanu. Šajos Lietotāja/lietotāja politikas noteikumos ir paskaidrots, kā mēs regulējam tik nevēlamu saturu, kurā ir diskriminācija, draudi, iebiedēšana, uzmākšanās vai ļaunprātīga izmantošana. Lūdzu, uzmanīgi izlasiet šo politiku. JA JŪS NEPIEKRĪTAT ŠĪS POLITIKAS NOTEIKUMIEM, LŪDZU, NEPIEKĻŪTIET LIETOJUMS.\nMēs paturam tiesības jebkurā laikā un jebkāda iemesla dēļ veikt izmaiņas šajā politikā. Lai lietotu lietotni, jums OBLIGĀTI jāpiekrīt šīs politikas noteikumiem.\n\nAPBŪTĪGS SATURS UN UZVEDĪBAS:\nMēs definējam jebkāda veida diskrimināciju, draudus, iebiedēšanu, uzmākšanos un ļaunprātīgu izmantošanu kā nevēlamu rīcību.\nMēs definējam seksuāla rakstura saturu kā nepieņemamu saturu. .\n\nLIETOTNES IZMANTOŠANA:\nIzmantojot šo lietotni, jūs piekrītat neatklāt nevēlamu saturu vai rīcību pret citiem lietotājiem. Ja pārkāpsiet šīs politikas noteikumus, jums tiks īslaicīgi aizliegts izmantot šo lietotni. Ja pārkāpums turpinās, ti, ja mēs turpināsim saņemt sūdzību ziņojumus no citiem jūsu konta lietotājiem, jūsu konta darbība tiks pārtraukta un jūs nekad nevarēsit izmantot šo lietotni.",
+  "name": "Tavs vārds",
+  "name_enter": "Lūdzu, ievadiet savu vārdu",
+  "blocked_users": "Bloķētie lietotāji",
+  "start": "SĀKT ČAT",
+  "account_blocked": "Jūsu konts ir bloķēts.",
+  "week": "viena nedēļa",
+  "month": "viens mēnesis",
+  "three_months": "trīs mēneši",
+  "six_months": "seši mēneši",
+  "year": "viens gads",
+  "forever": "uz visiem laikiem",
+  "unblock_time": "Jūsu konts tiks atbloķēts {day} plkst. {time}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Bloķēšanas periods:",
+"err_conn":"Savienojuma kļūda, lūdzu, mēģiniet vēlreiz",
+"logged_in_as":"Ielogojies Kā:"
+}

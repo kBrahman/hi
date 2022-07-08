@@ -11,5 +11,32 @@
   "complaint": "Beschwerde",
   "accept": "ANNEHMEN",
   "decline": "ABLEHNEN",
-  "terms_title": "Benutzerbedingungen/Benutzerrichtlinie"
+  "terms_title": "Benutzerbedingungen/Benutzerrichtlinie",
+  "sign_in_google": "Anmeldung mit Google",
+  "terms": "'Zhet' ('wir' oder 'uns' oder 'unser') respektiert die Menschenwürde unserer Benutzer ('Benutzer' oder 'Sie'). Wir unterstützen keine Art von Diskriminierung, Drohungen, Mobbing, Belästigung und Missbrauch. Diese Nutzungsbedingungen/Nutzerrichtlinie erläutert, wie wir solch anstößige Inhalte moderieren, die Diskriminierung, Drohungen, Mobbing, Belästigung oder Missbrauch enthalten. Bitte lesen Sie diese Richtlinie sorgfältig durch. WENN SIE MIT DEN BEDINGUNGEN DIESER RICHTLINIE NICHT EINVERSTANDEN SIND, GEHEN SIE BITTE NICHT AUF DIE ANWENDUNG ZU.\nWir behalten uns das Recht vor, diese Richtlinie jederzeit und ohne Angabe von Gründen zu ändern. Sie MÜSSEN die Bedingungen dieser Richtlinie akzeptieren, um die App nutzen zu können\n\nANGEMESSENE INHALTE UND VERHALTENSWEISEN:\nWir definieren jede Art von Diskriminierung, Drohungen, Mobbing, Belästigung und Missbrauch als anstößiges Verhalten.\nWir definieren sexuell explizite Inhalte als anstößige Inhalte .\n\nAPP-NUTZUNG:\nWährend Sie diese App verwenden, stimmen Sie zu, keine anstößigen Inhalte oder Verhaltensweisen gegenüber anderen Benutzern offenzulegen. Wenn Sie gegen die Bedingungen dieser Richtlinie verstoßen, wird Ihnen die Nutzung dieser App vorübergehend untersagt. Im Falle eines fortgesetzten Verstoßes, dh wenn wir weiterhin Beschwerdeberichte von anderen Benutzern auf Ihrem Konto erhalten, wird Ihr Konto gekündigt und Sie können diese App niemals verwenden.",
+  "name": "Ihren Namen",
+  "name_enter": "Geben Sie bitte Ihren Namen ein",
+  "blocked_users": "Blockierte Benutzer",
+  "start": "CHAT BEGINNEN",
+  "account_blocked": "Ihr Konto ist gesperrt.",
+  "week": "eine Woche",
+  "month": "ein Monat",
+  "three_months": "drei Monate",
+  "six_months": "sechs Monate",
+  "year": "ein Jahr",
+  "forever": "bis in alle Ewigkeit",
+  "unblock_time": "Ihr Konto wird am {day} um {time} entsperrt",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Sperrzeitraum:",
+"err_conn":"Verbindungsfehler, versuchen Sie es bitte erneut",
+"logged_in_as":"Eingeloggt als:"
 }

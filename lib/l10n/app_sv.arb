@@ -10,5 +10,33 @@
   "block": "BLOCKERA",
   "complaint": "Klagomål",
   "accept": "ACCEPTERA",
-  "decline": "AVVISA VILLKOR"
+  "decline": "AVVISA VILLKOR",
+  "terms_title": "Användar-/användarpolicy",
+  "sign_in_google": "Logga in med Google",
+  "terms": "'Zhet' ('vi' eller 'oss' eller 'vår') respekterar våra användares mänskliga värdighet ('användare' eller 'du'). Vi stödjer inte någon form av diskriminering, hot, mobbning, trakasserier och övergrepp. Dessa användar-/användarpolicy förklarar hur vi modererar sådant stötande innehåll som innehåller diskriminering, hot, mobbning, trakasserier eller övergrepp. Läs denna policy noggrant. OM DU INTE ACCEPTERAR VILLKOR I DENNA POLICY, GÅR DU INTE ÅTKOMST till APPLIKATIONEN.\nVi förbehåller oss rätten att göra ändringar i denna policy när som helst och av vilken anledning som helst. Du MÅSTE acceptera villkoren i denna policy för att kunna använda appen\n\nSTÄNDLIGT INNEHÅLL OCH BETEENDE:\nVi definierar all form av diskriminering, hot, mobbning, trakasserier och övergrepp som stötande beteende.\nVi definierar sexuellt explicit innehåll som stötande innehåll .\n\nAPPANVÄNDNING:\nNär du använder den här appen samtycker du till att inte exponera stötande innehåll eller beteenden mot någon annan användare. Om du bryter mot villkoren i denna policy kommer du tillfälligt att förbjudas att använda den här appen. I händelse av fortsatt överträdelse, dvs om vi fortsätter att få klagomålsrapporter från andra användare på ditt konto, kommer ditt konto att avslutas och du kommer aldrig någonsin att kunna använda den här appen.",
+  "name":"Ditt namn",
+  "name_enter":"Ange ditt namn tack",
+  "blocked_users":"Blockerade användare",
+  "start":"STARTA CHATT",
+  "account_blocked":"Ditt konto är blockerat.",
+  "week":"en vecka",
+  "month":"en månad",
+  "three_months":"tre månader",
+  "six_months":"sex månader",
+  "year":"ett år",
+  "forever":"evigt",
+  "unblock_time":"Ditt konto kommer att avblockeras den {day} kl. {time}",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Blockeringsperiod:",
+"err_conn":"Anslutningsfel, försök igen",
+"logged_in_as":"Inloggad som:"
 }

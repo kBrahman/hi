@@ -11,5 +11,32 @@
   "complaint": "Plainte",
   "accept": "J'ACCEPTE",
   "decline": "DÉCLIN",
-  "terms_title": "Conditions d'utilisation/politique d'utilisation"
+  "terms_title": "Conditions d'utilisation/politique d'utilisation",
+"sign_in_google":"Connectez-vous avec Google",
+"terms":"'Zhet' ('nous' ou 'notre' ou 'notre') respecte la dignité humaine de nos utilisateurs ('utilisateur' ou 'vous'). Nous ne soutenons aucune forme de discrimination, de menaces, d'intimidation, de harcèlement et d'abus. Ces conditions d'utilisation/politique d'utilisation expliquent comment nous modérons un tel contenu répréhensible qui comporte de la discrimination, des menaces, de l'intimidation, du harcèlement ou des abus. Veuillez lire ces règles avec attention. SI VOUS N'ACCEPTEZ PAS LES TERMES DE CETTE POLITIQUE, VEUILLEZ NE PAS ACCÉDER À L'APPLICATION.\nNous nous réservons le droit d'apporter des modifications à cette politique à tout moment et pour quelque raison que ce soit. Vous DEVEZ accepter les termes de cette politique pour utiliser l'application\n\nCONTENU ET COMPORTEMENTS RÉPRÉHENSIBLES :\nNous définissons tout type de discrimination, de menace, d'intimidation, de harcèlement et d'abus comme un comportement répréhensible.\nNous définissons le contenu sexuellement explicite comme un contenu répréhensible .\n\nUTILISATION DE L'APPLICATION :\nLorsque vous utilisez cette application, vous acceptez de ne pas exposer de contenu ou de comportement répréhensible à l'encontre d'un autre utilisateur. Si vous enfreignez les termes de cette politique, vous serez temporairement interdit d'utiliser cette application. En cas de violation continue, c'est-à-dire si nous continuons à recevoir des rapports de plainte d'autres utilisateurs sur votre compte, votre compte sera résilié et vous ne pourrez jamais utiliser cette application.",
+  "name":"Votre nom",
+  "name_enter":"Entrez votre nom s&#39;il vous plait",
+  "blocked_users":"Utilisateurs bloqués",
+  "start":"DÉMARRER LA DISCUSSION",
+  "account_blocked":"Votre compte est bloqué.",
+  "week":"une semaine",
+  "month":"un mois",
+  "three_months":"trois mois",
+  "six_months":"six mois",
+  "year":"un ans",
+  "forever":"toujours",
+  "unblock_time":"Votre compte sera débloqué le {jour} à {heure}",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Période de blocage :",
+"err_conn":"Erreur de connexion, réessayez s&#39;il vous plaît",
+"logged_in_as":"Connecté en tant que:"
 }

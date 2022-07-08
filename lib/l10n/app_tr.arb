@@ -10,5 +10,33 @@
   "block": "ENGELLEMEK",
   "complaint": "Şikayet",
   "accept": "KABUL ETMEK",
-  "decline": "REDDETMEK"
+  "decline": "REDDETMEK",
+  "terms_title": "Kullanıcı/kullanıcı politikası şartları",
+  "sign_in_google": "Google ile giriş yapmak",
+  "terms": "'Zhet' ('biz' veya 'biz' veya 'bizim') kullanıcılarımızın ('kullanıcı' veya 'siz') insanlık onuruna saygı duyar. Ayrımcılığı, tehdidi, zorbalığı, tacizi ve istismarı desteklemiyoruz. Bu Kullanıcı/Kullanıcı Politikası Koşulları, ayrımcılık, tehdit, zorbalık, taciz veya suistimal içeren bu tür sakıncalı içeriği nasıl denetlediğimizi açıklar. Lütfen bu politikayı dikkatli okuyun. BU POLİTİKANIN ŞARTLARINI KABUL ETMİYORSANIZ, LÜTFEN UYGULAMAYA ERİŞMEYİN.\nBu Politikada herhangi bir zamanda ve herhangi bir nedenle değişiklik yapma hakkını saklı tutarız. Uygulamayı kullanmak için bu politikanın şartlarını KABUL ETMENİZ GEREKİR\n\nİTHALATÇI İÇERİK VE DAVRANIŞLAR:\nHer türlü ayrımcılığı, tehdidi, zorbalığı, tacizi ve kötüye kullanımı sakıncalı davranış olarak tanımlarız.\nMüstehcen içeriği sakıncalı içerik olarak tanımlarız. .\n\nUYGULAMA KULLANIMI:\nBu uygulamayı kullanırken, başka herhangi bir kullanıcıya karşı sakıncalı içerik veya davranışlar sergilememeyi kabul edersiniz. Bu Politikanın şartlarını ihlal ederseniz, bu uygulamayı kullanmanız geçici olarak yasaklanır. İhlalin devam etmesi durumunda, yani hesabınızdaki diğer kullanıcılardan şikayet raporları almaya devam edersek, hesabınız feshedilecek ve bu uygulamayı asla kullanamayacaksınız.",
+  "name": "Adınız",
+  "name_enter": "Adınızı girin lütfen",
+  "blocked_users": "Engellenmiş kullanıcılar",
+  "start": "SOHBET BAŞLAT",
+  "account_blocked": "Hesabınız engellendi.",
+  "week": "bir hafta",
+  "month": "bir ay",
+  "three_months": "üç ay",
+  "six_months": "altı ay",
+  "year": "bir yıl",
+  "forever": "sonsuza dek",
+  "unblock_time": "Hesabınızın engellemesi {day} günü {time} saatinde kaldırılacak",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Blok dönemi:",
+  "err_conn": "Bağlantı hatası, tekrar deneyin lütfen",
+"logged_in_as":"Olarak giriş yaptı:"
 }

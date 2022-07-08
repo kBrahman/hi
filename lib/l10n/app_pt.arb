@@ -10,6 +10,33 @@
   "block": "QUADRA",
   "complaint": "Reclamação",
   "accept": "ACEITAR",
-  "decline": "DECLÍNIO"
-
+  "decline": "DECLÍNIO",
+  "terms_title": "Termos da política do usuário/usuário",
+  "sign_in_google": "Faça login no Google",
+  "terms": "'Zhet' ('nós' ou 'nos' ou 'nosso') respeita a dignidade humana de nossos usuários ('usuário' ou 'você'). Não apoiamos nenhum tipo de discriminação, ameaças, bullying, assédio e abuso. Estes Termos da Política de usuário/usuário explicam como moderamos um conteúdo tão censurável que apresenta discriminação, ameaças, bullying, assédio ou abuso. Por favor, leia esta Política com atenção. SE VOCÊ NÃO CONCORDA COM OS TERMOS DESTA POLÍTICA, POR FAVOR, NÃO ACESSE O APLICATIVO.\nReservamos o direito de fazer alterações nesta Política a qualquer momento e por qualquer motivo. Você DEVE aceitar os termos desta política para usar o aplicativo\n\nCONTEÚDO E COMPORTAMENTOS OBJETIVOS:\nDefinimos qualquer tipo de discriminação, ameaças, intimidação, assédio e abuso como comportamento censurável.\nDefinimos conteúdo sexualmente explícito como conteúdo censurável .\n\nUSO DO APLICATIVO:\nAo usar este aplicativo, você concorda em não expor conteúdo ou comportamentos censuráveis contra qualquer outro usuário. Se você violar os termos desta Política, você será temporariamente banido de usar este aplicativo. Em caso de violação continuada, ou seja, se continuarmos recebendo relatórios de reclamações de outros usuários em sua conta, sua conta será encerrada e você nunca poderá usar este aplicativo.",
+  "name":"Seu nome",
+  "name_enter":"Digite seu nome por favor",
+  "blocked_users":"Usuários bloqueados",
+  "start":"INICIAR CHAT",
+  "account_blocked":"Sua conta está bloqueada.",
+  "week":"uma semana",
+  "month":"um mês",
+  "three_months":"três meses",
+  "six_months":"seis meses",
+  "year":"um ano",
+  "forever":"para todo sempre",
+  "unblock_time":"Sua conta será desbloqueada em {day} às {time}",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Período de bloqueio:",
+"err_conn":"Erro de conexão, tente novamente por favor",
+"logged_in_as":"Logado como:"
 }

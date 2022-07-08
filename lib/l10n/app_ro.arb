@@ -9,6 +9,33 @@
   "blocked": "Utilizatorul este blocat",
   "block": "BLOC",
   "complaint": "Plângere",
-  "decline": "DECLIN"
-
+  "decline": "DECLIN",
+  "terms_title": "Termenii politicii utilizatorului/utilizatorului",
+  "sign_in_google": "Conectați-vă cu Google",
+  "terms": "„Zhet” („noi” sau „noi” sau „nostru”) respectă demnitatea umană a utilizatorilor noștri („utilizator” sau „tu”). Nu sprijinim niciun fel de discriminare, amenințări, agresiune, hărțuire și abuz. Acesti Termeni ai Politicii pentru utilizator/utilizator explică modul în care moderam un astfel de conținut inacceptabil care prezintă discriminare, amenințări, hărțuire, hărțuire sau abuz. Vă rugăm să citiți cu atenție această Politică. DACĂ NU SUNTEȚI DE ACORD CU TERMENII ACESTEI POLITICI, VĂ RUGĂM SĂ NU ACCESAȚI APLICAȚIA.\nNe rezervăm dreptul de a aduce modificări acestei Politici în orice moment și din orice motiv. TREBUIE să acceptați termenii acestei politici pentru a utiliza aplicația\n\nCONTINUT ȘI COMPORTAMENTE OBJECTABLE:\nDefinim orice fel de discriminare, amenințări, hărțuire, hărțuire și abuz drept comportament inacceptabil.\nDefinim conținutul sexual explicit drept conținut inacceptabil. .\n\nUTILIZAREA APLICAȚIEI:\nÎn timp ce utilizați această aplicație, sunteți de acord să nu expuneți conținut sau comportament inacceptabil împotriva oricărui alt utilizator. Dacă încălcați termenii acestei politici, vi se va interzice temporar utilizarea acestei aplicații. În cazul încălcării continue, adică dacă primim în continuare rapoarte de plângere de la alți utilizatori din contul dvs., contul dvs. va fi închis și nu veți putea niciodată să utilizați această aplicație.",
+  "name": "Numele dumneavoastră",
+  "name_enter": "Introdu numele tau te rog",
+  "blocked_users": "Utilizatori blocati",
+  "start": "INCEPE CONVERSATIA",
+  "account_blocked": "Contul dvs. este blocat.",
+  "week": "o saptamana",
+  "month": "o luna",
+  "three_months": "trei luni",
+  "six_months": "șase luni",
+  "year": "un an",
+  "forever": "pentru totdeauna",
+  "unblock_time": "Contul dvs. va fi deblocat pe {day} la {time}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Perioada de bloc:",
+"err_conn":"Eroare de conexiune, încercați din nou",
+"logged_in_as":"Conectat ca:"
 }

@@ -43,12 +43,12 @@ android {
         }
     }
 
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId id
         minSdkVersion 23
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

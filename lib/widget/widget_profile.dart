@@ -1,6 +1,7 @@
 // ignore_for_file: curly_braces_in_flow_control_structures, constant_identifier_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -40,10 +41,11 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
         body: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Logged in as: $_login', style: const TextStyle(color: Colors.grey)),
+              Text((AppLocalizations.of(context)?.logged_in_as ?? 'Logged in as:') + ' $_login',
+                  style: const TextStyle(color: Colors.grey)),
               Column(children: [
                 Row(children: [
-                  const Text('Your name:', style: bold20),
+                  Text((AppLocalizations.of(context)?.name ?? 'Your name') + ':', style: bold20),
                   Expanded(
                       child: Padding(
                           padding: edgeInsetsLR8,
@@ -55,9 +57,13 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
                               },
                               controller: TextEditingController(text: _name))))
                 ]),
-                if (_showNameEmpty) const Text('Enter your name please', style: TextStyle(fontSize: 12, color: Colors.red)),
+                if (_showNameEmpty)
+                  Text(AppLocalizations.of(context)?.name_enter ?? 'Enter your name please',
+                      style: const TextStyle(fontSize: 12, color: Colors.red)),
               ]),
-              const Padding(padding: edgeInsetsTop16, child: Text('Blocked users:', style: bold20)),
+              Padding(
+                  padding: edgeInsetsTop16,
+                  child: Text(AppLocalizations.of(context)?.blocked_users ?? 'Blocked users:', style: bold20)),
               Expanded(
                   child: ListView(
                       padding: const EdgeInsets.only(top: 4),
@@ -82,7 +88,7 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
                               widget.sp.setString(NAME, _name);
                             }
                           },
-                          child: const Text('START CHAT'))))
+                          child: Text(AppLocalizations.of(context)?.start ?? 'START CHAT'))))
             ])));
   }
 
@@ -107,10 +113,8 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
 
   void _unblock(Map<String, Object?> m) async {
     _blockedUsers.removeWhere((uMap) => uMap[BLOCKED_LOGIN] == m[BLOCKED_LOGIN] && uMap[LOGIN] == m[LOGIN]);
-    hiLog(TAG, 'removed from list');
     _db = await openDatabase(join(await getDatabasesPath(), DB_NAME));
     _db.delete(BLOCKED_USER, where: '$BLOCKED_LOGIN=? AND $LOGIN=?', whereArgs: [m[BLOCKED_LOGIN], m[LOGIN]]);
     FirebaseFirestore.instance.doc('user/$_login/$BLOCKED_USER/${m[BLOCKED_LOGIN]}').delete();
-    hiLog(TAG, 'unblock=>$m');
   }
 }

@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -128,10 +129,10 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                       backgroundColor: Colors.white,
                     ))
                 : null),
-        body: getChild());
+        body: getChild(context));
   }
 
-  Center getChild() {
+  Center getChild(BuildContext context) {
     return showVerificationForm
         ? Center(
             child: Column(
@@ -297,7 +298,8 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                       //   Icons.done,
                       //   const Color.fromRGBO(0, 0, 0, 0.54),
                       // ),
-                      SignInButton(Buttons.Google, onPressed: googleSignIn),
+                      SignInButton(Buttons.Google,
+                          text: AppLocalizations.of(context)?.sign_in_google, onPressed: () => googleSignIn(context)),
                       // SignInButton(Buttons.Apple, onPressed: appleSignIn),
                       // sizedBox_h_8,
                       // HiBtn(() {
@@ -450,7 +452,7 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
         if (login == null) {
           showSnack('Could not sign in with Apple. Try other  method please', 4, context);
         } else {
-          loginContinue(login);
+          // loginContinue(login);
           hiLog(TAG, 'after login continue');
         }
       } on SignInWithAppleAuthorizationException catch (e) {
@@ -460,7 +462,7 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
       showSnack('No internet', 1, context);
   }
 
-  googleSignIn() async {
+  googleSignIn(BuildContext context) async {
     if (_showProgress) return;
     if (widget._connectedToInet) {
       GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
@@ -469,7 +471,14 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
         final acc = await _googleSignIn.signIn();
         login = acc?.email;
       }
-      if (login != null) loginContinue(login);
+      if (login != null)
+        try {
+          loginContinue(login);
+        } catch (e) {
+          hiLog(TAG, 'e=>$e');
+          showSnack(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please', 2, context);
+          setState(() => _showProgress = false);
+        }
       hiLog(TAG, 'after login continue, login=>$login');
     } else
       showSnack('No internet', 1, context);

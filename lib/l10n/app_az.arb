@@ -8,8 +8,35 @@
   "report_sent": "Şikayət göndərildi",
   "blocked": "İstifadəçi bloklanıb",
   "block": "BLOK",
-   "complaint":"Şikayət",
+  "complaint": "Şikayət",
   "accept": "QƏBUL EDİN",
   "decline": "İMTİNA",
-  "terms_title": "İstifadəçi/istifadəçi siyasətinin şərtləri"
+  "terms_title": "İstifadəçi/istifadəçi siyasətinin şərtləri",
+  "sign_in_google": "Google ilə daxil olun",
+  "terms": "'Zhet' ('biz' və ya 'bizim' və ya 'bizim') istifadəçilərimizin ('istifadəçi' və ya 'siz') insan ləyaqətinə hörmət edir. Biz heç bir ayrı-seçkiliyi, təhdidləri, zorakılığı, təqib və sui-istifadəni dəstəkləmirik. İstifadəçi/istifadəçi Siyasətinin bu Şərtləri ayrı-seçkilik, təhdid, zorakılıq, təqib və ya sui-istifadəni özündə əks etdirən belə bir etiraza səbəb olan məzmunu necə idarə etdiyimizi izah edir. Zəhmət olmasa bu Siyasəti diqqətlə oxuyun. ƏGƏR BU SİYASƏTİN ŞƏRTLƏRİ İLƏ RAZI DEYİLSİNİZSƏ, LÜTFEN TƏTBİQ ETMƏYİN.\nBiz istənilən vaxt və hər hansı səbəbdən bu Siyasətdə dəyişiklik etmək hüququnu özümüzdə saxlayırıq. Tətbiqdən istifadə etmək üçün bu siyasətin şərtlərini qəbul etməlisiniz\n\nMƏZMUNLUQ VƏ DAVRANIŞLAR:\nBiz istənilən növ ayrı-seçkiliyi, təhdidləri, zorakılığı, təcavüzü və sui-istifadəni xoşagəlməz davranış kimi müəyyən edirik.\nBiz açıq-saçıq seksual məzmunu etiraz edilən məzmun kimi müəyyən edirik. .\n\nTƏTBİQ İSTİFADƏSİ:\nBu proqramdan istifadə edərkən siz hər hansı digər istifadəçiyə qarşı mənfi məzmun və ya davranışları ifşa etməməyə razılaşırsınız. Bu Siyasətin şərtlərini pozarsanız, müvəqqəti olaraq bu tətbiqdən istifadə etmək qadağan olunacaq. Davamlı pozuntu halında, yəni hesabınızdakı digər istifadəçilərdən şikayət hesabatları almağa davam etsək, hesabınız bağlanacaq və siz heç vaxt bu tətbiqdən istifadə edə bilməyəcəksiniz.",
+  "name":"Adınız",
+  "name_enter":"Zəhmət olmasa adınızı daxil edin",
+  "blocked_users":"Bloklanmış istifadəçilər",
+  "start":"SAHİBƏ BAŞLAYIN",
+  "account_blocked":"Hesabınız bloklanıb.",
+  "week":"bir həftə",
+  "month":"bir ay",
+  "three_months":"üç ay",
+  "six_months":"Altı ay",
+  "year":"bir il",
+  "forever":"əbədi",
+  "unblock_time":"Hesabınız {day}, {saat} radələrində blokdan çıxarılacaq",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Blok dövrü:",
+"err_conn":"Bağlantı xətası, yenidən cəhd edin",
+"logged_in_as":"Daxil olub:"
 }

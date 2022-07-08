@@ -3,13 +3,40 @@
   "maintenance": "El mantenimiento funciona en el lado del servidor, ven más tarde por favor",
   "no_inet": "Sin acceso a Internet",
   "refresh": "Actualizar",
-  "block_report":"Puede bloquear o reportar una queja sobre este usuario",
-  "cancel":"Cancelar",
-  "report_sent":"Reclamación enviada",
-  "blocked":"El usuario está bloqueado",
-  "block":"CUADRA",
-  "complaint":"Queja",
+  "block_report": "Puede bloquear o reportar una queja sobre este usuario",
+  "cancel": "Cancelar",
+  "report_sent": "Reclamación enviada",
+  "blocked": "El usuario está bloqueado",
+  "block": "CUADRA",
+  "complaint": "Queja",
   "accept": "ACEPTAR",
   "decline": "RECHAZAR",
-  "terms_title": "Términos de usuario/política de usuario"
+  "terms_title": "Términos de usuario/política de usuario",
+  "sign_in_google": "Inicia sesión con Google",
+  "terms": "'Zhet' ('nosotros' o 'nosotros' o 'nuestro') respeta la dignidad humana de nuestros usuarios ('usuario' o 'usted'). No apoyamos ningún tipo de discriminación, amenazas, intimidación, acoso y abuso. Estos Términos de usuario/Política de usuario explican cómo moderamos un contenido tan objetable que presenta discriminación, amenazas, intimidación, acoso o abuso. Lea atentamente esta Política. SI NO ESTÁ DE ACUERDO CON LOS TÉRMINOS DE ESTA POLÍTICA, NO ACCEDA A LA APLICACIÓN.\nNos reservamos el derecho de realizar cambios en esta Política en cualquier momento y por cualquier motivo. DEBE aceptar los términos de esta política para usar la aplicación.\n\nCONTENIDO Y COMPORTAMIENTOS OBJETABLES:\nDefinimos cualquier tipo de discriminación, amenazas, intimidación, acoso y abuso como comportamiento objetable.\nDefinimos contenido sexualmente explícito como contenido objetable. .\n\nUSO DE LA APLICACIÓN:\nMientras usa esta aplicación, acepta no exponer contenido o comportamientos objetables contra ningún otro usuario. Si viola los términos de esta Política, se le prohibirá temporalmente usar esta aplicación. En caso de violación continua, es decir, si seguimos recibiendo informes de quejas de otros usuarios en su cuenta, su cuenta será cancelada y nunca podrá usar esta aplicación.",
+  "name": "Su nombre",
+  "name_enter": "Ingrese su nombre por favor",
+  "blocked_users": "Usuarios bloqueados",
+  "start": "COMENZAR CHAT",
+  "account_blocked": "Su cuenta está bloqueada.",
+  "week": "una semana",
+  "month": "un mes",
+  "three_months": "tres meses",
+  "six_months": "seis meses",
+  "year": "un año",
+  "forever": "Siempre",
+  "unblock_time": "Su cuenta se desbloqueará el {día} a las {hora}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Período de bloque:",
+  "err_conn": "Error de conexión, inténtalo de nuevo por favor",
+"logged_in_as":"Conectado como:"
 }

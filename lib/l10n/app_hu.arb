@@ -3,12 +3,40 @@
   "maintenance": "A karbantartás szerveroldalon működik, kérem később",
   "no_inet": "Nincs internet hozzaferes",
   "refresh": "Frissítés",
-  "block_report":"Letilthatja ezt a felhasználót, vagy panaszt jelenthet be",
-  "cancel":"Megszünteti",
-  "report_sent":"Panasz elküldve",
-  "blocked":"A felhasználó le van tiltva",
-  "block":"BLOKK",
-  "complaint":"Panasz",
+  "block_report": "Letilthatja ezt a felhasználót, vagy panaszt jelenthet be",
+  "cancel": "Megszünteti",
+  "report_sent": "Panasz elküldve",
+  "blocked": "A felhasználó le van tiltva",
+  "block": "BLOKK",
+  "complaint": "Panasz",
   "accept": "ELFOGADÁSA",
-  "decline": "ELUTASÍTÁSA"
+  "decline": "ELUTASÍTÁSA",
+  "terms_title": "Felhasználói feltételek/felhasználói szabályzat",
+  "sign_in_google": "Jelentkezzen be a Google-lal",
+  "terms": "A „Zhet” („mi” vagy „minket” vagy „a miénk”) tiszteletben tartja felhasználóink ('felhasználó' vagy „te') emberi méltóságát. Nem támogatunk semmiféle diszkriminációt, fenyegetést, megfélemlítést, zaklatást és visszaélést. Ez a felhasználói feltételek/felhasználói szabályzat elmagyarázza, hogyan moderálunk egy ilyen kifogásolható tartalmat, amely diszkriminációt, fenyegetést, megfélemlítést, zaklatást vagy visszaélést tartalmaz. Kérjük, figyelmesen olvassa el ezt a szabályzatot. HA NEM EGYETÉRT A JELEN SZABÁLYZAT FELTÉTELEIVEL, KÉRJÜK, NE FÉRJÜK FEL AZ ALKALMAZÁSHOZ.\nFenntartjuk a jogot, hogy a jelen Szabályzatot bármikor és bármilyen okból módosítsuk. Az alkalmazás használatához el KELL fogadnia a jelen szabályzat feltételeit.\n\nKITÁNYOZHATÓ TARTALOM ÉS VISELKEDÉS:\nMindenfajta diszkriminációt, fenyegetést, zaklatást, zaklatást és visszaélést kifogásolható magatartásként határozunk meg.\nA szexuálisan nyílt tartalmat kifogásolható tartalomként definiáljuk. .\n\nALKALMAZÁS HASZNÁLATA:\nAz alkalmazás használata közben beleegyezik abba, hogy nem tesz ki kifogásolható tartalmat vagy viselkedést más felhasználókkal szemben. Ha megsérti a jelen Szabályzat feltételeit, ideiglenesen kitiltjuk az alkalmazás használatából. Folyamatos jogsértés esetén, azaz ha folyamatosan panaszjelentéseket kapunk a fiókjában lévő más felhasználóktól, fiókja megszűnik, és soha nem fogja tudni használni ezt az alkalmazást.",
+  "name":"A neved",
+  "name_enter":"Kérjük, írja be a nevét",
+  "blocked_users":"Letiltott felhasználók",
+  "start":"BESZÉLGETÉS INDÍTÁSA",
+  "account_blocked":"Fiókja blokkolva van.",
+  "week":"egy hét",
+  "month":"egy hónap",
+  "three_months":"három hónap",
+  "six_months":"hat hónap",
+  "year":"egy év",
+  "forever":"örökké",
+  "unblock_time":"Fiókját a következő napon feloldjuk: {day}, {time}",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Letiltás időszaka:",
+"err_conn":"Kapcsolódási hiba, próbáld újra",
+"logged_in_as":"Bejelentkezve mint:"
 }

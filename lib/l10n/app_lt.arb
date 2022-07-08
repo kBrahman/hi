@@ -10,5 +10,33 @@
   "block": "BLOKAS",
   "complaint": "Skundas",
   "accept": "SUTINKA SĄLYGOMIS",
-  "decline": "ATMESTI"
+  "decline": "ATMESTI",
+  "terms_title": "Naudotojo / naudotojo politikos sąlygos",
+  "sign_in_google": "Prisijunkite naudodami „Google“.",
+  "terms": "„Zhet“ („mes“ arba „mes“ arba „mūsų“) gerbia mūsų vartotojų („naudotojas“ arba „jūs“) žmogiškąjį orumą. Mes nepalaikome jokios diskriminacijos, grasinimų, patyčių, priekabiavimo ir piktnaudžiavimo. Šiose naudotojo/naudotojo politikos sąlygose paaiškinama, kaip moderuojame tokį nepriimtiną turinį, kuriame yra diskriminacijos, grasinimų, patyčių, priekabiavimo ar piktnaudžiavimo. Prašome atidžiai perskaityti šią politiką. JEI NESUTINKATE SU ŠIOS POLITIKOS SĄLYGOMIS, PRAŠOME NEPRISIEITI PRIE PROGRAMOS.\nPasiliekame teisę bet kada ir dėl bet kokios priežasties keisti šią politiką. Kad galėtumėte naudoti programą, PRIVALOTE sutikti su šios politikos sąlygomis.\n\nPRIEŠTINKAMAS TURINYS IR ELGESYS:\nBet kokią diskriminaciją, grasinimus, patyčias, priekabiavimą ir piktnaudžiavimą apibrėžiame kaip nepriimtiną elgesį.\nSeksualinį turinį apibrėžiame kaip nepriimtiną turinį. .\n\nPROGRAMOS NAUDOJIMAS:\nNaudodami šią programą sutinkate neatskleisti nepriimtino turinio ar elgesio su jokiais kitais naudotojais. Jei pažeisite šios politikos sąlygas, jums bus laikinai uždrausta naudotis šia programa. Jei pažeidimas bus tęsiamas, ty jei nuolat gausime kitų jūsų paskyros naudotojų skundus, jūsų paskyra bus nutraukta ir jūs niekada negalėsite naudotis šia programa.",
+  "name": "Tavo vardas",
+  "name_enter": "Įveskite savo vardą",
+  "blocked_users": "Užblokuoti vartotojai",
+  "start": "PRADĖTI POKALBĮ",
+  "account_blocked": "Jūsų paskyra užblokuota.",
+  "week": "viena savaitė",
+  "month": "vienas mėnesis",
+  "three_months": "trys mėnesiai",
+  "six_months": "šeši mėnesiai",
+  "year": "vieneri metai",
+  "forever": "amžinai",
+  "unblock_time": "Jūsų paskyra bus atblokuota {day} {time}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Blokavimo laikotarpis:",
+"err_conn":"Ryšio klaida, bandykite dar kartą",
+"logged_in_as":"Prisijungęs kaip:"
 }

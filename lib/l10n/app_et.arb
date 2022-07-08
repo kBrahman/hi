@@ -11,5 +11,32 @@
   "complaint": "Kaebus",
   "accept": "NÕUSTU",
   "decline": "KEELDUS",
-  "terms_title": "Kasutajatingimused/kasutajapoliitika"
+  "terms_title": "Kasutajatingimused/kasutajapoliitika",
+  "sign_in_google": "Logige sisse Google'iga",
+  "terms": "'Zhet' ('meie' või 'meie' või 'meie') austab meie kasutajate ('kasutaja' või 'teie') inimväärikust. Me ei toeta mingit diskrimineerimist, ähvardusi, kiusamist, ahistamist ja kuritarvitamist. Need kasutajatingimused/kasutajapoliitika selgitavad, kuidas me modereerime sellist taunitavat sisu, mis hõlmab diskrimineerimist, ähvardusi, kiusamist, ahistamist või kuritarvitamist. Lugege see poliitika hoolikalt läbi. KUI TE EI NÕUSTU SELLE EESKIRJA TINGIMUSTEGA, PALUN MITTE JUURDE RAKENDUSELE.\nJätame endale õiguse teha selles poliitikas igal ajal ja mis tahes põhjusel muudatusi. Rakenduse kasutamiseks PEATE nõustuma nende eeskirjade tingimustega.\n\nVÕIMALIK SISU JA KÄITUMINE:\nMõtleme igasuguse diskrimineerimise, ähvarduste, kiusamise, ahistamise ja kuritarvitamise kui taunitava käitumise.\nMääratleme, et seksuaalselt vulgaarne sisu on taunitav sisu. .\n\nRAKENDUSE KASUTAMINE:\nSelle rakenduse kasutamisel nõustute mitte avaldama taunitavat sisu ega käitumist ühegi teise kasutaja suhtes. Kui rikute selle poliitika tingimusi, keelatakse teil ajutiselt selle rakenduse kasutamine. Jätkuva rikkumise korral, st kui saame pidevalt teistelt teie konto kasutajatelt kaebusi, suletakse teie konto ja te ei saa seda rakendust kunagi kasutada.",
+  "name": "Sinu nimi",
+  "name_enter": "Palun sisesta oma nimi",
+  "blocked_users": "Blokeeritud kasutajad",
+  "start": "ALUSTA VESTLUS",
+  "account_blocked": "Teie konto on blokeeritud.",
+  "week": "üks nädal",
+  "month": "üks kuu",
+  "three_months": "kolm kuud",
+  "six_months": "kuus kuud",
+  "year": "üks aasta",
+  "forever": "igavesti",
+  "unblock_time": "Teie konto blokeering tühistatakse {day} kell {time}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Blokeerimisperiood:",
+"err_conn":"Ühenduse viga, palun proovi uuesti",
+"logged_in_as":"Sisse logitud kui:"
 }

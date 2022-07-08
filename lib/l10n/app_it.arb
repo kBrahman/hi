@@ -10,5 +10,33 @@
   "block":"BLOCCARE",
   "complaint":"Rimostranza",
   "accept": "ACCETTARE",
-  "decline": "DECLINO"
+  "decline": "DECLINO",
+  "terms_title": "Termini della politica utente/utente",
+"sign_in_google":"Accedi con Google",
+"terms":"'Zhet' ('noi' o 'ci' o 'nostro') rispetta la dignità umana dei nostri utenti ('utente' o 'tu'). Non supportiamo alcun tipo di discriminazione, minaccia, bullismo, molestia e abuso. Le presenti Condizioni per l'utente/Politica dell'utente spiegano come moderiamo un contenuto discutibile che presenta discriminazioni, minacce, bullismo, molestie o abusi. Si prega di leggere attentamente questa Politica. SE NON SI ACCETTANO I TERMINI DI QUESTA POLITICA, SI PREGA DI NON ACCEDERE ALL'APPLICAZIONE.\nCi riserviamo il diritto di apportare modifiche a questa politica in qualsiasi momento e per qualsiasi motivo. È NECESSARIO accettare i termini di questa politica per utilizzare l'app\n\nCONTENUTI E COMPORTAMENTI SCONSIGLIABILI:\nDefiniamo qualsiasi tipo di discriminazione, minaccia, bullismo, molestia e abuso come comportamento discutibile.\nDefiniamo contenuto sessualmente esplicito come contenuto discutibile .\n\nUTILIZZO DELL'APP:\nDurante l'utilizzo di questa app accetti di non esporre contenuti o comportamenti discutibili contro altri utenti. Se violi i termini di questa politica, sarai temporaneamente bandito dall'uso di questa app. In caso di violazione continua, ad esempio se continuiamo a ricevere segnalazioni di reclami da altri utenti sul tuo account, il tuo account verrà chiuso e non sarai mai in grado di utilizzare questa app.",
+  "name":"Il tuo nome",
+  "name_enter":"Inserisci il tuo nome per favore",
+  "blocked_users":"Utenti bloccati",
+  "start":"INIZIA CHAT",
+  "account_blocked":"Il tuo account è bloccato.",
+  "week":"una settimana",
+  "month":"un mese",
+  "three_months":"tre mesi",
+  "six_months":"sei mesi",
+  "year":"un anno",
+  "forever":"per sempre",
+  "unblock_time":"Il tuo account verrà sbloccato il {day} alle {time}",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Periodo di blocco:",
+"err_conn":"Errore di connessione, riprova per favore",
+"logged_in_as":"Collegato come:"
 }

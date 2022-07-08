@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hi/util/util.dart';
 import 'package:hi/widget/widget_profile.dart';
 import 'package:hi/widget/widget_sign_in_reg.dart';
@@ -165,21 +166,21 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
     hiLog(TAG, 'check blocked');
   }
 
-  String getPeriod(int periodCode) {
-    hiLog(TAG, 'period code=>$periodCode');
+  String getPeriod(int periodCode, BuildContext context) {
+    final of = AppLocalizations.of(context);
     switch (periodCode) {
       case BLOCK_WEEK:
-        return 'one week';
+        return of?.week ?? 'one week';
       case BLOCK_MONTH:
-        return 'one month';
+        return of?.month ?? 'one month';
       case BLOCK_QUARTER:
-        return 'three months';
+        return of?.three_months ?? 'three months';
       case BLOCK_SEMI:
-        return 'six months';
+        return of?.six_months ?? 'six months';
       case BLOCK_YEAR:
-        return 'one year';
+        return of?.year ?? 'one year';
       case BLOCK_FOREVER:
-        return 'forever';
+        return of?.forever ?? 'forever';
       case BLOCK_TEST:
         return 'test';
       default:
@@ -194,7 +195,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
     _login = sharedPrefs?.getString(LOGIN) ?? '';
     final blocked = sharedPrefs?.getInt(BLOCK_PERIOD) ?? BLOCK_NO;
     if (blocked != BLOCK_NO)
-      return _blockUnblock(blocked, Timestamp(sharedPrefs!.getInt(BLOCK_TIME)!, 0), _login);
+      return _blockUnblock(blocked, Timestamp.fromMillisecondsSinceEpoch(sharedPrefs!.getInt(BLOCK_TIME)!), _login);
     else if (_login.isNotEmpty) {
       final doc = await FirebaseFirestore.instance.doc('user/$_login').get();
       if (doc.exists && doc[BLOCK_PERIOD] != BLOCK_NO) {
@@ -216,6 +217,8 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   }
 
   getChild() {
+    late String time;
+    late String day;
     switch (_uiState) {
       case UIState.CALL:
         return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _block, _db!, _name,
@@ -240,14 +243,19 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
                 child: Padding(
                     padding: edgeInsetsLR8,
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      const Text('Your account is blocked.', style: bold20),
-                      Text('Block period:${getPeriod(_blockPeriod)}', style: bold20),
+                      Text(AppLocalizations.of(context)?.account_blocked ?? 'Your account is blocked.', style: bold20),
+                      Text((AppLocalizations.of(context)?.block_period ?? 'Block period:')+getPeriod(_blockPeriod, context),
+                          style: bold20),
                       if (_blockPeriod != BLOCK_FOREVER)
                         Padding(
                             padding: const EdgeInsets.only(left: 16, right: 16),
                             child: Text(
-                                'Your account will be unblocked on ${DateFormat.yMMMMd().format(_unblockTime!)} at'
-                                ' ${DateFormat.Hm().format(_unblockTime!)}',
+                                AppLocalizations.of(context)?.unblock_time(
+                                        day =
+                                            DateFormat.yMMMMd(Localizations.localeOf(context).languageCode).format(_unblockTime!),
+                                        time =
+                                            DateFormat.Hm(Localizations.localeOf(context).languageCode).format(_unblockTime!)) ??
+                                    'Your account will be unblocked on $day at $time',
                                 textAlign: TextAlign.center))
                     ]))));
       case UIState.LOADING:

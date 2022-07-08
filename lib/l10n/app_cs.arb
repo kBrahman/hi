@@ -11,5 +11,32 @@
   "complaint": "Stížnost",
   "accept": "PŘIJÍMEJTE PODMÍNKY",
   "decline": "ODMÍTNOUT PODMÍNKY",
-  "terms_title": "Podmínky uživatelských/uživatelských zásad"
+  "terms_title": "Podmínky uživatelských/uživatelských zásad",
+"sign_in_google":"Přihlaste se pomocí Google",
+"terms":"„Zhet“ („my“ nebo „nás“ nebo „naše“) respektuje lidskou důstojnost našich uživatelů („uživatel“ nebo „vy“). Nepodporujeme žádnou diskriminaci, vyhrožování, šikanu, obtěžování a zneužívání. Tyto Podmínky pro uživatele/uživatele vysvětlují, jak moderujeme takový nežádoucí obsah, který obsahuje diskriminaci, vyhrožování, šikanu, obtěžování nebo zneužívání. Přečtěte si prosím pozorně tyto zásady. POKUD NESOUHLASÍTE S PODMÍNKAMI TĚCHTO ZÁSAD, NEVSTUPUJTE K APLIKACI.\nVyhrazujeme si právo tyto zásady kdykoli a z jakéhokoli důvodu změnit. Abyste mohli aplikaci používat, MUSÍTE přijmout podmínky těchto zásad\n\nPROTIVÝHODNÝ OBSAH A CHOVÁNÍ:\nJakýkoli druh diskriminace, vyhrožování, šikany, obtěžování a zneužívání definujeme jako nežádoucí chování.\nSexuálně explicitní obsah definujeme jako nevhodný obsah .\n\nVYUŽÍVÁNÍ APLIKACE:\nPři používání této aplikace souhlasíte s tím, že nebudete odhalovat nevhodný obsah nebo chování vůči jinému uživateli. Pokud porušíte podmínky těchto zásad, bude vám dočasně zakázáno používat tuto aplikaci. V případě pokračujícího porušování, tj. pokud budeme na vašem účtu neustále dostávat zprávy o stížnostech od ostatních uživatelů, bude váš účet ukončen a tuto aplikaci nikdy nebudete moci používat.",
+  "name":"Tvé jméno",
+  "name_enter":"Zadejte prosím své jméno",
+  "blocked_users":"Blokovaní uživatelé",
+  "start":"ZAČÍT KONVERZACI",
+  "account_blocked":"Váš účet je zablokován.",
+  "week":"týden",
+  "month":"jeden měsíc",
+  "three_months":"tři měsíce",
+  "six_months":"šest měsíců",
+  "year":"jeden rok",
+  "forever":"navždy",
+  "unblock_time":"Váš účet bude odblokován dne {day} v {time}",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Období blokování:",
+"err_conn":"Chyba připojení, zkuste to prosím znovu",
+"logged_in_as":"Přihlášen jako:"
 }

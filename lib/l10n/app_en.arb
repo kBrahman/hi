@@ -12,6 +12,31 @@
   "accept": "ACCEPT",
   "decline": "DECLINE",
   "terms_title": "Terms of user/user policy",
-  "terms": "'Zhet' ('we' or 'us' or 'our') respects human dignity of our users ('user' or 'you'). We do not support any kind of discrimination, threats, bullying, harassment and abuse. This Terms of user/user Policy explains how we moderate such an objectionable content which features discrimination, threats, bullying, harassment or abuse. Please read this Policy carefully. IF YOU DO NOT AGREE WITH THE TERMS OF THIS POLICY, PLEASE DO NOT ACCESS THE APPLICATION.\nWe reserve the right to make changes to this Policy at any time and for any reason. You MUST accept the terms of this policy in order to use the app\n\nOBJECTIONABLE CONTENT AND BEHAVIORS:\nWe define any kind of discrimination, threats, bullying, harassment and abuse as objectionable behavior.\nWe define sexually explicit content as objectionable content.\n\nAPP USAGE:\nWhile using this app you agree not to expose objectionable content or behaviors against any other user. If you violate the terms of this Policy you will be temporarily banned from using this app. In case of continued violation, i.e. if we keep getting complaint reports from other users on your account, your account will be terminated and you will never ever be able to use this app."
-
+  "sign_in_google": "Sign in with Google",
+  "terms": "'Zhet' ('we' or 'us' or 'our') respects human dignity of our users ('user' or 'you'). We do not support any kind of discrimination, threats, bullying, harassment and abuse. This Terms of user/user Policy explains how we moderate such an objectionable content which features discrimination, threats, bullying, harassment or abuse. Please read this Policy carefully. IF YOU DO NOT AGREE WITH THE TERMS OF THIS POLICY, PLEASE DO NOT ACCESS THE APPLICATION.\nWe reserve the right to make changes to this Policy at any time and for any reason. You MUST accept the terms of this policy in order to use the app\n\nOBJECTIONABLE CONTENT AND BEHAVIORS:\nWe define any kind of discrimination, threats, bullying, harassment and abuse as objectionable behavior.\nWe define sexually explicit content as objectionable content.\n\nAPP USAGE:\nWhile using this app you agree not to expose objectionable content or behaviors against any other user. If you violate the terms of this Policy you will be temporarily banned from using this app. In case of continued violation, i.e. if we keep getting complaint reports from other users on your account, your account will be terminated and you will never ever be able to use this app.",
+  "name": "Your name",
+  "name_enter": "Enter your name please",
+  "blocked_users": "Blocked users",
+  "start": "START CHAT",
+  "account_blocked": "Your account is blocked.",
+  "week": "one week",
+  "month": "one month",
+  "three_months": "three months",
+  "six_months": "six months",
+  "year": "one year",
+  "forever": "forever",
+  "unblock_time": "Your account will be unblocked on {day} at {time}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Block period:",
+  "err_conn": "Connection error, try again please",
+  "logged_in_as": "Logged in as:"
 }

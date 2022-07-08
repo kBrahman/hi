@@ -3,13 +3,40 @@
   "maintenance": "Pemeliharaan berfungsi di sisi server, silakan datang nanti",
   "no_inet": "Tidak ada akses internet",
   "refresh": "Menyegarkan",
-  "block_report":"Anda dapat memblokir atau melaporkan keluhan pada pengguna ini",
-  "cancel":"Membatalkan",
-  "report_sent":"Keluhan terkirim",
-  "blocked":"Pengguna diblokir",
-  "block":"MEMBLOKIR",
-  "complaint":"Keluhan",
+  "block_report": "Anda dapat memblokir atau melaporkan keluhan pada pengguna ini",
+  "cancel": "Membatalkan",
+  "report_sent": "Keluhan terkirim",
+  "blocked": "Pengguna diblokir",
+  "block": "MEMBLOKIR",
+  "complaint": "Keluhan",
   "accept": "TERIMA PERSYARATAN",
-  "decline": "KETENTUAN PENOLAKAN"
-
+  "decline": "KETENTUAN PENOLAKAN",
+  "terms_title": "Ketentuan pengguna/kebijakan pengguna",
+  "sign_in_google": "Masuk dengan Google",
+  "terms": "'Zhet' ('kami' atau 'kami' atau 'milik kami') menghormati martabat manusia dari pengguna kami ('pengguna' atau 'Anda'). Kami tidak mendukung segala bentuk diskriminasi, ancaman, intimidasi, pelecehan, dan pelecehan. Ketentuan Pengguna/Kebijakan pengguna ini menjelaskan bagaimana kami memoderasi konten yang tidak pantas yang menampilkan diskriminasi, ancaman, penindasan, pelecehan, atau penyalahgunaan. Harap baca Kebijakan ini dengan cermat. JIKA ANDA TIDAK SETUJU DENGAN KETENTUAN KEBIJAKAN INI, JANGAN MENGAKSES APLIKASI.\nKami berhak membuat perubahan pada Kebijakan ini kapan saja dan untuk alasan apa pun. Anda HARUS menerima persyaratan kebijakan ini untuk menggunakan aplikasi\n\nKONTEN DAN PERILAKU YANG TIDAK MENJADI:\nKami mendefinisikan segala jenis diskriminasi, ancaman, penindasan, pelecehan, dan penyalahgunaan sebagai perilaku yang tidak pantas.\nKami mendefinisikan konten seksual vulgar sebagai konten yang tidak pantas .\n\nPENGGUNAAN APLIKASI:\nSaat menggunakan aplikasi ini, Anda setuju untuk tidak mengekspos konten atau perilaku yang tidak pantas terhadap pengguna lain. Jika Anda melanggar ketentuan Kebijakan ini, Anda akan dilarang menggunakan aplikasi ini untuk sementara. Dalam kasus pelanggaran lanjutan, yaitu jika kami terus menerima laporan keluhan dari pengguna lain di akun Anda, akun Anda akan dihentikan dan Anda tidak akan pernah dapat menggunakan aplikasi ini.",
+  "name":"Namamu",
+  "name_enter":"Silakan masukkan nama Anda",
+  "blocked_users":"Pengguna diblokir",
+  "start":"MEMULAI OBROLAN",
+  "account_blocked":"Akun Anda diblokir.",
+  "week":"satu minggu",
+  "month":"satu bulan",
+  "three_months":"tiga bulan",
+  "six_months":"enam bulan",
+  "year":"satu tahun",
+  "forever":"selama-lamanya",
+  "unblock_time":"Pemblokiran akun Anda akan dibuka pada {day} pukul {time}",
+"@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+"block_period":"Periode blok:",
+"err_conn":"Kesalahan koneksi, tolong coba lagi",
+"logged_in_as":"Masuk sebagai:"
 }
