@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
+import com.facebook.ads.AdSettings;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
 
@@ -45,7 +46,7 @@ public class MainActivity extends FlutterFragmentActivity {
 //        }
         AudienceNetworkInitializer.initialize(this);
         interstitialAd = new InterstitialAd(this, "3797187196981029_5287545084611892");
-//        AdSettings.addTestDevice("df7ae421-a3f3-4ea8-b57a-7c17c1cf3ca9");
+        if (BuildConfig.DEBUG) AdSettings.addTestDevice("80e5b8b3-1441-4d11-8667-ce5b17f24b7d");
         loadAd();
     }
 

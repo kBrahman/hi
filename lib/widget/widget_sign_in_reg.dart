@@ -33,9 +33,6 @@ class SignInOrRegWidget extends StatefulWidget {
 
 class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObserver {
   static const TAG = 'SignInState';
-
-  static const sizedBox_h_4 = SizedBox(height: 4);
-
   var txtErr = false;
   String _login = '';
   bool signUp = false;
@@ -68,13 +65,13 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
       case AppLifecycleState.inactive:
         {
           hiLog(TAG, 'saving state verification code=>$verificationCode');
-          var p = await SharedPreferences.getInstance();
-          var data = [_verificationId, verificationCode.join(':'), _newLogin];
+          final p = await SharedPreferences.getInstance();
+          final data = [_verificationId, verificationCode.join(':'), _newLogin];
           if (_remainingTimeToResend > 0) {
             final currTime = currentTimeInSec();
             data.add('$currTime:$_remainingTimeToResend');
           }
-          var res = await p.setStringList(VERIFICATION_DATA, data);
+          final res = await p.setStringList(VERIFICATION_DATA, data);
           hiLog(TAG, 'finished saving state, result ok=>$res');
         }
     }
