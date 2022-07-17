@@ -33,6 +33,7 @@ const DB_VERSION_1 = 1;
 const TABLE_USER = 'user';
 const REPORT = 'report';
 const ANSWER = 'answer';
+const CANDIDATE = 'candidate';
 const BLOCKED_USER = 'blocked_user';
 const LOGIN = 'login';
 const BLOCKED_LOGIN = 'blocked_login';

@@ -76,6 +76,7 @@ class Signaling {
   late List<String?> _reports;
   late int lastBlockedPeriod;
   bool _connecting = false;
+  _OfferTimeOutFuture? future;
 
   Signaling(this._selfId, this._selfName, this._ip, this.turnServers, this.turnUname, this.turnPass, this.screenSize, this.model,
       this._version, this._db) {
@@ -123,9 +124,11 @@ class Signaling {
     if (_peerConnection == null) {
       onStateChange(SignalingState.ConnectionError);
     } else {
+      future?.cancelled = true;
       _localDesc = await _createOffer(_peerConnection);
       _offer(peerId, _localDesc, screenSize);
       _connecting = true;
+      future = _OfferTimeOutFuture(msgNew);
       hiLog(TAG, 'offer sent');
     }
   }
@@ -167,20 +170,20 @@ class Signaling {
         _accept(description['sdp'], description['type'], _peerId!, data['mc']);
         break;
       case ANSWER:
+        future?.cancelled = true;
+        _connecting = false;
         final description = data['description'];
         _peerId = data['from'];
         await _peerConnection?.setLocalDescription(_localDesc);
         await _peerConnection?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
-        _connecting = false;
+        hiLog(TAG, 'answer from=>$_peerId');
         break;
-      case 'candidate':
-        {
-          var candidateMap = data['candidate'];
-          hiLog(TAG, 'remote candidate=>$candidateMap');
-          RTCIceCandidate candidate =
-              RTCIceCandidate(candidateMap['candidate'], candidateMap['sdpMid'], candidateMap['sdpMLineIndex']);
-          _peerConnection?.addCandidate(candidate);
-        }
+      case CANDIDATE:
+        final candidateMap = data[CANDIDATE];
+        hiLog(TAG, 'remote candidate=>$candidateMap');
+        RTCIceCandidate candidate =
+            RTCIceCandidate(candidateMap['candidate'], candidateMap['sdpMid'], candidateMap['sdpMLineIndex']);
+        _peerConnection?.addCandidate(candidate);
         break;
       case 'leave':
         {
@@ -199,7 +202,7 @@ class Signaling {
           _peerConnection?.close();
           if (_peerId != null) _oldPeerIds.add(_peerId);
           _peerId = null;
-          hiLog(TAG, 'received bye');
+          hiLog(TAG, 'received bye from=>$_peerId');
           onStateChange(SignalingState.CallStateBye);
         }
         break;
@@ -267,7 +270,7 @@ class Signaling {
       msgNew();
     } catch (e) {
       hiLog(TAG, 'exception=>$e');
-      var code = (e as SocketException).osError?.errorCode;
+      final code = (e as SocketException).osError?.errorCode;
       onStateChange(code == 101 ? SignalingState.NoInet : SignalingState.ConnectionError);
     }
   }
@@ -299,7 +302,8 @@ class Signaling {
     final _iceServers = {
       'iceServers': [
         {'url': 'stun:stun1.l.google.com:19302'},
-        {'url': 'stun:stun.ekiga.net'}, ...turnServers.map((e) => {'url': e, 'credential': turnPass, 'username': turnUname}),
+        {'url': 'stun:stun.ekiga.net'},
+        ...turnServers.map((e) => {'url': e, 'credential': turnPass, 'username': turnUname}),
       ],
       'sdpSemantics': 'unified-plan'
     };
@@ -334,7 +338,7 @@ class Signaling {
         else if (s == RTCPeerConnectionState.RTCPeerConnectionStateFailed) restartOrBye();
       }
       ..onRenegotiationNeeded = () {
-        hiLog(TAG, 'on negotiation needed');
+        hiLog(TAG, 'on renegotiation needed');
       };
     _localStream?.getTracks().forEach((track) => pc.addTrack(track, _localStream!));
     return pc;
@@ -434,4 +438,15 @@ class Signaling {
   int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
 
   bool isConnecting() => _connecting;
+}
+
+class _OfferTimeOutFuture {
+  bool cancelled = false;
+  final VoidCallback run;
+
+  _OfferTimeOutFuture(this.run) {
+    Future.delayed(const Duration(seconds: 10), () {
+      if (!cancelled) run();
+    });
+  }
 }

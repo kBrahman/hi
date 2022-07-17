@@ -468,20 +468,13 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
         final acc = await _googleSignIn.signIn();
         login = acc?.email;
       }
-      if (login != null)
-        try {
-          loginContinue(login);
-        } catch (e) {
-          hiLog(TAG, 'e=>$e');
-          showSnack(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please', 2, context);
-          setState(() => _showProgress = false);
-        }
+      if (login != null) loginContinue(login, context);
       hiLog(TAG, 'after login continue, login=>$login');
     } else
       showSnack('No internet', 1, context);
   }
 
-  loginContinue(String login) async {
+  loginContinue(String login, BuildContext context) async {
     showProgress(true);
     final sp = await SharedPreferences.getInstance();
     final db = await openDatabase(join(await getDatabasesPath(), DB_NAME), readOnly: true, version: DB_VERSION_1);
@@ -496,35 +489,43 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
     final blockTime = data[BLOCK_TIME];
     DateTime unblockTime;
     final DocumentSnapshot doc;
-    if (blockPeriod != BLOCK_NO &&
-        DateTime.now().isBefore(
-            unblockTime = DateTime.fromMillisecondsSinceEpoch(blockTime).add(Duration(minutes: getMinutes(blockPeriod)))))
-      return widget.onBlocked(login, unblockTime, blockPeriod);
-    else if (blockPeriod != BLOCK_NO &&
-        DateTime.now().isAfter(DateTime.fromMillisecondsSinceEpoch(blockTime).add(Duration(minutes: getMinutes(blockPeriod))))) {
-      db.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO}, where: '$LOGIN=?', whereArgs: [login]);
-      FirebaseFirestore.instance
-          .doc('user/$login')
-          .set({BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0)}, SetOptions(merge: true));
-    } else if (!(doc = await FirebaseFirestore.instance.doc('user/$login').get()).exists)
-      FirebaseFirestore.instance
-          .doc('user/$login')
-          .set({BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0), LAST_BLOCK_PERIOD: BLOCK_NO});
-    else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
-        DateTime.now().isBefore(
-            unblockTime = (doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMinutes(doc[BLOCK_PERIOD]))))) {
-      sp.setInt(BLOCK_PERIOD, doc[BLOCK_PERIOD]);
-      final millis = (doc[BLOCK_TIME] as Timestamp).millisecondsSinceEpoch;
-      sp.setInt(BLOCK_TIME, millis);
-      db.insert(
-          TABLE_USER, {LOGIN: login, BLOCK_PERIOD: doc[BLOCK_PERIOD], BLOCK_TIME: millis, LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD]});
-      return widget.onBlocked(login, unblockTime, doc[BLOCK_PERIOD]);
-    } else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
-        DateTime.now()
-            .isAfter(unblockTime = (doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMinutes(doc[BLOCK_PERIOD])))))
-      FirebaseFirestore.instance
-          .doc('user/$login')
-          .set({BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0)}, SetOptions(merge: true));
+    try {
+      if (blockPeriod != BLOCK_NO &&
+          DateTime.now().isBefore(
+              unblockTime = DateTime.fromMillisecondsSinceEpoch(blockTime).add(Duration(minutes: getMinutes(blockPeriod)))))
+        return widget.onBlocked(login, unblockTime, blockPeriod);
+      else if (blockPeriod != BLOCK_NO &&
+          DateTime.now()
+              .isAfter(DateTime.fromMillisecondsSinceEpoch(blockTime).add(Duration(minutes: getMinutes(blockPeriod))))) {
+        db.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO}, where: '$LOGIN=?', whereArgs: [login]);
+        FirebaseFirestore.instance
+            .doc('user/$login')
+            .set({BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0)}, SetOptions(merge: true));
+      } else if (!(doc = await FirebaseFirestore.instance.doc('user/$login').get()).exists)
+        FirebaseFirestore.instance
+            .doc('user/$login')
+            .set({BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0), LAST_BLOCK_PERIOD: BLOCK_NO});
+      else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
+          DateTime.now().isBefore(
+              unblockTime = (doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMinutes(doc[BLOCK_PERIOD]))))) {
+        sp.setInt(BLOCK_PERIOD, doc[BLOCK_PERIOD]);
+        final millis = (doc[BLOCK_TIME] as Timestamp).millisecondsSinceEpoch;
+        sp.setInt(BLOCK_TIME, millis);
+        db.insert(TABLE_USER,
+            {LOGIN: login, BLOCK_PERIOD: doc[BLOCK_PERIOD], BLOCK_TIME: millis, LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD]});
+        return widget.onBlocked(login, unblockTime, doc[BLOCK_PERIOD]);
+      } else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
+          DateTime.now().isAfter(
+              unblockTime = (doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMinutes(doc[BLOCK_PERIOD])))))
+        FirebaseFirestore.instance
+            .doc('user/$login')
+            .set({BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0)}, SetOptions(merge: true));
+    } catch (e) {
+      hiLog(TAG, 'e=>$e');
+      showSnack(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please', 2, context);
+      setState(() => _showProgress = false);
+      return;
+    }
     db.insert(TABLE_USER, {LOGIN: login});
     _updateDBWithBlockedUsersAndReporters(db, login);
     widget.onSuccess(login);

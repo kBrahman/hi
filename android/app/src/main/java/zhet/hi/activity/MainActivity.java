@@ -46,7 +46,7 @@ public class MainActivity extends FlutterFragmentActivity {
 //        }
         AudienceNetworkInitializer.initialize(this);
         interstitialAd = new InterstitialAd(this, "3797187196981029_5287545084611892");
-        if (BuildConfig.DEBUG) AdSettings.addTestDevice("80e5b8b3-1441-4d11-8667-ce5b17f24b7d");
+        if (BuildConfig.DEBUG) AdSettings.addTestDevice("706687f7-729e-46db-bc9e-db6ade23d591");
         loadAd();
     }
 

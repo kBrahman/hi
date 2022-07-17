@@ -2,7 +2,6 @@
 import 'dart:core';
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:device_info/device_info.dart';
