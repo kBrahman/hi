@@ -56,7 +56,8 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        if (_signaling?.isConnecting() == false) _signaling?.isDisconnected() ? checkAndConnect() : _signaling?.msgNew();
+        if (!inCall && _signaling?.isConnecting() == false)
+          _signaling?.isDisconnected() ? checkAndConnect() : _signaling?.msgNew();
         hiLog(TAG, "app in resumed");
         break;
       case AppLifecycleState.paused:
@@ -197,9 +198,9 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _signaling?.bye(true, false);
     _signaling?.close();
     _localRenderer.dispose();
+    _remoteRenderer.dispose();
     hiLog(TAG, 'dispose');
     super.dispose();
   }
@@ -227,7 +228,6 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           setState(() {
             inCall = false;
           });
-          _signaling?.bye(true, true);
           next(true);
         };
       case 4:
@@ -258,7 +258,6 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         _signaling?.block();
         showSnack(AppLocalizations.of(context)?.blocked ?? 'User is blocked', 4, context);
         Future.delayed(const Duration(milliseconds: 250), () {
-          if (inCall) _signaling?.bye(true, true);
           next(false);
           setState(() => inCall = false);
         });
@@ -303,6 +302,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   checkAndConnect() async {
+    hiLog(TAG, 'check and connect');
     var connectivityResult = await (Connectivity().checkConnectivity());
     setState(() {
       _connOk = connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi;

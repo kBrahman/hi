@@ -69,7 +69,7 @@ class Signaling {
   final String _version;
   final String model;
   late RTCSessionDescription _localDesc;
-  int restartCount = 0;
+  int failCount = 0;
   final Database _db;
   final String _selfName;
   late String _peerName;
@@ -121,24 +121,20 @@ class Signaling {
   void invite(peerId, mc) async {
     hiLog(TAG, 'invite');
     _peerConnection = await _createPeerConnection(mc);
-    if (_peerConnection == null) {
+    if (_peerConnection == null)
       onStateChange(SignalingState.ConnectionError);
-    } else {
+    else {
       future?.cancelled = true;
       _localDesc = await _createOffer(_peerConnection);
       _offer(peerId, _localDesc, screenSize);
       _connecting = true;
       future = _OfferTimeOutFuture(msgNew);
-      hiLog(TAG, 'offer sent');
     }
   }
 
-  void bye(bool busy, bool addToAld) {
-    _send('bye', <String, dynamic>{
-      'to': _peerId,
-      'is_busy': busy,
-    });
-    if (_peerId != null && addToAld) _oldPeerIds.add(_peerId);
+  void bye(bool busy, bool addToOld) {
+    _send('bye', {'to': _peerId, 'is_busy': busy});
+    if (_peerId != null && addToOld) _oldPeerIds.add(_peerId);
     _peerId = null;
   }
 
@@ -166,12 +162,12 @@ class Signaling {
       case OFFER:
         _peerId = data['from'];
         hiLog(TAG, 'offer from $_peerId');
+        _connecting = true;
         final description = data['description'];
         _accept(description['sdp'], description['type'], _peerId!, data['mc']);
         break;
       case ANSWER:
         future?.cancelled = true;
-        _connecting = false;
         final description = data['description'];
         _peerId = data['from'];
         await _peerConnection?.setLocalDescription(_localDesc);
@@ -275,8 +271,10 @@ class Signaling {
     }
   }
 
-  void msgNew() =>
-      _send('new', {'d': model, 'v': _version, 'id': _selfId, 'name': _selfName, 'mc': screenSize, 'oldPeerIds': _oldPeerIds});
+  void msgNew() {
+    _send('new', {'d': model, 'v': _version, 'id': _selfId, 'name': _selfName, 'mc': screenSize, 'oldPeerIds': _oldPeerIds});
+    hiLog(TAG, 'msg new');
+  }
 
   Future<MediaStream> _createStream(String? mc) async {
     final cams = await availableCameras();
@@ -327,15 +325,23 @@ class Signaling {
       ..onDataChannel = (channel) {
         // _addDataChannel(id, channel);
       }
-      ..onIceConnectionState = (s) {
-        hiLog(TAG, 'onIceConnectionState=>$s');
-        if (s == RTCIceConnectionState.RTCIceConnectionStateFailed) restartOrBye();
-      }
       ..onConnectionState = (s) {
         hiLog(TAG, 'onConnectionState=>$s');
-        if (s == RTCPeerConnectionState.RTCPeerConnectionStateConnected)
+        if (s == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
           onStreams(_remoteStream!, _localStream!);
-        else if (s == RTCPeerConnectionState.RTCPeerConnectionStateFailed) restartOrBye();
+          _connecting = false;
+        } else if (s == RTCPeerConnectionState.RTCPeerConnectionStateFailed) {
+          failCount++;
+          hiLog(TAG, 'fail count=>$failCount');
+          if (failCount == 1)
+            invite(_peerId, mc);
+          else {
+            _connecting = false;
+            failCount = 0;
+            close();
+            connect();
+          }
+        }
       }
       ..onRenegotiationNeeded = () {
         hiLog(TAG, 'on renegotiation needed');
@@ -345,13 +351,15 @@ class Signaling {
   }
 
   void restartOrBye() {
-    hiLog(TAG, 'restartOrBye restart count=>$restartCount');
-    if (restartCount++ < ICE_RESTART_COUNT_THRESHOLD)
+    hiLog(TAG, 'restartOrBye restart count=>$failCount');
+    if (++failCount < ICE_RESTART_COUNT_THRESHOLD)
       _peerConnection?.restartIce();
     else {
-      restartCount = 0;
-      bye(true, false);
-      msgNew();
+      hiLog(TAG, "threshold exceeded");
+      _connecting = false;
+      failCount = 0;
+      close();
+      connect();
     }
   }
 
@@ -441,12 +449,17 @@ class Signaling {
 }
 
 class _OfferTimeOutFuture {
+  static const TAG = '_OfferTimeOutFuture';
+
   bool cancelled = false;
   final VoidCallback run;
 
   _OfferTimeOutFuture(this.run) {
-    Future.delayed(const Duration(seconds: 10), () {
-      if (!cancelled) run();
+    Future.delayed(const Duration(seconds: 20), () {
+      if (!cancelled) {
+        run();
+        hiLog(TAG, 'run');
+      }
     });
   }
 }

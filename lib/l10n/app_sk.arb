@@ -1,0 +1,42 @@
+{
+  "waiting": "Čakať na niekoho...",
+  "maintenance": "Údržba funguje na strane servera, príďte neskôr",
+  "no_inet": "Žiadny prístup na internet",
+  "refresh": "Obnoviť",
+  "block_report": "Tohto používateľa môžete zablokovať alebo nahlásiť sťažnosť",
+  "cancel": "Zrušiť",
+  "report_sent": "Sťažnosť odoslaná",
+  "blocked": "Používateľ je zablokovaný",
+  "block": "BLOKOVAŤ",
+  "complaint": "Sťažnosť",
+  "accept": "SÚHLASIŤ",
+  "decline": "DECLINE",
+  "terms_title": "Podmienky používania/zásady používateľa",
+  "sign_in_google": "Prihláste sa pomocou Google",
+  "terms": "„Zhet“ („my“ alebo „nás“ alebo „náš“) rešpektuje ľudskú dôstojnosť našich používateľov („používateľ“ alebo „vy“). Nepodporujeme žiadny druh diskriminácie, vyhrážok, šikanovania, obťažovania a zneužívania. Tieto Podmienky používania/zásady používateľa vysvetľujú, ako moderujeme takýto nevhodný obsah, ktorý obsahuje diskrimináciu, vyhrážky, šikanovanie, obťažovanie alebo zneužívanie. Pozorne si prečítajte tieto Zásady. AK NESÚHLASÍTE S PODMIENKAMI TÝCHTO PRAVIDIEL, NEPRÍSTUPUJTE K APLIKÁCII.\nVyhradzujeme si právo kedykoľvek a z akéhokoľvek dôvodu tieto Pravidlá zmeniť. Ak chcete aplikáciu používať, MUSÍTE prijať podmienky týchto pravidiel\n\nPROPOROVNÝ OBSAH A SPRÁVANIE:\nAkýkoľvek druh diskriminácie, vyhrážok, šikanovania, obťažovania a zneužívania definujeme ako nevhodné správanie.\nSexuálne explicitný obsah definujeme ako nevhodný obsah .\n\nPOUŽÍVANIE APLIKÁCIE:\nPočas používania tejto aplikácie súhlasíte s tým, že nebudete odhaľovať nežiaduci obsah alebo správanie voči inému používateľovi. Ak porušíte podmienky týchto Zásad, bude vám dočasne zakázané používať túto aplikáciu. V prípade pokračujúceho porušovania, tj ak budeme neustále dostávať správy o sťažnostiach od iných používateľov na vašom účte, váš účet bude zrušený a túto aplikáciu už nikdy nebudete môcť používať.",
+  "name": "Tvoje meno",
+  "name_enter": "Zadajte prosím svoje meno",
+  "blocked_users": "Blokovaní používatelia",
+  "start": "ZAČAŤ CHAT",
+  "account_blocked": "Váš účet je zablokovaný.",
+  "week": "jeden týždeň",
+  "month": "jeden mesiac",
+  "three_months": "tri mesiace",
+  "six_months": "šesť mesiacov",
+  "year": "jeden rok",
+  "forever": "navždy",
+  "unblock_time": "Váš účet bude odblokovaný {day} o {time}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Obdobie blokovania:",
+  "err_conn": "Chyba pripojenia, skúste to znova",
+  "logged_in_as": "Prihlásený ako:"
+}

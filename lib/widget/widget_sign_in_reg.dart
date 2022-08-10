@@ -15,7 +15,6 @@ import 'package:flutter_signin_button/button_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../util/util.dart';
@@ -435,28 +434,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
       }
     });
     WidgetsBinding.instance.removeObserver(this);
-  }
-
-  appleSignIn() async {
-    if (_showProgress) return;
-    if (widget._connectedToInet) {
-      try {
-        final credential = await SignInWithApple.getAppleIDCredential(
-            scopes: [],
-            webAuthenticationOptions: WebAuthenticationOptions(
-                clientId: 'dev.tok.proximity.service', redirectUri: Uri.parse('https://proximityapp.page.link/app')));
-        var login = credential.userIdentifier;
-        if (login == null) {
-          showSnack('Could not sign in with Apple. Try other  method please', 4, context);
-        } else {
-          // loginContinue(login);
-          hiLog(TAG, 'after login continue');
-        }
-      } on SignInWithAppleAuthorizationException catch (e) {
-        hiLog(TAG, 'sign in er=>$e');
-      }
-    } else
-      showSnack('No internet', 1, context);
   }
 
   googleSignIn(BuildContext context) async {
