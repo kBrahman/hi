@@ -3,17 +3,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:path/path.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../util/util.dart';
 
 class ProfileWidget extends StatefulWidget {
-  final Function(String) onStart;
+  final Function(String) _onStart;
   final VoidCallback onExit;
   final SharedPreferences sp;
 
-  const ProfileWidget(this.onStart, this.onExit, this.sp, {Key? key}) : super(key: key);
+  const ProfileWidget(this._onStart, this.onExit, this.sp, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ProfileState();
@@ -80,12 +81,27 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
                   padding: edgeInsetsTop16,
                   child: Center(
                       child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_name.isEmpty)
                               setState(() => _showNameEmpty = true);
                             else {
-                              widget.onStart(_name);
-                              widget.sp.setString(NAME, _name);
+                              await [Permission.camera, Permission.microphone].request().then((statuses) {
+                                final denied = Map.from(statuses)
+                                  ..removeWhere((key, value) => value != PermissionStatus.permanentlyDenied);
+                                if (denied.isNotEmpty)
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                      content: Row(children: const [
+                                        Expanded(
+                                            child: Text('Please go to settings and give acces to your camera and microphone')),
+                                        TextButton(onPressed: openAppSettings, child: Text('SETTINGS'))
+                                      ]),
+                                      duration: const Duration(seconds: 8)));
+                                else
+                                  statuses.values.any((e) => !e.isGranted)
+                                      ? showSnack('Please give access to your camera and microphone!', 2, context)
+                                      : widget._onStart(_name);
+                              });
+                              widget.sp.setString(_login, _name);
                             }
                           },
                           child: Text(AppLocalizations.of(context)?.start ?? 'START CHAT'))))
@@ -105,8 +121,8 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
 
   _getCreds(SharedPreferences sp) async {
     setState(() {
-      _name = sp.getString(NAME) ?? '';
       _login = sp.getString(LOGIN) ?? '';
+      _name = sp.getString(_login) ?? '';
     });
     _getBlockedUsers(sp);
   }

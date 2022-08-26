@@ -1,16 +1,17 @@
-// ignore_for_file: constant_identifier_names, avoid_print
+// ignore_for_file: constant_identifier_names, avoid_print, curly_braces_in_flow_control_structures
 
 library random_string;
 
 import 'dart:math';
 
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sqflite/sqflite.dart';
 
 const TERMS_DEFAULT =
     "'Zhet' ('we' or 'us' or 'our') respects human dignity of our users ('user' or 'you'). We do not support any kind of discrimination, threats, bullying, harassment and abuse. This Terms of user/user Policy explains how we moderate such an objectionable content which features discrimination, threats, bullying, harassment or abuse. Please read this Policy carefully. IF YOU DO NOT AGREE WITH THE TERMS OF THIS POLICY, PLEASE DO NOT ACCESS THE APPLICATION.\nWe reserve the right to make changes to this Policy at any time and for any reason. You MUST accept the terms of this policy in order to use the app\n\nOBJECTIONABLE CONTENT AND BEHAVIORS:\nWe define any kind of discrimination, threats, bullying, harassment and abuse as objectionable behavior.\nWe define sexually explicit content as objectionable content.\n\nAPP USAGE:\nWhile using this app you agree not to expose objectionable content or behaviors against any other user. If you violate the terms of this Policy you will be temporarily banned from using this app. In case of continued violation, i.e. if we keep getting complaint reports from other users on your account, your account will be terminated and you will never ever be able to use this app.";
-
+const ACTION_SWITCH_CAMERA = 0;
 const ASCII_START = 33;
 const ASCII_END = 126;
 const NUMERIC_START = 48;
@@ -38,7 +39,7 @@ const BLOCKED_USER = 'blocked_user';
 const LOGIN = 'login';
 const BLOCKED_LOGIN = 'blocked_login';
 const REPORTER_LOGIN = 'reporter_login';
-const COLUMN_PASSWD = 'passwd';
+const PASSWD = 'passwd';
 const NAME = 'name';
 const BLOCK_NO = 0;
 const BLOCK_WEEK = 1;
@@ -87,12 +88,6 @@ String randomNumeric(int length) => randomString(length, from: NUMERIC_START, to
 
 hiLog(String tag, String msg) => print('$tag:$msg');
 
-initStream(onLink) async {
-  await for (final e in FirebaseDynamicLinks.instance.onLink) {
-    onLink(e);
-  }
-}
-
 getMinutes(int periodCode) {
   const minutesInDay = 24 * 60;
   switch (periodCode) {
@@ -113,4 +108,11 @@ getMinutes(int periodCode) {
     default:
       throw UnimplementedError();
   }
+}
+
+updateDBWithBlockedUsersAndReporters(Database db, String login) async {
+  final blockedUsers = (await FirebaseFirestore.instance.collection('user/$login/$BLOCKED_USER').get()).docs;
+  for (final u in blockedUsers) db.insert(BLOCKED_USER, {BLOCKED_LOGIN: u.id, NAME: u[NAME], LOGIN: login});
+  final reporters = (await FirebaseFirestore.instance.collection('user/$login/$REPORT').get()).docs;
+  for (final u in reporters) db.insert(REPORT, {REPORTER_LOGIN: u.id, LOGIN: login});
 }

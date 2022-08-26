@@ -4,6 +4,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hi/util/util.dart';
+import 'package:hi/widget/widget_passwd.dart';
 import 'package:hi/widget/widget_profile.dart';
 import 'package:hi/widget/widget_sign_in_reg.dart';
 import 'package:hi/widget/widget_terms.dart';
@@ -31,7 +32,6 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   static const TAG = '_MainWidgetState';
   UIState _uiState = UIState.LOADING;
   bool _connectedToInet = true;
-  var _showPasswdForm = true;
   var _login = '';
   Database? _db;
   int _blockPeriod = 0;
@@ -48,6 +48,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
     _initDB();
     _checkConnection();
     WidgetsBinding.instance.addObserver(this);
+    hiLog(TAG, 'country code=>${WidgetsBinding.instance.window.locales.map((e) => e.countryCode)}');
     hiLog(TAG, 'init');
     super.initState();
   }
@@ -62,13 +63,15 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         hiLog(TAG, 'resumed');
         if (_unblockTime != null && _uiState == UIState.BLOCKED && DateTime.now().isAfter(_unblockTime!)) {
+          hiLog(TAG, 'first if');
           setState(() {
             _uiState = UIState.PROFILE;
             _unblockTime = null;
           });
           _db?.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: 0}, where: '$LOGIN=?', whereArgs: [_login]);
           FirebaseFirestore.instance.doc('user/$_login').set({BLOCK_PERIOD: BLOCK_NO}, SetOptions(merge: true));
-        } else if (_login.isNotEmpty)
+        } else if (_login.isNotEmpty && _uiState != UIState.BLOCKED) {
+          hiLog(TAG, 'else if login=>$_login');
           FirebaseFirestore.instance.doc('user/$_login').get().then((doc) {
             if (doc.exists && doc[BLOCK_PERIOD] != BLOCK_NO) {
               _blockUnblock(doc[BLOCK_PERIOD], doc[BLOCK_TIME], _login);
@@ -79,19 +82,20 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
                   where: '$LOGIN=?', whereArgs: [_login]);
             }
           });
-        else {
-          hiLog(TAG, 'resumed in else');
-          setState(() => getState(_signedIn, _termsAccepted));
-          sharedPrefs?.remove(BLOCK_PERIOD);
-          sharedPrefs?.remove(BLOCK_TIME);
-          _db?.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: 0}, where: '$LOGIN=?', whereArgs: [_login]);
         }
+      // else  {
+      //   hiLog(TAG, 'resumed in else');
+      //   setState(() => getState(_signedIn, _termsAccepted));
+      //   sharedPrefs?.remove(BLOCK_PERIOD);
+      //   sharedPrefs?.remove(BLOCK_TIME);
+      //   _db?.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: 0}, where: '$LOGIN=?', whereArgs: [_login]);
+      // }
     }
   }
 
-  _initDB() async => _db = await openDatabase(p.join(await getDatabasesPath(), DB_NAME), onCreate: (db, v) async {
+  _initDB() async => _db = await openDatabase(p.join(await getDatabasesPath(), DB_NAME), onCreate: (db, v) {
         db.execute(
-            'CREATE TABLE $TABLE_USER($LOGIN TEXT PRIMARY KEY, $COLUMN_PASSWD TEXT, $BLOCK_PERIOD INTEGER DEFAULT $BLOCK_NO, $BLOCK_TIME INTEGER, '
+            'CREATE TABLE $TABLE_USER($LOGIN TEXT PRIMARY KEY, $PASSWD TEXT, $BLOCK_PERIOD INTEGER DEFAULT $BLOCK_NO, $BLOCK_TIME INTEGER, '
             '$LAST_BLOCK_PERIOD INTEGER DEFAULT $BLOCK_NO)');
         db.execute('CREATE TABLE $BLOCKED_USER($BLOCKED_LOGIN TEXT NOT NULL, $NAME TEXT, $LOGIN TEXT NOT NULL, '
             'PRIMARY KEY ($BLOCKED_LOGIN, $LOGIN), FOREIGN KEY($LOGIN) REFERENCES user($LOGIN))');
@@ -131,15 +135,15 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
 
   void _exit() {
     sharedPrefs?.remove(SIGNED_IN);
-    sharedPrefs?.remove(NAME);
     sharedPrefs?.remove(BLOCK_PERIOD);
     sharedPrefs?.remove(BLOCK_TIME);
-    setState(() {
-      _uiState = UIState.SIGN_IN_UP;
-    });
+    sharedPrefs?.remove(LOGIN);
+    _login = '';
+    setState(() => _uiState = UIState.SIGN_IN_UP);
   }
 
   _block(login, unblockTime, periodCode) {
+    hiLog(TAG, 'block');
     _login = login;
     _signedIn = true;
     _unblockTime = unblockTime;
@@ -148,6 +152,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   }
 
   _blockUnblock(int periodCode, Timestamp timestamp, String login) {
+    hiLog(TAG, 'tStamp=>$timestamp');
     _blockPeriod = periodCode;
     _unblockTime = timestamp.toDate().add(Duration(minutes: getMinutes(periodCode)));
     _login = login;
@@ -189,6 +194,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   }
 
   _setState() async {
+    hiLog(TAG, '_setState');
     sharedPrefs = await SharedPreferences.getInstance();
     _termsAccepted = sharedPrefs?.getBool(TERMS_ACCEPTED) ?? false;
     _signedIn = sharedPrefs?.getBool(SIGNED_IN) ?? false;
@@ -210,12 +216,6 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
     setState(() => _uiState = getState(_signedIn, _termsAccepted));
   }
 
-  @override
-  void dispose() {
-    hiLog(TAG, 'dispose');
-    super.dispose();
-  }
-
   getChild() {
     late String time;
     late String day;
@@ -229,11 +229,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
           SharedPreferences.getInstance().then((sp) => sp.setBool(TERMS_ACCEPTED, true));
         });
       case UIState.SIGN_IN_UP:
-        return SignInOrRegWidget((login) {
-          _login = login;
-          _signedIn = true;
-          setState(() => _uiState = UIState.PROFILE);
-        }, _block, _connectedToInet);
+        return SignInOrRegWidget(_onSuccess, _block, _onSetPassd, _connectedToInet);
       case UIState.PROFILE:
         return ProfileWidget(_startChat, _exit, sharedPrefs!);
       case UIState.BLOCKED:
@@ -244,7 +240,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
                     padding: edgeInsetsLR8,
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       Text(AppLocalizations.of(context)?.account_blocked ?? 'Your account is blocked.', style: bold20),
-                      Text((AppLocalizations.of(context)?.block_period ?? 'Block period:')+getPeriod(_blockPeriod, context),
+                      Text((AppLocalizations.of(context)?.block_period ?? 'Block period:') + getPeriod(_blockPeriod, context),
                           style: bold20),
                       if (_blockPeriod != BLOCK_FOREVER)
                         Padding(
@@ -260,10 +256,23 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
                     ]))));
       case UIState.LOADING:
         return Scaffold(appBar: appBarWithTitle, body: const Center(child: CircularProgressIndicator()));
+      case UIState.SET_PASS:
+        return PasswdWidget((s) => setState(() => _uiState = s), _onSuccess, _block, _login, _connectedToInet);
       default:
         throw UnimplementedError();
     }
   }
+
+  _onSuccess(login) {
+    _login = login;
+    _signedIn = true;
+    setState(() => _uiState = UIState.PROFILE);
+  }
+
+  _onSetPassd(String login) {
+    _login = login;
+    setState(() => _uiState = UIState.SET_PASS);
+  }
 }
 
-enum UIState { SIGN_IN_UP, PROFILE, CALL, TERMS, BLOCKED, LOADING }
+enum UIState { SIGN_IN_UP, PROFILE, CALL, TERMS, BLOCKED, LOADING, SET_PASS }

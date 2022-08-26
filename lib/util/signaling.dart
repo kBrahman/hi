@@ -95,15 +95,19 @@ class Signaling {
   }
 
   close() {
+
     _localStream?.dispose();
     _localStream = null;
     _remoteStream?.dispose();
     _remoteStream = null;
+    _peerConnection?.getLocalStreams().clear();
+    _peerConnection?.getRemoteStreams().clear();
     _peerConnection?.dispose();
     _peerConnection?.close();
     _peerConnection = null;
     _socket?.close();
     _socket = null;
+    hiLog(TAG, 'close');
   }
 
   disconnect() {
@@ -144,13 +148,12 @@ class Signaling {
     var type = mapData['type'];
     switch (type) {
       case REPORT:
-        if (_reports.length < 15) {
+        if (_reports.length < 14) {
           _reports.add(_peerId);
           _db.insert(REPORT, {REPORTER_LOGIN: _peerId, LOGIN: _selfId});
           FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$_peerId').set({});
         } else {
           onStateChange(SignalingState.BLOCK);
-          _db.update(TABLE_USER, {LAST_BLOCK_PERIOD: getBlockPeriod(lastBlockedPeriod)});
           _reports.forEach(delete);
           _reports.clear();
         }

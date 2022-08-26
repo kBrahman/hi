@@ -7,7 +7,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hi/widget/widget_main.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import 'l10n/locale.dart';
 
 var colorCodes = {
@@ -18,23 +17,16 @@ var colorCodes = {
 void main() async {
   const TAG = 'Main';
   WidgetsFlutterBinding.ensureInitialized();
-  late String turnUname;
-  late String turnPass;
   await Firebase.initializeApp();
   String data = await rootBundle.loadString('assets/local.properties');
   final iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
   final props = {for (final v in iterable) v.split('=')[0]: v.split('=')[1]};
   final String ip = props['server']!;
   final turnServers = props['turnServers']!.split(':').map((e) => 'turn:$e:3478');
-  turnUname = props['turnUname']!;
-  turnPass = props['turnPass']!;
-  start(ip, turnServers, turnUname, turnPass);
+  final turnUname = props['turnUname']!;
+  final turnPass = props['turnPass']!;
+  runApp(Hi(ip: ip, turnServers: turnServers, turnUname: turnUname, turnPass: turnPass));
 }
-
-start(String ip, Iterable<String> turnServers, String turnUname, String turnPass) async =>
-    await [Permission.camera, Permission.microphone].request().then((statuses) => statuses.values.any((e) => !e.isGranted)
-        ? exit(0)
-        : runApp(Hi(ip: ip, turnServers: turnServers, turnUname: turnUname, turnPass: turnPass)));
 
 class Hi extends StatelessWidget {
   static const TAG = 'Hi';

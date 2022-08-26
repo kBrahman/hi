@@ -21,12 +21,12 @@ class CallWidget extends StatefulWidget {
   final Iterable<String> turnServers;
   final String turnUname;
   final String turnPass;
-  final VoidCallback onBack;
+  final VoidCallback _onBack;
   final Function(String, DateTime, int) _block;
   final Database _db;
   final String _name;
 
-  const CallWidget(this.onBack, this._block, this._db, this._name,
+  const CallWidget(this._onBack, this._block, this._db, this._name,
       {Key? key, required this.ip, required this.turnServers, required this.turnUname, required this.turnPass})
       : super(key: key);
 
@@ -50,7 +50,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   late MethodChannel platform;
   String? model;
   bool blockDialogShown = false;
-  late int lastBlockedPeriod;
+  late int lastBlockPeriod;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -61,7 +61,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         hiLog(TAG, "app in resumed");
         break;
       case AppLifecycleState.paused:
-        _signaling?.bye(true, false);
+        _signaling?.close();
         _localRenderer.srcObject = null;
         _remoteRenderer.srcObject = null;
         setState(() => inCall = false);
@@ -79,6 +79,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   _checkBlock(String name) async {
+    hiLog(TAG, 'check block');
     final sharedPrefs = await SharedPreferences.getInstance();
     _login = sharedPrefs.getString(LOGIN) ?? '';
     final DocumentSnapshot doc;
@@ -88,10 +89,10 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
       final periodCode = doc[BLOCK_PERIOD];
       final blockTime = doc[BLOCK_TIME];
       sharedPrefs.setInt(BLOCK_PERIOD, periodCode);
-      sharedPrefs.setInt(BLOCK_TIME, (blockTime as Timestamp).seconds);
+      sharedPrefs.setInt(BLOCK_TIME, (blockTime as Timestamp).millisecondsSinceEpoch);
       widget._db.update(
           TABLE_USER, {BLOCK_PERIOD: periodCode, LAST_BLOCK_PERIOD: periodCode, BLOCK_TIME: blockTime.millisecondsSinceEpoch},
-          where: '$_login=?', whereArgs: [_login]);
+          where: 'login=?', whereArgs: [_login]);
       widget._block(_login, blockTime.toDate().add(Duration(minutes: getMinutes(periodCode))), periodCode);
     } else
       _initSignalingServer(_login, name);
@@ -128,7 +129,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           break;
         case SignalingState.BLOCK:
           final now = DateTime.now();
-          final blockPeriodCode = getBlockPeriod(lastBlockedPeriod);
+          final blockPeriodCode = getBlockPeriod(lastBlockPeriod);
           widget._db.update(TABLE_USER,
               {BLOCK_PERIOD: blockPeriodCode, BLOCK_TIME: now.millisecondsSinceEpoch, LAST_BLOCK_PERIOD: blockPeriodCode},
               where: '$_login=?', whereArgs: [_login]);
@@ -158,40 +159,33 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) => WillPopScope(
       child: Scaffold(
-        appBar: inCall ? null : AppBar(title: nameWidget, leading: BackButton(onPressed: widget.onBack)),
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
-        floatingActionButton: inCall
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                    5,
-                    (i) => ElevatedButton(
-                        child: icon(i),
-                        style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(15)),
-                        onPressed: onPressed(i, context))))
-            : null,
-        body: inCall
-            ? OrientationBuilder(builder: (context, orientation) {
-                return Stack(children: <Widget>[
-                  RTCVideoView(_remoteRenderer),
-                  Positioned(
-                    left: 20.0,
-                    top: 10.0,
-                    width: 90,
-                    height: 120,
-                    child: RTCVideoView(_localRenderer),
-                  ),
-                ]);
-              })
-            : _connOk && !_maintaining
-                ? const WaitingWidget()
-                : !_connOk
-                    ? NoInternetWidget(checkAndConnect)
-                    : const MaintenanceWidget(),
-      ),
+          appBar: inCall ? null : AppBar(title: nameWidget, leading: BackButton(onPressed: widget._onBack)),
+          floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
+          floatingActionButton: inCall
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(
+                      5,
+                      (i) => ElevatedButton(
+                          child: icon(i),
+                          style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(15)),
+                          onPressed: onPressed(i, context))))
+              : null,
+          body: inCall
+              ? OrientationBuilder(builder: (context, orientation) {
+                  return Stack(children: <Widget>[
+                    RTCVideoView(_remoteRenderer),
+                    Positioned(left: 20.0, top: 10.0, width: 90, height: 120, child: RTCVideoView(_localRenderer))
+                  ]);
+                })
+              : _connOk && !_maintaining
+                  ? const WaitingWidget()
+                  : !_connOk
+                      ? NoInternetWidget(checkAndConnect)
+                      : const MaintenanceWidget()),
       onWillPop: () {
-        widget.onBack();
+        widget._onBack();
         return Future.value(false);
       });
 
@@ -199,6 +193,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _signaling?.close();
+    _signaling = null;
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     hiLog(TAG, 'dispose');
@@ -217,10 +212,10 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
 
   VoidCallback? onPressed(int i, BuildContext context) {
     switch (i) {
-      case 0:
+      case ACTION_SWITCH_CAMERA:
         return _signaling?.switchCamera;
       case 1:
-        return widget.onBack;
+        return widget._onBack;
       case 2:
         return _muteMic;
       case 3:
