@@ -477,7 +477,7 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
             showProgress(false);
             showCodeSent = true;
             _timerStarted = true;
-            _remainingTimeToResend = 60;
+            _remainingTimeToResend = 120;
             currKey = UniqueKey();
             startTimer();
             _verificationId = id;

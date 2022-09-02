@@ -23,11 +23,11 @@ dependencies:
   connectivity: ^3.0.6
   package_info: ^2.0.2
   camera: ^0.10.0+1
-  flutter_webrtc: ^0.9.4
+  flutter_webrtc: ^0.9.5
   shared_preferences: ^2.0.15
   sqflite: ^2.0.2
   path: ^1.8.1
-  firebase_auth: ^3.6.4
+  firebase_auth: ^3.7.0
   flutter_signin_button: ^2.0.0
   google_sign_in: ^5.4.1
   firebase_dynamic_links: ^4.3.5

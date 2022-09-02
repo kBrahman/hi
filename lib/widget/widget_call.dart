@@ -109,6 +109,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     _signaling?.onStateChange = (SignalingState state) {
       switch (state) {
         case SignalingState.CallStateBye:
+          if (!mounted) return;
           if (!blockDialogShown) next(inCall);
           setState(() => inCall = false);
           break;
