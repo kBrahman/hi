@@ -479,7 +479,7 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
       widget.onSetPassd(_login);
     }, onError: (e) {
       if (e is FirebaseAuthException && e.code == 'invalid-verification-code') {
-        showSnack(AppLocalizations.of(ctx)?.sms_invalid ?? 'Invalid SMS code', 2, context);
+        showSnack(AppLocalizations.of(ctx)?.sms_invalid ?? 'Invalid SMS code', 2, ctx);
         showProgress(false);
       }
     });

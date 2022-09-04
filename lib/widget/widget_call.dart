@@ -178,8 +178,9 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           body: _mustUpdate
               ? Center(
                   child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                   Text(AppLocalizations.of(context)?.must_update??'You must update you app', style: const TextStyle(fontSize: 20)),
-                  ElevatedButton(onPressed: _update, child:  Text(AppLocalizations.of(context)?.update??'UPDATE'))
+                  Text(AppLocalizations.of(context)?.must_update ?? 'You must update you app',
+                      style: const TextStyle(fontSize: 20)),
+                  ElevatedButton(onPressed: _update, child: Text(AppLocalizations.of(context)?.update ?? 'UPDATE'))
                 ]))
               : _inCall
                   ? OrientationBuilder(builder: (context, orientation) {
@@ -206,6 +207,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     _signaling = null;
     _localRenderer.dispose();
     _remoteRenderer.dispose();
+    hiLog(TAG, 'dispose');
     super.dispose();
   }
 
@@ -317,7 +319,8 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   void _update() => _platform.invokeMethod(UPDATE).then((value) {
-        if (!value) showSnack(AppLocalizations.of(context)?.gp??'Could not open Google Play.Open it manually please', 5, context);
+        if (!value)
+          showSnack(AppLocalizations.of(context)?.gp ?? 'Could not open Google Play.Open it manually please', 5, context);
       });
 }
 

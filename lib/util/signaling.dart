@@ -95,6 +95,8 @@ class Signaling {
   }
 
   close() {
+    _peerConnection?.getLocalStreams().clear();
+    _peerConnection?.getRemoteStreams().clear();
     _peerConnection?.dispose();
     _peerConnection?.close();
     _peerConnection = null;
@@ -102,8 +104,6 @@ class Signaling {
     _localStream = null;
     _remoteStream?.dispose();
     _remoteStream = null;
-    _peerConnection?.getLocalStreams().clear();
-    _peerConnection?.getRemoteStreams().clear();
     _socket?.close();
     _socket = null;
     hiLog(TAG, 'close');
