@@ -36,6 +36,53 @@
     }
   },
   "block_period": "Perioada de bloc:",
-"err_conn":"Eroare de conexiune, încercați din nou",
-"logged_in_as":"Conectat ca:"
+  "err_conn": "Eroare de conexiune, încercați din nou",
+  "logged_in_as": "Conectat ca:",
+  "must_update": "Tribute să vă actualizați aplicația",
+  "update": "ACTUALIZAȚI",
+  "gp": "Google Play nu a putut fi deschis. Deschideți-l manual, vă rugăm",
+  "create_passwd": "Crează o parolă",
+  "lowercase": "Parola trebuie să conțină litere mici",
+  "uppercase": "Parola trebuie să conțină litere mari",
+  "nums": "Parola trebuie să conțină numere",
+  "min_len": "Lungimea minimă a parolei este de 8",
+  "match": "Parolele trebuie să se potrtivească",
+  "passwd": "parola",
+  "retype": "Reintroduceţi parola",
+  "required": "Acest câmp este obligatoriu",
+  "next": "URMĂTORUL",
+  "open_settings": "Accesați setări și acordați acces la camera și la microfon",
+  "settings": "SETĂRI",
+  "give_access": "Vă rugăm să acordați acces la camera și la microfon!",
+  "sms": "SMS este trimis la",
+  "you_can": "Poti",
+  "resend": "retrimite",
+  "after": "după",
+  "submit": "TRIMITE",
+  "email": "Introduceți adresa dvs. de email",
+  "enter_phone": "Introdu numarul tau de telefon",
+  "format_err": "Formatul este greșit",
+  "can_send_after": "„Puteți trimite după:",
+  "pass_login_wrong": "Autentificarea sau parola este greșită",
+  "sign_in_problem": "Nu am putut să vă conectați cu e-mail, încercați din nou",
+  "phone": "număr de telefon",
+  "sign_in": "Loghează-te",
+  "sign_in_email": "Conectați-vă cu e-mail",
+  "create": "CREEAZĂ UN CONT NOU",
+  "forgot": "Am uitat parola",
+  "mail_ru_problem": "Conectarea prin e-mail nu funcționează cu mail.ru, vă rugăm să încercați alt e-mail",
+  "email_send_err": "Nu s-a putut trimite e-mailul, încercați din nou",
+  "ip_blocked": "IP-ul dvs. a fost blocat temporar. Încercați din nou mai târziu, vă rog",
+  "phone_invalid": "Numar de telefon invalid",
+  "internal_err": "A apărut o eroare internă, încercați din nou mai târziu",
+  "phone_unavailable": "Înregistrarea la telefon nu funcționează în prezent, încercați altă metodă",
+  "sms_invalid": "Cod SMS nevalid",
+  "email_sent": "E-mailul este trimis la {login}. Verificați și SPAM-ul.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

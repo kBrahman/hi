@@ -26,7 +26,7 @@
   "year": "ein Jahr",
   "forever": "bis in alle Ewigkeit",
   "unblock_time": "Ihr Konto wird am {day} um {time} entsperrt",
-"@unblock_time": {
+  "@unblock_time": {
     "placeholders": {
       "day": {
         "type:": "String"
@@ -36,7 +36,55 @@
       }
     }
   },
-"block_period":"Sperrzeitraum:",
-"err_conn":"Verbindungsfehler, versuchen Sie es bitte erneut",
-"logged_in_as":"Eingeloggt als:"
+  "block_period": "Sperrzeitraum:",
+  "err_conn": "Verbindungsfehler, versuchen Sie es bitte erneut",
+  "logged_in_as": "Eingeloggt als:",
+  "must_update": "Sie müssen Ihre App aktualisieren",
+  "update": "AKTUALISIEREN",
+  "gp": "Google Play konnte nicht geöffnet werden. Öffnen Sie es bitte manuell",
+  "create_passwd": "Erstellen sie ein Passwort",
+  "lowercase": "Das Passwort muss Kleinbuchstaben enthalten",
+  "uppercase": "Das Passwort muss Großbuchstaben enthalten",
+  "nums": "Das Passwort muss Zahlen enthalten",
+  "min_len": "Die Mindestlänge des Passworts beträgt 8",
+  "match": "Die Passwörter müssen übereinstimmen",
+  "passwd": "Passwort",
+  "retype": "Passwort erneut eingeben",
+  "required": "Dieses Feld ist erforderlich",
+  "next": "NÄCHSTE",
+  "open_settings": "Bitte gehen Sie zu den Einstellungen und geben Sie Zugriff auf Ihre Kamera und Ihr Mikrofon",
+  "settings": "DIE EINSTELLUNGEN",
+  "give_access": "Bitte geben Sie Zugriff auf Ihre Kamera und Ihr Mikrofon!",
+  "sms": "SMS wird an gesendet",
+  "you_can": "Du kannst",
+  "resend": "erneut senden",
+  "after": "nach",
+  "submit": "EINREICHEN",
+  "email": "Geben sie ihre E-Mail Adresse ein",
+  "enter_phone": "Trage deine Telefonnummer ein",
+  "format_err": "Format ist falsch",
+  "can_send_after": "'Sie können senden nach:",
+  "pass_login_wrong": "Login oder Passwort ist falsch",
+  "sign_in_problem": "Anmeldung per E-Mail nicht möglich, bitte versuchen Sie es erneut",
+  "phone": "Telefonnummer",
+  "sign_in": "Einloggen",
+  "sign_in_email": "Melden Sie sich mit E-Mail an",
+  "create": "NEUEN ACCOUNT ERSTELLEN",
+  "forgot": "Ich habe mein Passwort vergessen",
+  "mail_ru_problem": "Die E-Mail-Anmeldung funktioniert nicht mit mail.ru, versuchen Sie es bitte mit einer anderen E-Mail-Adresse",
+  "email_send_err": "E-Mail konnte nicht gesendet werden, versuchen Sie es bitte erneut",
+  "ip_blocked": "Ihre IP wurde vorübergehend gesperrt. Versuchen Sie es bitte später noch einmal",
+  "phone_invalid": "Ungültige Telefonnummer",
+  "internal_err": "Es ist ein interner Fehler aufgetreten, bitte versuchen Sie es später erneut",
+  "phone_unavailable": "Die Anmeldung per Telefon funktioniert derzeit nicht. Versuchen Sie es bitte mit einer anderen Methode",
+  "sms_invalid": "Ungültiger SMS-Code",
+  "email_sent": "E-Mail wird an {login} gesendet. Prüfen Sie auch SPAM.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    },
+    "open": "ÖFFNEN"
+  }
 }

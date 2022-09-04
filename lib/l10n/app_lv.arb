@@ -37,6 +37,53 @@
     }
   },
   "block_period": "Bloķēšanas periods:",
-"err_conn":"Savienojuma kļūda, lūdzu, mēģiniet vēlreiz",
-"logged_in_as":"Ielogojies Kā:"
+  "err_conn": "Savienojuma kļūda, lūdzu, mēģiniet vēlreiz",
+  "logged_in_as": "Ielogojies Kā:",
+  "must_update": "Jums ir jāatjaunina lietotne",
+  "update": "ATJAUNINĀT",
+  "gp": "Nevarēja atvērt pakalpojumu Google Play. Lūdzu, atveriet to manuāli",
+  "create_passwd": "Izveidot paroli",
+  "lowercase": "Parolei jāsatur mazie burti",
+  "uppercase": "Parolei jāsatur lielie burti",
+  "nums": "Parolē jāsatur cipari",
+  "min_len": "Paroles minimālais garums ir 8",
+  "match": "Parolēm jābūt vienādām",
+  "passwd": "parole",
+  "retype": "atkārtoti ierakstiet paroli",
+  "required": "Šis lauks ir obligāts",
+  "next": "NĀKAMAIS",
+  "open_settings": "Lūdzu, dodieties uz iestatījumiem un piešķiriet piekļuvi kamerai un mikrofonam",
+  "settings": "IESTATĪJUMI",
+  "give_access": "Lūdzu, piešķiriet piekļuvi savai kamerai un mikrofonam!",
+  "sms": "SMS tiek nosūtīts uz",
+  "you_can": "Jūs varat",
+  "resend": "sūtīt atkārtoti",
+  "after": "pēc",
+  "submit": "IESNIEGT",
+  "email": "Ievadi savu epastu",
+  "enter_phone": "Ievadiet savu tālruņa numuru",
+  "format_err": "Formāts ir nepareizs",
+  "can_send_after": "'Varat nosūtīt pēc:",
+  "pass_login_wrong": "Pieteikšanās vai parole ir nepareiza",
+  "sign_in_problem": "Nevarēja pierakstīties ar e-pastu, lūdzu, mēģiniet vēlreiz",
+  "phone": "telefona numurs",
+  "sign_in": "Ielogoties",
+  "sign_in_email": "Pierakstieties ar e-pastu",
+  "create": "IZVEIDOT JAUNU KONTU",
+  "forgot": "Es aizmirsu savu paroli",
+  "mail_ru_problem": "Pierakstīšanās pa e-pastu nedarbojas ar mail.ru, lūdzu, izmēģiniet citu e-pastu",
+  "email_send_err": "Nevarēja nosūtīt e-pastu, lūdzu, mēģiniet vēlreiz",
+  "ip_blocked": "Jūsu IP ir īslaicīgi bloķēta. Lūdzu, vēlāk mēģiniet vēlreiz",
+  "phone_invalid": "Nederīgs tālruņa numurs",
+  "internal_err": "Radās iekšēja kļūda. Lūdzu, vēlāk mēģiniet vēlreiz",
+  "phone_unavailable": "Pieteikšanās pa tālruni pašlaik nedarbojas, lūdzu, izmēģiniet citu metodi",
+  "sms_invalid": "Nederīgs SMS kods",
+  "email_sent": "E-pasts tiek nosūtīts uz {login}. Pārbaudiet arī SPAM.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

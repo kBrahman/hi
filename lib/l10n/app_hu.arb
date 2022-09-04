@@ -14,19 +14,19 @@
   "terms_title": "Felhasználói feltételek/felhasználói szabályzat",
   "sign_in_google": "Jelentkezzen be a Google-lal",
   "terms": "A „Zhet” („mi” vagy „minket” vagy „a miénk”) tiszteletben tartja felhasználóink ('felhasználó' vagy „te') emberi méltóságát. Nem támogatunk semmiféle diszkriminációt, fenyegetést, megfélemlítést, zaklatást és visszaélést. Ez a felhasználói feltételek/felhasználói szabályzat elmagyarázza, hogyan moderálunk egy ilyen kifogásolható tartalmat, amely diszkriminációt, fenyegetést, megfélemlítést, zaklatást vagy visszaélést tartalmaz. Kérjük, figyelmesen olvassa el ezt a szabályzatot. HA NEM EGYETÉRT A JELEN SZABÁLYZAT FELTÉTELEIVEL, KÉRJÜK, NE FÉRJÜK FEL AZ ALKALMAZÁSHOZ.\nFenntartjuk a jogot, hogy a jelen Szabályzatot bármikor és bármilyen okból módosítsuk. Az alkalmazás használatához el KELL fogadnia a jelen szabályzat feltételeit.\n\nKITÁNYOZHATÓ TARTALOM ÉS VISELKEDÉS:\nMindenfajta diszkriminációt, fenyegetést, zaklatást, zaklatást és visszaélést kifogásolható magatartásként határozunk meg.\nA szexuálisan nyílt tartalmat kifogásolható tartalomként definiáljuk. .\n\nALKALMAZÁS HASZNÁLATA:\nAz alkalmazás használata közben beleegyezik abba, hogy nem tesz ki kifogásolható tartalmat vagy viselkedést más felhasználókkal szemben. Ha megsérti a jelen Szabályzat feltételeit, ideiglenesen kitiltjuk az alkalmazás használatából. Folyamatos jogsértés esetén, azaz ha folyamatosan panaszjelentéseket kapunk a fiókjában lévő más felhasználóktól, fiókja megszűnik, és soha nem fogja tudni használni ezt az alkalmazást.",
-  "name":"A neved",
-  "name_enter":"Kérjük, írja be a nevét",
-  "blocked_users":"Letiltott felhasználók",
-  "start":"BESZÉLGETÉS INDÍTÁSA",
-  "account_blocked":"Fiókja blokkolva van.",
-  "week":"egy hét",
-  "month":"egy hónap",
-  "three_months":"három hónap",
-  "six_months":"hat hónap",
-  "year":"egy év",
-  "forever":"örökké",
-  "unblock_time":"Fiókját a következő napon feloldjuk: {day}, {time}",
-"@unblock_time": {
+  "name": "A neved",
+  "name_enter": "Kérjük, írja be a nevét",
+  "blocked_users": "Letiltott felhasználók",
+  "start": "BESZÉLGETÉS INDÍTÁSA",
+  "account_blocked": "Fiókja blokkolva van.",
+  "week": "egy hét",
+  "month": "egy hónap",
+  "three_months": "három hónap",
+  "six_months": "hat hónap",
+  "year": "egy év",
+  "forever": "örökké",
+  "unblock_time": "Fiókját a következő napon feloldjuk: {day}, {time}",
+  "@unblock_time": {
     "placeholders": {
       "day": {
         "type:": "String"
@@ -36,7 +36,55 @@
       }
     }
   },
-"block_period":"Letiltás időszaka:",
-"err_conn":"Kapcsolódási hiba, próbáld újra",
-"logged_in_as":"Bejelentkezve mint:"
+  "block_period": "Letiltás időszaka:",
+  "err_conn": "Kapcsolódási hiba, próbáld újra",
+  "logged_in_as": "Bejelentkezve mint:",
+  "must_update": "Frissítenie kell az alkalmazást",
+  "update": "FRISSÍTÉS",
+  "gp": "Nem sikerült megnyitni a Google Playt. Nyissa meg manuálisan",
+  "create_passwd": "Hozzon létre egy jelszót",
+  "lowercase": "A jelszónak kisbetűket kell tartalmaznia",
+  "uppercase": "A jelszónak nagybetűket kell tartalmaznia",
+  "nums": "A jelszónak számokat kell tartalmaznia",
+  "min_len": "A jelszó minimális hossza 8",
+  "match": "a jelszavaknak egyezniük kell",
+  "passwd": "Jelszó",
+  "retype": "Gépelje be újra a jelszót",
+  "required": "Ez a mező kötelező",
+  "next": "KÖVETKEZŐ",
+  "open_settings": "Nyissa meg a beállításokat, és biztosítson hozzáférést a kamerához és a mikrofonhoz",
+  "settings": "BEÁLLÍTÁSOK",
+  "give_access": "Kérjük, biztosítson hozzáférést kamerájához és mikrofonjához!",
+  "sms": "SMS-t küld a címre",
+  "you_can": "tudsz",
+  "resend": "újraküldeni",
+  "after": "után",
+  "submit": "BEKÜLDÉS",
+  "email": "Írd be az email címed",
+  "enter_phone": "Írja be a telefonszámát",
+  "format_err": "A formátum rossz",
+  "can_send_after": "Ezután küldheti:",
+  "pass_login_wrong": "Hibás bejelentkezés vagy jelszó",
+  "sign_in_problem": "Nem sikerült bejelentkezni az e-mail-címmel, próbálja újra",
+  "phone": "telefonszám",
+  "sign_in": "Bejelentkezés",
+  "sign_in_email": "Jelentkezzen be e-mailben",
+  "create": "ÚJ FIÓK LÉTREHOZÁSA",
+  "forgot": "elfelejtettem a jelszavamat",
+  "mail_ru_problem": "Az e-mailes bejelentkezés nem működik a mail.ru-val, próbálkozzon másik e-mail címmel",
+  "email_send_err": "Nem sikerült e-mailt küldeni, kérem próbálja újra",
+  "ip_blocked": "Az IP-címe ideiglenesen le van tiltva. Kérjük, próbálja újra később",
+  "phone_invalid": "Érvénytelen telefonszám",
+  "internal_err": "Belső hiba történt, kérjük, próbálja újra később",
+  "phone_unavailable": "A telefonos regisztráció jelenleg nem működik, próbáljon más módszert",
+  "sms_invalid": "Érvénytelen SMS-kód",
+  "email_sent": "Az e-mailt a(z) {login} címre küldtük. Ellenőrizze a SPAM-et is.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  },
+  "open": "KINYITNI"
 }

@@ -43,20 +43,21 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
 
   bool _connOk = true;
   bool _maintaining = false;
-  var countToShowAd = 1;
-  var nextCount = 0;
-  var inCall = false;
+  var _countToShowAd = 1;
+  var _nextCount = 0;
+  var _inCall = false;
   late String _login;
-  late MethodChannel platform;
+  late MethodChannel _platform;
   String? model;
   bool blockDialogShown = false;
-  late int lastBlockPeriod;
+  late int _lastBlockPeriod;
+  bool _mustUpdate = false;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        if (!inCall && _signaling?.isConnecting() == false)
+        if (!_inCall && _signaling?.isConnecting() == false)
           _signaling?.isDisconnected() ? checkAndConnect() : _signaling?.msgNew();
         hiLog(TAG, "app in resumed");
         break;
@@ -64,8 +65,11 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         _signaling?.close();
         _localRenderer.srcObject = null;
         _remoteRenderer.srcObject = null;
-        setState(() => inCall = false);
+        setState(() => _inCall = false);
         hiLog(TAG, 'paused');
+        break;
+      case AppLifecycleState.inactive:
+        hiLog(TAG, 'inactive');
     }
   }
 
@@ -73,9 +77,8 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   initState() {
     super.initState();
     initRenderers();
-    if (Platform.isAndroid) platform = const MethodChannel('hi.channel/app');
+    if (Platform.isAndroid) _platform = const MethodChannel('hi.channel/app');
     _checkBlock(widget._name);
-    hiLog(TAG, 'init state');
   }
 
   _checkBlock(String name) async {
@@ -110,31 +113,32 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
       switch (state) {
         case SignalingState.CallStateBye:
           if (!mounted) return;
-          if (!blockDialogShown) next(inCall);
-          setState(() => inCall = false);
+          if (!blockDialogShown) _next(_inCall);
+          setState(() => _inCall = false);
           break;
         case SignalingState.ConnectionClosed:
           break;
         case SignalingState.ConnectionError:
-          setState(() {
-            _maintaining = true;
-          });
+          setState(() => _maintaining = true);
           break;
         case SignalingState.NoInet:
-          setState(() {
-            _connOk = false;
-          });
+          setState(() => _connOk = false);
           break;
         case SignalingState.ConnectionOpen:
           Wakelock.enable();
           break;
-        case SignalingState.BLOCK:
+        case SignalingState.Block:
           final now = DateTime.now();
-          final blockPeriodCode = getBlockPeriod(lastBlockPeriod);
+          final blockPeriodCode = getBlockPeriod(_lastBlockPeriod);
           widget._db.update(TABLE_USER,
               {BLOCK_PERIOD: blockPeriodCode, BLOCK_TIME: now.millisecondsSinceEpoch, LAST_BLOCK_PERIOD: blockPeriodCode},
-              where: '$_login=?', whereArgs: [_login]);
+              where: 'login=?', whereArgs: [_login]);
           widget._block(_login, now.add(Duration(minutes: getMinutes(blockPeriodCode))), blockPeriodCode);
+          break;
+        case SignalingState.Update:
+          setState(() {
+            _mustUpdate = true;
+          });
       }
     };
 
@@ -142,14 +146,12 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
       setState(() {
         _remoteRenderer.srcObject = rStream;
         _localRenderer.srcObject = lStream;
-        inCall = true;
+        _inCall = true;
       });
-      hiLog(TAG, 'onRemoteStream');
     });
 
     _signaling?.onRemoveRemoteStream = (() {
       _remoteRenderer.srcObject = null;
-      hiLog(TAG, 'onRemoveRemoteStream');
     });
     checkAndConnect();
     WidgetsBinding.instance.addObserver(this);
@@ -160,9 +162,9 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) => WillPopScope(
       child: Scaffold(
-          appBar: inCall ? null : AppBar(title: nameWidget, leading: BackButton(onPressed: widget._onBack)),
+          appBar: _inCall ? null : AppBar(title: nameWidget, leading: BackButton(onPressed: widget._onBack)),
           floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
-          floatingActionButton: inCall
+          floatingActionButton: _inCall
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   mainAxisSize: MainAxisSize.min,
@@ -173,18 +175,24 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
                           style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(15)),
                           onPressed: onPressed(i, context))))
               : null,
-          body: inCall
-              ? OrientationBuilder(builder: (context, orientation) {
-                  return Stack(children: <Widget>[
-                    RTCVideoView(_remoteRenderer),
-                    Positioned(left: 20.0, top: 10.0, width: 90, height: 120, child: RTCVideoView(_localRenderer))
-                  ]);
-                })
-              : _connOk && !_maintaining
-                  ? const WaitingWidget()
-                  : !_connOk
-                      ? NoInternetWidget(checkAndConnect)
-                      : const MaintenanceWidget()),
+          body: _mustUpdate
+              ? Center(
+                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                   Text(AppLocalizations.of(context)?.must_update??'You must update you app', style: const TextStyle(fontSize: 20)),
+                  ElevatedButton(onPressed: _update, child:  Text(AppLocalizations.of(context)?.update??'UPDATE'))
+                ]))
+              : _inCall
+                  ? OrientationBuilder(builder: (context, orientation) {
+                      return Stack(children: <Widget>[
+                        RTCVideoView(_remoteRenderer),
+                        Positioned(left: 20.0, top: 10.0, width: 90, height: 120, child: RTCVideoView(_localRenderer))
+                      ]);
+                    })
+                  : _connOk && !_maintaining
+                      ? const WaitingWidget()
+                      : !_connOk
+                          ? NoInternetWidget(checkAndConnect)
+                          : const MaintenanceWidget()),
       onWillPop: () {
         widget._onBack();
         return Future.value(false);
@@ -192,12 +200,12 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    // platform.invokeMethod('isLoaded').then((value) => {if (value) platform.invokeMethod('show')});
     WidgetsBinding.instance.removeObserver(this);
     _signaling?.close();
     _signaling = null;
     _localRenderer.dispose();
     _remoteRenderer.dispose();
-    hiLog(TAG, 'dispose');
     super.dispose();
   }
 
@@ -222,9 +230,9 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
       case 3:
         return () {
           setState(() {
-            inCall = false;
+            _inCall = false;
           });
-          next(true);
+          _next(true);
         };
       case 4:
         return () => _block(context);
@@ -242,47 +250,50 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
                 actions: [
                   TextButton(onPressed: Navigator.of(context).pop, child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
                   TextButton(
-                      onPressed: () => Navigator.pop(context, 'complaint'),
+                      onPressed: () => Navigator.pop(context, REPORT),
                       child: Text(AppLocalizations.of(context)?.complaint ?? 'Complaint')),
                   TextButton(
-                      onPressed: () => Navigator.pop(context, 'block'),
-                      child: Text(AppLocalizations.of(context)?.block ?? 'BLOCK'))
+                      onPressed: () => Navigator.pop(context, BLOCK), child: Text(AppLocalizations.of(context)?.block ?? 'BLOCK'))
                 ]));
     switch (res) {
       case BLOCK:
-        hiLog(TAG, 'result is block');
         _signaling?.block();
         showSnack(AppLocalizations.of(context)?.blocked ?? 'User is blocked', 4, context);
         Future.delayed(const Duration(milliseconds: 250), () {
-          next(false);
-          setState(() => inCall = false);
+          _next(false);
+          setState(() => _inCall = false);
         });
         break;
-      case 'complaint':
-        hiLog(TAG, 'result is complaint');
+      case REPORT:
         showSnack(AppLocalizations.of(context)?.report_sent ?? 'Complaint sent', 4, context);
         _signaling?.report();
-        if (!inCall) next(false);
+        if (!_inCall) _next(false);
         break;
       case null:
-        hiLog(TAG, 'result is null');
-        if (!inCall) next(false);
+        if (!_inCall) _next(false);
     }
     blockDialogShown = false;
   }
 
-  next(bool canShowAd) async {
-    hiLog(TAG, 'nextCount=>$nextCount, countToShowAd=>$countToShowAd');
-    if (canShowAd && Platform.isAndroid && ++nextCount == countToShowAd && await platform.invokeMethod('isLoaded')) {
-      platform.invokeMethod('show');
-      nextCount = 0;
-      countToShowAd *= 2;
-      return;
-    }
-    hiLog(TAG, 'on next');
-    _remoteRenderer.srcObject = null;
+  _next(bool canShowAd) async {
+    hiLog(TAG, 'nextCount=>$_nextCount, countToShowAd=>$_countToShowAd');
+    if (canShowAd && ++_nextCount == _countToShowAd && await _platform.invokeMethod('isLoaded')) {
+      _platform.invokeMethod('show').then((_) {
+        _nextCount = 0;
+        _countToShowAd *= 2;
+      }).catchError((e) => _signaling?.connect());
+      _signaling?.close();
+      _remoteRenderer.srcObject = null;
+      _localRenderer.srcObject = null;
+    } else
+      closeAndConnect();
+  }
+
+  void closeAndConnect() {
     _signaling?.close();
     _signaling?.connect();
+    _remoteRenderer.srcObject = null;
+    _localRenderer.srcObject = null;
   }
 
   initRenderers() async {
@@ -298,13 +309,16 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   checkAndConnect() async {
-    hiLog(TAG, 'check and connect');
     var connectivityResult = await (Connectivity().checkConnectivity());
     setState(() {
       _connOk = connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi;
     });
     if (_connOk) _signaling?.connect();
   }
+
+  void _update() => _platform.invokeMethod(UPDATE).then((value) {
+        if (!value) showSnack(AppLocalizations.of(context)?.gp??'Could not open Google Play.Open it manually please', 5, context);
+      });
 }
 
 class MaintenanceWidget extends StatelessWidget {
@@ -312,13 +326,11 @@ class MaintenanceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Container(
+      child: Container(
           child: Text(
             AppLocalizations.of(context)?.maintenance ?? 'Maintenance works on server side, come later please',
           ),
-          padding: const EdgeInsets.only(left: 20, right: 10),
-        ),
-      );
+          padding: const EdgeInsets.only(left: 20, right: 10)));
 }
 
 class NoInternetWidget extends StatelessWidget {

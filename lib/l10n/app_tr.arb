@@ -38,5 +38,52 @@
   },
   "block_period": "Blok dönemi:",
   "err_conn": "Bağlantı hatası, tekrar deneyin lütfen",
-"logged_in_as":"Olarak giriş yaptı:"
+  "logged_in_as": "Olarak giriş yaptı:",
+  "must_update": "Uygulamanızı güncellemelisiniz",
+  "update": "GÜNCELLEME",
+  "gp": "Google Play açılamadı.Manuel açın lütfen",
+  "create_passwd": "şifre oluştur",
+  "lowercase": "Şifre küçük harfler içermelidir",
+  "uppercase": "Şifre büyük harf içermelidir",
+  "nums": "Şifre sayılar içermelidir",
+  "min_len": "Şifre minimum uzunluğu 8'dir",
+  "match": "Şifreler aynı olmalıdır",
+  "passwd": "şifre",
+  "retype": "Şifrenizi yeniden yazın",
+  "required": "Bu alan gereklidir",
+  "next": "SONRAKİ",
+  "open_settings": "Lütfen ayarlara gidin ve kameranıza ve mikrofonunuza erişim sağlayın",
+  "settings": "AYARLAR",
+  "give_access": "Lütfen kameranıza ve mikrofonunuza erişim izni verin!",
+  "sms": "SMS gönderilir",
+  "you_can": "Yapabilirsiniz",
+  "resend": "Yeniden gönder",
+  "after": "sonrasında",
+  "submit": "SUNMAK",
+  "email": "E-postanızı giriniz",
+  "enter_phone": "Telefon numaranızı girin",
+  "format_err": "Biçim yanlış",
+  "can_send_after": "'Sonra gönderebilirsiniz:",
+  "pass_login_wrong": "Giriş veya şifre yanlış",
+  "sign_in_problem": "E-posta ile oturum açılamadı, lütfen tekrar deneyin",
+  "phone": "telefon numarası",
+  "sign_in": "Kayıt olmak",
+  "sign_in_email": "E-posta ile oturum açın",
+  "create": "YENİ HESAP OLUŞTUR",
+  "forgot": "Şifremi Unuttum",
+  "mail_ru_problem": "E-posta ile oturum açma mail.ru ile çalışmıyor, lütfen başka bir e-posta deneyin",
+  "email_send_err": "E-posta gönderilemedi, tekrar deneyin lütfen",
+  "ip_blocked": "IP'niz geçici olarak engellendi. Daha sonra tekrar deneyin lütfen",
+  "phone_invalid": "Geçersiz telefon numarası",
+  "internal_err": "Dahili bir hata oluştu, lütfen daha sonra tekrar deneyin",
+  "phone_unavailable": "Telefonla kaydolma şu anda çalışmıyor, lütfen başka bir yöntem deneyin",
+  "sms_invalid": "Geçersiz SMS kodu",
+  "email_sent": "{login} adresine e-posta gönderildi. SPAM'ı da kontrol edin.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

@@ -14,19 +14,19 @@
   "terms_title": "Termos da política do usuário/usuário",
   "sign_in_google": "Faça login no Google",
   "terms": "'Zhet' ('nós' ou 'nos' ou 'nosso') respeita a dignidade humana de nossos usuários ('usuário' ou 'você'). Não apoiamos nenhum tipo de discriminação, ameaças, bullying, assédio e abuso. Estes Termos da Política de usuário/usuário explicam como moderamos um conteúdo tão censurável que apresenta discriminação, ameaças, bullying, assédio ou abuso. Por favor, leia esta Política com atenção. SE VOCÊ NÃO CONCORDA COM OS TERMOS DESTA POLÍTICA, POR FAVOR, NÃO ACESSE O APLICATIVO.\nReservamos o direito de fazer alterações nesta Política a qualquer momento e por qualquer motivo. Você DEVE aceitar os termos desta política para usar o aplicativo\n\nCONTEÚDO E COMPORTAMENTOS OBJETIVOS:\nDefinimos qualquer tipo de discriminação, ameaças, intimidação, assédio e abuso como comportamento censurável.\nDefinimos conteúdo sexualmente explícito como conteúdo censurável .\n\nUSO DO APLICATIVO:\nAo usar este aplicativo, você concorda em não expor conteúdo ou comportamentos censuráveis contra qualquer outro usuário. Se você violar os termos desta Política, você será temporariamente banido de usar este aplicativo. Em caso de violação continuada, ou seja, se continuarmos recebendo relatórios de reclamações de outros usuários em sua conta, sua conta será encerrada e você nunca poderá usar este aplicativo.",
-  "name":"Seu nome",
-  "name_enter":"Digite seu nome por favor",
-  "blocked_users":"Usuários bloqueados",
-  "start":"INICIAR CHAT",
-  "account_blocked":"Sua conta está bloqueada.",
-  "week":"uma semana",
-  "month":"um mês",
-  "three_months":"três meses",
-  "six_months":"seis meses",
-  "year":"um ano",
-  "forever":"para todo sempre",
-  "unblock_time":"Sua conta será desbloqueada em {day} às {time}",
-"@unblock_time": {
+  "name": "Seu nome",
+  "name_enter": "Digite seu nome por favor",
+  "blocked_users": "Usuários bloqueados",
+  "start": "INICIAR CHAT",
+  "account_blocked": "Sua conta está bloqueada.",
+  "week": "uma semana",
+  "month": "um mês",
+  "three_months": "três meses",
+  "six_months": "seis meses",
+  "year": "um ano",
+  "forever": "para todo sempre",
+  "unblock_time": "Sua conta será desbloqueada em {day} às {time}",
+  "@unblock_time": {
     "placeholders": {
       "day": {
         "type:": "String"
@@ -36,7 +36,55 @@
       }
     }
   },
-"block_period":"Período de bloqueio:",
-"err_conn":"Erro de conexão, tente novamente por favor",
-"logged_in_as":"Logado como:"
+  "block_period": "Período de bloqueio:",
+  "err_conn": "Erro de conexão, tente novamente por favor",
+  "logged_in_as": "Logado como:",
+  "must_update": "Você deve atualizar seu aplicativo",
+  "update": "ATUALIZAR",
+  "gp": "Não foi possível abrir o Google Play. Abra-o manualmente por favor",
+  "create_passwd": "Criar uma senha",
+  "lowercase": "A senha deve conter letras minúsculas",
+  "uppercase": "A senha deve conter letras maiúsculas",
+  "nums": "A senha deve conter números",
+  "min_len": "O comprimento mínimo da senha é 8",
+  "match": "As senhas devem corresponder",
+  "passwd": "senha",
+  "retype": "Redigite a senha",
+  "required": "Este campo é obrigatório",
+  "next": "PRÓXIMO",
+  "open_settings": "Por favor, vá para as configurações e dê acesso à sua câmera e microfone",
+  "settings": "DEFINIÇÕES",
+  "give_access": "Por favor, dê acesso à sua câmera e microfone!",
+  "sms": "SMS é enviado para",
+  "you_can": "Você pode",
+  "resend": "reenviar",
+  "after": "depois",
+  "submit": "ENVIAR",
+  "email": "Digite seu e-mail",
+  "enter_phone": "Digite seu número de telefone",
+  "format_err": "O formato está errado",
+  "can_send_after": "'Você pode enviar depois de:",
+  "pass_login_wrong": "Login ou senha está errado",
+  "sign_in_problem": "Não foi possível fazer login com e-mail, tente novamente por favor",
+  "phone": "número de telefone",
+  "sign_in": "Entrar",
+  "sign_in_email": "Entrar com e-mail",
+  "create": "CRIAR NOVA CONTA",
+  "forgot": "Esqueci a minha senha",
+  "mail_ru_problem": "O login de e-mail não funciona com mail.ru, tente outro e-mail, por favor",
+  "email_send_err": "Não foi possível enviar e-mail, tente novamente por favor",
+  "ip_blocked": "Seu IP foi bloqueado temporariamente. Tente novamente mais tarde por favor",
+  "phone_invalid": "Número de telefone inválido",
+  "internal_err": "Ocorreu um erro interno, tente novamente mais tarde, por favor",
+  "phone_unavailable": "A inscrição por telefone não está funcionando no momento, tente outro método por favor",
+  "sms_invalid": "Código SMS inválido",
+  "email_sent": "O e-mail é enviado para {login}. Verifique também o SPAM.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  },
+  "open": "ABRIR"
 }

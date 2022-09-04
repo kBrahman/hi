@@ -12,7 +12,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:hi/util/util.dart';
 import 'package:sqflite/sqflite.dart';
 
-enum SignalingState { CallStateBye, ConnectionOpen, ConnectionClosed, ConnectionError, NoInet, BLOCK }
+enum SignalingState { CallStateBye, ConnectionOpen, ConnectionClosed, ConnectionError, NoInet, Block, Update }
 
 /*
  * callbacks for Signaling API.
@@ -95,16 +95,15 @@ class Signaling {
   }
 
   close() {
-
+    _peerConnection?.dispose();
+    _peerConnection?.close();
+    _peerConnection = null;
     _localStream?.dispose();
     _localStream = null;
     _remoteStream?.dispose();
     _remoteStream = null;
     _peerConnection?.getLocalStreams().clear();
     _peerConnection?.getRemoteStreams().clear();
-    _peerConnection?.dispose();
-    _peerConnection?.close();
-    _peerConnection = null;
     _socket?.close();
     _socket = null;
     hiLog(TAG, 'close');
@@ -147,14 +146,18 @@ class Signaling {
     var data = mapData['data'];
     var type = mapData['type'];
     switch (type) {
+      case UPDATE:
+        onStateChange(SignalingState.Update);
+        break;
       case REPORT:
         if (_reports.length < 14) {
           _reports.add(_peerId);
           _db.insert(REPORT, {REPORTER_LOGIN: _peerId, LOGIN: _selfId});
           FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$_peerId').set({});
         } else {
-          onStateChange(SignalingState.BLOCK);
+          onStateChange(SignalingState.Block);
           _reports.forEach(delete);
+          _db.delete(REPORT, where: '$LOGIN=?', whereArgs: [_selfId]);
           _reports.clear();
         }
         break;

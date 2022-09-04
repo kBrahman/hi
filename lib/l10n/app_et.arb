@@ -36,7 +36,55 @@
       }
     }
   },
-"block_period":"Blokeerimisperiood:",
-"err_conn":"Ühenduse viga, palun proovi uuesti",
-"logged_in_as":"Sisse logitud kui:"
+  "block_period": "Blokeerimisperiood:",
+  "err_conn": "Ühenduse viga, palun proovi uuesti",
+  "logged_in_as": "Sisse logitud kui:",
+  "must_update": "Peate oma rakendust värskendama",
+  "update": "VÄRSKENDAMINE",
+  "gp": "Google Playd ei saanud avada. Palun avage see käsitsi",
+  "create_passwd": "Loo parool",
+  "lowercase": "Parool peab sisaldama väiketähti",
+  "uppercase": "Parool peab sisaldama suurtähti",
+  "nums": "Parool peab sisaldama numbreid",
+  "min_len": "Parooli minimaalne pikkus on 8",
+  "match": "salasõnad peavad kattuma",
+  "passwd": "parool",
+  "retype": "sisestage parool uuesti",
+  "required": "Selle välja täitmine on kohustuslik",
+  "next": "JÄRGMINE",
+  "open_settings": "Avage seaded ja andke juurdepääs kaamerale ja mikrofonile",
+  "settings": "SEADED",
+  "give_access": "Andke juurdepääs oma kaamerale ja mikrofonile!",
+  "sms": "SMS saadetakse aadressile",
+  "you_can": "Sa saad",
+  "resend": "uuesti saata",
+  "after": "pärast",
+  "submit": "ESITA",
+  "email": "Sisestage oma e-posti aadress",
+  "enter_phone": "Sisesta oma telefoninumber",
+  "format_err": "Vorming on vale",
+  "can_send_after": "Saate saata pärast:",
+  "pass_login_wrong": "Sisselogimine või parool on vale",
+  "sign_in_problem": "Ei saanud e-postiga sisse logida, palun proovige uuesti",
+  "phone": "telefoninumber",
+  "sign_in": "Logi sisse",
+  "sign_in_email": "Logige sisse e-postiga",
+  "create": "LOO UUS KONTO",
+  "forgot": "Unustasin oma parooli",
+  "mail_ru_problem": "E-posti sisselogimine ei tööta saidiga mail.ru, proovige mõnda muud e-posti aadressi",
+  "email_send_err": "Meili ei saanud saata, palun proovi uuesti",
+  "ip_blocked": "Teie IP on ajutiselt blokeeritud. Palun proovi hiljem uuesti",
+  "phone_invalid": "Kehtetu telefoninumber",
+  "internal_err": "Tekkis sisemine viga, palun proovige hiljem uuesti",
+  "phone_unavailable": "Telefoni registreerimine praegu ei tööta, palun proovige teist meetodit",
+  "sms_invalid": "Vale SMS-kood",
+  "email_sent": "E-kiri saadetakse aadressile {login}. Kontrollige ka rämpsposti.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  },
+  "open": "AVAMA"
 }

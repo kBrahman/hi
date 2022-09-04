@@ -48,8 +48,6 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
     _initDB();
     _checkConnection();
     WidgetsBinding.instance.addObserver(this);
-    hiLog(TAG, 'country code=>${WidgetsBinding.instance.window.locales.map((e) => e.countryCode)}');
-    hiLog(TAG, 'init');
     super.initState();
   }
 
@@ -83,13 +81,6 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
             }
           });
         }
-      // else  {
-      //   hiLog(TAG, 'resumed in else');
-      //   setState(() => getState(_signedIn, _termsAccepted));
-      //   sharedPrefs?.remove(BLOCK_PERIOD);
-      //   sharedPrefs?.remove(BLOCK_TIME);
-      //   _db?.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, BLOCK_TIME: 0}, where: '$LOGIN=?', whereArgs: [_login]);
-      // }
     }
   }
 
@@ -120,11 +111,7 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
 
   void setConnected(ConnectivityResult connectivityResult) {
     var _connected = connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi;
-    if (_connected != _connectedToInet)
-      setState(() {
-        _connectedToInet = _connected;
-        hiLog(TAG, 'network change=>connected to net=>$_connectedToInet');
-      });
+    if (_connected != _connectedToInet) setState(() => _connectedToInet = _connected);
   }
 
   UIState getState(bool signedIn, bool termsAccepted) => signedIn && termsAccepted
@@ -143,7 +130,6 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   }
 
   _block(login, unblockTime, periodCode) {
-    hiLog(TAG, 'block');
     _login = login;
     _signedIn = true;
     _unblockTime = unblockTime;
@@ -152,7 +138,6 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   }
 
   _blockUnblock(int periodCode, Timestamp timestamp, String login) {
-    hiLog(TAG, 'tStamp=>$timestamp');
     _blockPeriod = periodCode;
     _unblockTime = timestamp.toDate().add(Duration(minutes: getMinutes(periodCode)));
     _login = login;
@@ -194,7 +179,6 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   }
 
   _setState() async {
-    hiLog(TAG, '_setState');
     sharedPrefs = await SharedPreferences.getInstance();
     _termsAccepted = sharedPrefs?.getBool(TERMS_ACCEPTED) ?? false;
     _signedIn = sharedPrefs?.getBool(SIGNED_IN) ?? false;

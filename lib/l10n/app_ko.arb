@@ -36,7 +36,55 @@
       }
     }
   },
-"block_period":"차단 기간:",
-"err_conn":"연결 오류, 다시 시도하십시오",
-"logged_in_as":"로그인:"
+  "block_period": "차단 기간:",
+  "err_conn": "연결 오류, 다시 시도하십시오",
+  "logged_in_as": "로그인:",
+  "must_update": "앱을 업데이트해야 합니다.",
+  "update": "업데이트",
+  "gp": "Google Play를 열 수 없습니다. 수동으로 여세요.",
+  "create_passwd": "비밀번호 만들기",
+  "lowercase": "비밀번호는 소문자를 포함해야 합니다",
+  "uppercase": "비밀번호는 대문자를 포함해야 합니다",
+  "nums": "비밀번호는 숫자를 포함해야 합니다",
+  "min_len": "비밀번호 최소 길이는 8입니다.",
+  "match": "비밀번호가 일치해야합니다",
+  "passwd": "비밀번호",
+  "retype": "비밀번호 재입력",
+  "required": "이 필드는 필수 항목입니다.",
+  "next": "다음",
+  "open_settings": "설정으로 이동하여 카메라와 마이크에 대한 액세스 권한을 부여하세요.",
+  "settings": "설정",
+  "give_access": "카메라와 마이크에 대한 액세스를 허용하십시오!",
+  "sms": "SMS가 전송됩니다.",
+  "you_can": "당신은 할 수 있습니다",
+  "resend": "재전송",
+  "after": "~ 후에",
+  "submit": "제출하다",
+  "email": "이메일을 입력하세요",
+  "enter_phone": "전화번호를 입력하세요",
+  "format_err": "형식이 잘못되었습니다.",
+  "can_send_after": "'다음 이후에 보낼 수 있습니다.",
+  "pass_login_wrong": "로그인 또는 비밀번호가 잘못되었습니다.",
+  "sign_in_problem": "이메일로 로그인할 수 없습니다. 다시 시도해 주세요.",
+  "phone": "전화 번호",
+  "sign_in": "로그인",
+  "sign_in_email": "이메일로 로그인",
+  "create": "새 계정을 만들",
+  "forgot": "비밀번호를 잊어버렸습니다.",
+  "mail_ru_problem": "mail.ru에서는 이메일 로그인이 작동하지 않습니다. 다른 이메일을 사용해 주세요.",
+  "email_send_err": "이메일을 보낼 수 없습니다. 다시 시도해 주세요.",
+  "ip_blocked": "귀하의 IP가 일시적으로 차단되었습니다. 나중에 다시 시도하십시오",
+  "phone_invalid": "유효하지 않은 전화 번호",
+  "internal_err": "내부 오류가 발생했습니다. 나중에 다시 시도해 주세요.",
+  "phone_unavailable": "현재 전화 가입이 작동하지 않습니다. 다른 방법을 시도하십시오.",
+  "sms_invalid": "잘못된 SMS 코드",
+  "email_sent": "이메일은 {login}으로 전송됩니다. 스팸도 확인하십시오.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    },
+    "open": "열기 위해"
+  }
 }

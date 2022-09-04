@@ -37,16 +37,16 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     const edgeInsetsTop16 = EdgeInsets.only(top: 16);
+    final locs = AppLocalizations.of(context);
     return Scaffold(
         appBar: AppBar(title: nameWidget, actions: [IconButton(onPressed: widget.onExit, icon: const Icon(Icons.exit_to_app))]),
         body: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text((AppLocalizations.of(context)?.logged_in_as ?? 'Logged in as:') + ' $_login',
-                  style: const TextStyle(color: Colors.grey)),
+              Text((locs?.logged_in_as ?? 'Logged in as:') + ' $_login', style: const TextStyle(color: Colors.grey)),
               Column(children: [
                 Row(children: [
-                  Text((AppLocalizations.of(context)?.name ?? 'Your name') + ':', style: bold20),
+                  Text((locs?.name ?? 'Your name') + ':', style: bold20),
                   Expanded(
                       child: Padding(
                           padding: edgeInsetsLR8,
@@ -59,12 +59,9 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
                               controller: TextEditingController(text: _name))))
                 ]),
                 if (_showNameEmpty)
-                  Text(AppLocalizations.of(context)?.name_enter ?? 'Enter your name please',
-                      style: const TextStyle(fontSize: 12, color: Colors.red)),
+                  Text(locs?.name_enter ?? 'Enter your name please', style: const TextStyle(fontSize: 12, color: Colors.red)),
               ]),
-              Padding(
-                  padding: edgeInsetsTop16,
-                  child: Text(AppLocalizations.of(context)?.blocked_users ?? 'Blocked users:', style: bold20)),
+              Padding(padding: edgeInsetsTop16, child: Text(locs?.blocked_users ?? 'Blocked users:', style: bold20)),
               Expanded(
                   child: ListView(
                       padding: const EdgeInsets.only(top: 4),
@@ -90,29 +87,23 @@ class _ProfileState extends State<ProfileWidget> with WidgetsBindingObserver {
                                   ..removeWhere((key, value) => value != PermissionStatus.permanentlyDenied);
                                 if (denied.isNotEmpty)
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                      content: Row(children: const [
+                                      content: Row(children: [
                                         Expanded(
-                                            child: Text('Please go to settings and give acces to your camera and microphone')),
-                                        TextButton(onPressed: openAppSettings, child: Text('SETTINGS'))
+                                            child: Text(locs?.open_settings ??
+                                                'Please go to settings and give acces to your camera and microphone')),
+                                        TextButton(onPressed: openAppSettings, child: Text(locs?.settings ?? 'SETTINGS'))
                                       ]),
                                       duration: const Duration(seconds: 8)));
                                 else
                                   statuses.values.any((e) => !e.isGranted)
-                                      ? showSnack('Please give access to your camera and microphone!', 2, context)
+                                      ? showSnack(locs?.give_access??'Please give access to your camera and microphone!', 2, context)
                                       : widget._onStart(_name);
                               });
                               widget.sp.setString(_login, _name);
                             }
                           },
-                          child: Text(AppLocalizations.of(context)?.start ?? 'START CHAT'))))
+                          child: Text(locs?.start ?? 'START CHAT'))))
             ])));
-  }
-
-  @override
-  void dispose() {
-    hiLog(TAG, 'dispose');
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   void _getBlockedUsers(SharedPreferences sp) async => openDatabase(join(await getDatabasesPath(), DB_NAME))

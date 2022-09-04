@@ -37,6 +37,53 @@
     }
   },
   "block_period": "Blokavimo laikotarpis:",
-"err_conn":"Ryšio klaida, bandykite dar kartą",
-"logged_in_as":"Prisijungęs kaip:"
+  "err_conn": "Ryšio klaida, bandykite dar kartą",
+  "logged_in_as": "Prisijungęs kaip:",
+  "must_update": "Turite atnaujinti programą",
+  "update": "ATNAUJINTI",
+  "gp": "Nepavyko atidaryti „Google Play“. Atidarykite rankiniu būdu",
+  "create_passwd": "Sukurkite slaptažodį",
+  "lowercase": "Slaptažodyje turi būti mažosios raidės",
+  "uppercase": "Slaptažodyje turi būti didžiosios raidės",
+  "nums": "Slaptažodyje turi būti skaičiai",
+  "min_len": "Mažiausias slaptažodžio ilgis yra 8",
+  "match": "Slaptažodžiai turi sutapti",
+  "passwd": "Slaptažodis",
+  "retype": "pakartotinai įveskite slaptažodį",
+  "required": "Šį lauką būtina užpildyti",
+  "next": "KITAS",
+  "open_settings": "Eikite į nustatymus ir suteikite prieigą prie fotoaparato ir mikrofono",
+  "settings": "NUSTATYMAI",
+  "give_access": "Suteikite prieigą prie savo fotoaparato ir mikrofono!",
+  "sms": "SMS siunčiama į",
+  "you_can": "Tu gali",
+  "resend": "Persiūsti",
+  "after": "po to",
+  "submit": "PATEIKTI",
+  "email": "Įrašykite savo el. paštą",
+  "enter_phone": "Įveskite savo telefono numerį",
+  "format_err": "Formatas neteisingas",
+  "can_send_after": "„Galite siųsti po:",
+  "pass_login_wrong": "Neteisingas prisijungimo vardas arba slaptažodis",
+  "sign_in_problem": "Nepavyko prisijungti el. paštu, bandykite dar kartą",
+  "phone": "telefono numeris",
+  "sign_in": "Prisijungti",
+  "sign_in_email": "Prisijunkite naudodami el",
+  "create": "SUKURTI NAUJĄ PASKYRĄ",
+  "forgot": "Pamiršau slaptažodį",
+  "mail_ru_problem": "Prisijungimas el. paštu neveikia naudojant mail.ru, pabandykite kitą el. pašto adresą",
+  "email_send_err": "Nepavyko išsiųsti el. laiško, bandykite dar kartą",
+  "ip_blocked": "Jūsų IP laikinai užblokuotas. Bandykite dar kartą vėliau",
+  "phone_invalid": "Neteisingas telefono numeris",
+  "internal_err": "Įvyko vidinė klaida, bandykite dar kartą vėliau",
+  "phone_unavailable": "Šiuo metu registracija telefonu neveikia, išbandykite kitą būdą",
+  "sms_invalid": "Netinkamas SMS kodas",
+  "email_sent": "El. laiškas išsiųstas {login}. Taip pat patikrinkite SPAM.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

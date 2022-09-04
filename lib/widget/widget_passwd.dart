@@ -51,24 +51,26 @@ class _PasswdState extends State<PasswdWidget> {
   }
 
   Center getChild(BuildContext context) {
+    final locs = AppLocalizations.of(context);
     return Center(
         child: SizedBox(
             width: 220,
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Padding(
-                    padding: EdgeInsets.only(bottom: 6), child: Text('Create a password', style: TextStyle(fontSize: 20))),
-                Text('1. Password must contain lowercase letters',
+                Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(locs?.passwd ?? 'Create a password', style: const TextStyle(fontSize: 20))),
+                Text('1. ' + (locs?.lowercase ?? 'Password must contain lowercase letters'),
                     style: TextStyle(
                         fontSize: 11, color: pass.contains(RegExp(r'\p{Ll}', unicode: true)) ? Colors.green : Colors.red)),
-                Text('2. Password must contain uppercase letters',
+                Text('2. ' + (locs?.uppercase ?? ' Password must contain uppercase letters'),
                     style: TextStyle(
                         fontSize: 11, color: pass.contains(RegExp(r'\p{Lu}', unicode: true)) ? Colors.green : Colors.red)),
-                Text('3. Password must contain numbers',
+                Text('3. ' + (locs?.nums ?? 'Password must contain numbers'),
                     style: TextStyle(fontSize: 11, color: pass.contains(RegExp(r'\d')) ? Colors.green : Colors.red)),
-                Text('4. Password minimum length is 8',
+                Text('4. ' + (locs?.min_len ?? ' Password minimum length is 8'),
                     style: TextStyle(fontSize: 11, color: pass.length > 7 ? Colors.green : Colors.red)),
-                Text('5. Passwords must match',
+                Text('5. ' + (locs?.match ?? 'Passwords must match'),
                     style: TextStyle(fontSize: 11, color: pass.isNotEmpty && pass == _rePass ? Colors.green : Colors.red))
               ]),
               TextField(
@@ -82,7 +84,9 @@ class _PasswdState extends State<PasswdWidget> {
                 },
                 style: const TextStyle(fontSize: 20),
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(hintText: 'password',),
+                decoration: InputDecoration(
+                  hintText: locs?.passwd ?? "password",
+                ),
               ),
               TextField(
                 enableInteractiveSelection: false,
@@ -94,22 +98,21 @@ class _PasswdState extends State<PasswdWidget> {
                       _rePass = txt;
                     });
                 },
-                decoration: const InputDecoration(hintText: 'retype password'),
-                onSubmitted: (v) {
-                  proceed(context);
-                },
+                decoration: InputDecoration(hintText: locs?.retype ?? 'retype password'),
+                onSubmitted: (v) => proceed(context),
               ),
-              if (txtErr) const Text("This field is required", style: TextStyle(fontSize: 13, color: Colors.red)),
+              if (txtErr)
+                Text(locs?.required ?? 'This field is required', style: const TextStyle(fontSize: 13, color: Colors.red)),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ElevatedButton(onPressed: () => proceed(context), child: const Text('NEXT')),
+                  ElevatedButton(onPressed: () => proceed(context), child: Text(locs?.next ?? 'NEXT')),
                   sizedBox_w_4,
                   ElevatedButton(
                       onPressed: () {
                         if (!_showProgress) widget._onCancel(UIState.SIGN_IN_UP);
                       },
-                      child: const Text('CANCEL'))
+                      child: Text(locs?.cancel.toUpperCase() ?? 'CANCEL'))
                 ],
               )
             ])));
@@ -175,7 +178,6 @@ class _PasswdState extends State<PasswdWidget> {
             LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD],
             PASSWD: doc[PASSWD]
           });
-          hiLog(TAG, 'second on blocked');
           return widget._onBlocked(widget._login, unblockTime, doc[BLOCK_PERIOD]);
         } else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
             DateTime.now()
@@ -195,7 +197,6 @@ class _PasswdState extends State<PasswdWidget> {
           });
         } else if (data.isEmpty) db.insert(TABLE_USER, {LOGIN: widget._login, PASSWD: passHash});
       } catch (e) {
-        hiLog(TAG, 'e=>$e');
         showSnack(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please', 2, context);
         setState(() => _showProgress = false);
       }
@@ -204,7 +205,7 @@ class _PasswdState extends State<PasswdWidget> {
       updateDBWithBlockedUsersAndReporters(db, widget._login);
       widget._onSuccess(widget._login);
     } else
-      showSnack('No internet', 1, context);
+      showSnack(AppLocalizations.of(context)?.no_inet ?? 'No internet', 1, context);
   }
 
   void showProgress(bool b) {

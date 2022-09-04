@@ -14,19 +14,19 @@
   "terms_title": "İstifadəçi/istifadəçi siyasətinin şərtləri",
   "sign_in_google": "Google ilə daxil olun",
   "terms": "'Zhet' ('biz' və ya 'bizim' və ya 'bizim') istifadəçilərimizin ('istifadəçi' və ya 'siz') insan ləyaqətinə hörmət edir. Biz heç bir ayrı-seçkiliyi, təhdidləri, zorakılığı, təqib və sui-istifadəni dəstəkləmirik. İstifadəçi/istifadəçi Siyasətinin bu Şərtləri ayrı-seçkilik, təhdid, zorakılıq, təqib və ya sui-istifadəni özündə əks etdirən belə bir etiraza səbəb olan məzmunu necə idarə etdiyimizi izah edir. Zəhmət olmasa bu Siyasəti diqqətlə oxuyun. ƏGƏR BU SİYASƏTİN ŞƏRTLƏRİ İLƏ RAZI DEYİLSİNİZSƏ, LÜTFEN TƏTBİQ ETMƏYİN.\nBiz istənilən vaxt və hər hansı səbəbdən bu Siyasətdə dəyişiklik etmək hüququnu özümüzdə saxlayırıq. Tətbiqdən istifadə etmək üçün bu siyasətin şərtlərini qəbul etməlisiniz\n\nMƏZMUNLUQ VƏ DAVRANIŞLAR:\nBiz istənilən növ ayrı-seçkiliyi, təhdidləri, zorakılığı, təcavüzü və sui-istifadəni xoşagəlməz davranış kimi müəyyən edirik.\nBiz açıq-saçıq seksual məzmunu etiraz edilən məzmun kimi müəyyən edirik. .\n\nTƏTBİQ İSTİFADƏSİ:\nBu proqramdan istifadə edərkən siz hər hansı digər istifadəçiyə qarşı mənfi məzmun və ya davranışları ifşa etməməyə razılaşırsınız. Bu Siyasətin şərtlərini pozarsanız, müvəqqəti olaraq bu tətbiqdən istifadə etmək qadağan olunacaq. Davamlı pozuntu halında, yəni hesabınızdakı digər istifadəçilərdən şikayət hesabatları almağa davam etsək, hesabınız bağlanacaq və siz heç vaxt bu tətbiqdən istifadə edə bilməyəcəksiniz.",
-  "name":"Adınız",
-  "name_enter":"Zəhmət olmasa adınızı daxil edin",
-  "blocked_users":"Bloklanmış istifadəçilər",
-  "start":"SAHİBƏ BAŞLAYIN",
-  "account_blocked":"Hesabınız bloklanıb.",
-  "week":"bir həftə",
-  "month":"bir ay",
-  "three_months":"üç ay",
-  "six_months":"Altı ay",
-  "year":"bir il",
-  "forever":"əbədi",
-  "unblock_time":"Hesabınız {day}, {saat} radələrində blokdan çıxarılacaq",
-"@unblock_time": {
+  "name": "Adınız",
+  "name_enter": "Zəhmət olmasa adınızı daxil edin",
+  "blocked_users": "Bloklanmış istifadəçilər",
+  "start": "SAHİBƏ BAŞLAYIN",
+  "account_blocked": "Hesabınız bloklanıb.",
+  "week": "bir həftə",
+  "month": "bir ay",
+  "three_months": "üç ay",
+  "six_months": "Altı ay",
+  "year": "bir il",
+  "forever": "əbədi",
+  "unblock_time": "Hesabınız {day}, {saat} radələrində blokdan çıxarılacaq",
+  "@unblock_time": {
     "placeholders": {
       "day": {
         "type:": "String"
@@ -36,7 +36,54 @@
       }
     }
   },
-"block_period":"Blok dövrü:",
-"err_conn":"Bağlantı xətası, yenidən cəhd edin",
-"logged_in_as":"Daxil olub:"
+  "block_period": "Blok dövrü:",
+  "err_conn": "Bağlantı xətası, yenidən cəhd edin",
+  "logged_in_as": "Daxil olub:",
+  "must_update": "Siz tətbiqinizi güncəlləşdirməlisiniz",
+  "update": "YENİLƏNİB",
+  "gp": "Google Play-i açmaq mümkün olmadı. Onu əl ilə açın",
+  "create_passwd": "Parol yaradın",
+  "lowercase": "Parol kiçik hərflərdən ibarət olmalıdır",
+  "uppercase": "Parolda böyük hərflər olmalıdır",
+  "nums": "Parolda nömrələr olmalıdır",
+  "min_len": "Parolun minimum uzunluğu 8-dir",
+  "match": "Şifrələr üst-üstə düşməlidir",
+  "passwd": "parol",
+  "retype": "Şifrəni təkrarlayın",
+  "required": "Bu xananın doldurulması məcburidir",
+  "next": "NÖVBƏTİ",
+  "open_settings": "Zəhmət olmasa parametrlərə keçin və kamera və mikrofonunuza giriş verin",
+  "settings": "AYARLAR",
+  "give_access": "Kameranıza və mikrofonunuza giriş icazəsi verin!",
+  "sms": "SMS göndərilir",
+  "you_can": "Bacararsan",
+  "resend": "yenidən göndərmək",
+  "after": "sonra",
+  "submit": "TƏQDİM",
+  "email": "E-poçtunuzu daxil edin",
+  "enter_phone": "Telefon nömrənizi daxil edin",
+  "format_err": "Format səhvdir",
+  "can_send_after": "'Sonra göndərə bilərsiniz:",
+  "pass_login_wrong": "Giriş və ya parol səhvdir",
+  "sign_in_problem": "E-poçtla daxil olmaq mümkün olmadı, yenidən cəhd edin",
+  "phone": "telefon nömrəsi",
+  "sign_in": "Daxil olun",
+  "sign_in_email": "E-poçt ilə daxil olun",
+  "create": "YENİ HESAB YARATMAQ",
+  "forgot": "parolumu unutmuşam",
+  "mail_ru_problem": "E-poçta daxil olmaq mail.ru ilə işləmir, zəhmət olmasa başqa e-poçtu yoxlayın",
+  "email_send_err": "E-poçt göndərmək mümkün olmadı, yenidən cəhd edin",
+  "ip_blocked": "Sizin IP müvəqqəti olaraq bloklanıb. Daha sonra yenidən cəhd edin",
+  "phone_invalid": "Yanlış telefon nömrəsi",
+  "internal_err": "Daxili xəta baş verdi, daha sonra yenidən cəhd edin",
+  "phone_unavailable": "Telefon qeydiyyatı hazırda işləmir, başqa üsuldan istifadə edin",
+  "sms_invalid": "Yanlış SMS kodu",
+  "email_sent": "E-poçt {login} ünvanına göndərilir. SPAM-ı da yoxlayın.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

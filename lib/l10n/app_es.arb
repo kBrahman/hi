@@ -38,5 +38,52 @@
   },
   "block_period": "Período de bloque:",
   "err_conn": "Error de conexión, inténtalo de nuevo por favor",
-"logged_in_as":"Conectado como:"
+  "logged_in_as": "Conectado como:",
+  "must_update": "Debes actualizar tu aplicación",
+  "update": "ACTUALIZAR",
+  "gp": "No se pudo abrir Google Play. Ábrelo manualmente, por favor.",
+  "create_passwd": "Crear una contraseña",
+  "lowercase": "La contraseña debe contener letras minúsculas",
+  "uppercase": "La contraseña debe contener letras mayúsculas",
+  "nums": "La contraseña debe contener números",
+  "min_len": "La longitud mínima de la contraseña es 8",
+  "match": "Las contraseñas deben coincidir",
+  "passwd": "clave",
+  "retype": "Vuelva a escribir la contraseña",
+  "required": "Este campo es obligatorio",
+  "next": "SIGUIENTE",
+  "open_settings": "Vaya a la configuración y dé acceso a su cámara y micrófono.",
+  "settings": "AJUSTES",
+  "give_access": "¡Por favor dé acceso a su cámara y micrófono!",
+  "sms": "SMS se envía a",
+  "you_can": "Puedes",
+  "resend": "reenviar",
+  "after": "después",
+  "submit": "ENVIAR",
+  "email": "Introduce tu correo electrónico",
+  "enter_phone": "Ingrese su número telefónico",
+  "format_err": "El formato es incorrecto",
+  "can_send_after": "'Puedes enviar después de:",
+  "pass_login_wrong": "El inicio de sesión o la contraseña son incorrectos",
+  "sign_in_problem": "No se pudo iniciar sesión con el correo electrónico, intente nuevamente por favor",
+  "phone": "número de teléfono",
+  "sign_in": "Iniciar sesión",
+  "sign_in_email": "Iniciar sesión con correo electrónico",
+  "create": "CREAR UNA NUEVA CUENTA",
+  "forgot": "Olvidé mi contraseña",
+  "mail_ru_problem": "El inicio de sesión de correo electrónico no funciona con mail.ru, intente con otro correo electrónico, por favor",
+  "email_send_err": "No se pudo enviar el correo electrónico, intente nuevamente por favor",
+  "ip_blocked": "Su IP ha sido bloqueada temporalmente. Vuelva a intentarlo más tarde por favor",
+  "phone_invalid": "Numero de telefono invalido",
+  "internal_err": "Hubo un error interno, inténtalo de nuevo más tarde por favor",
+  "phone_unavailable": "El registro telefónico no funciona actualmente, pruebe con otro método, por favor",
+  "sms_invalid": "Código SMS no válido",
+  "email_sent": "El correo electrónico se envía a {login}. Compruebe SPAM también.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

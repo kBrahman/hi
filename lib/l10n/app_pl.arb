@@ -14,19 +14,19 @@
   "terms_title": "Regulamin użytkownika/polityka użytkownika",
   "sign_in_google": "Zaloguj się przez Google",
   "terms": "„Zhet” („my” lub „nas” lub „nasz”) szanuje ludzką godność naszych użytkowników („użytkownik” lub „ty”). Nie popieramy żadnego rodzaju dyskryminacji, gróźb, zastraszania, nękania i nadużyć. Niniejsze Zasady dotyczące użytkownika/użytkownika wyjaśniają, w jaki sposób moderujemy takie budzące zastrzeżenia treści, które zawierają dyskryminację, groźby, zastraszanie, nękanie lub nadużycia. Prosimy o uważne zapoznanie się z niniejszą Polityką. JEŚLI NIE ZGADZASZ SIĘ Z WARUNKAMI NINIEJSZEJ POLITYKI, PROSZĘ NIE WCHODZIĆ DO APLIKACJI.\nZastrzegamy sobie prawo do wprowadzania zmian w niniejszej Polityce w dowolnym czasie iz dowolnego powodu. Aby korzystać z aplikacji, MUSISZ zaakceptować warunki tej polityki.\n\nPRZEPISYWNE TREŚCI I ZACHOWANIA:\nKażdy rodzaj dyskryminacji, gróźb, zastraszania, nękania i maltretowania uznajemy za niewłaściwe zachowanie.\nTreści o charakterze jednoznacznie seksualnym definiujemy jako niestosowne treści. .\n\nUŻYWANIE APLIKACJI:\nKorzystając z tej aplikacji, zgadzasz się nie ujawniać kontrowersyjnych treści ani zachowań w stosunku do innych użytkowników. Jeśli naruszysz warunki niniejszej Polityki, zostaniesz tymczasowo pozbawiony możliwości korzystania z tej aplikacji. W przypadku ciągłego naruszenia, tj. jeśli będziemy otrzymywać zgłoszenia skarg od innych użytkowników na Twoim koncie, Twoje konto zostanie zamknięte i nigdy nie będziesz mógł korzystać z tej aplikacji.",
-  "name":"Twoje imię",
-  "name_enter":"Proszę wpisać swoje imię",
-  "blocked_users":"Zablokowani użytkownicy",
-  "start":"ROZPOCZNIJ CZAT",
-  "account_blocked":"Twoje konto jest zablokowane.",
-  "week":"jeden tydzień",
-  "month":"jeden miesiąc",
-  "three_months":"trzy miesiące",
-  "six_months":"sześć miesięcy",
-  "year":"rok",
-  "forever":"na zawsze",
-  "unblock_time":"Twoje konto zostanie odblokowane {day} o {time}",
-"@unblock_time": {
+  "name": "Twoje imię",
+  "name_enter": "Proszę wpisać swoje imię",
+  "blocked_users": "Zablokowani użytkownicy",
+  "start": "ROZPOCZNIJ CZAT",
+  "account_blocked": "Twoje konto jest zablokowane.",
+  "week": "jeden tydzień",
+  "month": "jeden miesiąc",
+  "three_months": "trzy miesiące",
+  "six_months": "sześć miesięcy",
+  "year": "rok",
+  "forever": "na zawsze",
+  "unblock_time": "Twoje konto zostanie odblokowane {day} o {time}",
+  "@unblock_time": {
     "placeholders": {
       "day": {
         "type:": "String"
@@ -36,7 +36,54 @@
       }
     }
   },
-"block_period":"Okres blokowania:",
-"err_conn":"Błąd połączenia, spróbuj ponownie",
-"logged_in_as":"Zalogowany jako:"
+  "block_period": "Okres blokowania:",
+  "err_conn": "Błąd połączenia, spróbuj ponownie",
+  "logged_in_as": "Zalogowany jako:",
+  "must_update": "Musisz zaktualizować swoją aplikację",
+  "update": "AKTUALIZACJA",
+  "gp": "Nie można otworzyć Google Play. Otwórz go ręcznie, proszę",
+  "create_passwd": "Stwórz hasło",
+  "lowercase": "Hasło musi zawierać małe litery",
+  "uppercase": "Hasło musi zawierać wielkie litery",
+  "nums": "Hasło musi zawierać cyfry",
+  "min_len": "Minimalna długość hasła to 8",
+  "match": "Hasło musi pasować",
+  "passwd": "hasło",
+  "retype": "Wpisz ponownie hasło",
+  "required": "To pole jest wymagane",
+  "next": "NASTĘPNY",
+  "open_settings": "Przejdź do ustawień i zezwól na dostęp do aparatu i mikrofonu",
+  "settings": "USTAWIENIA",
+  "give_access": "Proszę dać dostęp do swojej kamery i mikrofonu!",
+  "sms": "SMS jest wysyłany do",
+  "you_can": "Możesz",
+  "resend": "wysłać ponownie",
+  "after": "po",
+  "submit": "ZATWIERDŹ",
+  "email": "Wprowadź swój email",
+  "enter_phone": "Wprowadź swój numer telefonu",
+  "format_err": "Format jest nieprawidłowy",
+  "can_send_after": "„Możesz wysłać po:",
+  "pass_login_wrong": "Login lub hasło jest błędne",
+  "sign_in_problem": "Nie udało się zalogować za pomocą poczty e-mail, spróbuj ponownie",
+  "phone": "numer telefonu",
+  "sign_in": "Zaloguj się",
+  "sign_in_email": "Zaloguj się przez e-mail",
+  "create": "STWÓRZ NOWE KONTO",
+  "forgot": "zapomniałem hasła",
+  "mail_ru_problem": "Logowanie przez e-mail nie działa z mail.ru, spróbuj innego adresu e-mail",
+  "email_send_err": "Nie udało się wysłać e-maila, spróbuj ponownie",
+  "ip_blocked": "Twój adres IP został tymczasowo zablokowany. Spróbuj ponownie później, proszę",
+  "phone_invalid": "Nieprawidłowy numer telefonu",
+  "internal_err": "Wystąpił błąd wewnętrzny, spróbuj ponownie później",
+  "phone_unavailable": "Rejestracja telefoniczna obecnie nie działa, spróbuj innej metody proszę",
+  "sms_invalid": "Nieprawidłowy kod SMS",
+  "email_sent": "E-mail jest wysyłany na adres {login}. Sprawdź również SPAM.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

@@ -14,19 +14,19 @@
   "terms_title": "Användar-/användarpolicy",
   "sign_in_google": "Logga in med Google",
   "terms": "'Zhet' ('vi' eller 'oss' eller 'vår') respekterar våra användares mänskliga värdighet ('användare' eller 'du'). Vi stödjer inte någon form av diskriminering, hot, mobbning, trakasserier och övergrepp. Dessa användar-/användarpolicy förklarar hur vi modererar sådant stötande innehåll som innehåller diskriminering, hot, mobbning, trakasserier eller övergrepp. Läs denna policy noggrant. OM DU INTE ACCEPTERAR VILLKOR I DENNA POLICY, GÅR DU INTE ÅTKOMST till APPLIKATIONEN.\nVi förbehåller oss rätten att göra ändringar i denna policy när som helst och av vilken anledning som helst. Du MÅSTE acceptera villkoren i denna policy för att kunna använda appen\n\nSTÄNDLIGT INNEHÅLL OCH BETEENDE:\nVi definierar all form av diskriminering, hot, mobbning, trakasserier och övergrepp som stötande beteende.\nVi definierar sexuellt explicit innehåll som stötande innehåll .\n\nAPPANVÄNDNING:\nNär du använder den här appen samtycker du till att inte exponera stötande innehåll eller beteenden mot någon annan användare. Om du bryter mot villkoren i denna policy kommer du tillfälligt att förbjudas att använda den här appen. I händelse av fortsatt överträdelse, dvs om vi fortsätter att få klagomålsrapporter från andra användare på ditt konto, kommer ditt konto att avslutas och du kommer aldrig någonsin att kunna använda den här appen.",
-  "name":"Ditt namn",
-  "name_enter":"Ange ditt namn tack",
-  "blocked_users":"Blockerade användare",
-  "start":"STARTA CHATT",
-  "account_blocked":"Ditt konto är blockerat.",
-  "week":"en vecka",
-  "month":"en månad",
-  "three_months":"tre månader",
-  "six_months":"sex månader",
-  "year":"ett år",
-  "forever":"evigt",
-  "unblock_time":"Ditt konto kommer att avblockeras den {day} kl. {time}",
-"@unblock_time": {
+  "name": "Ditt namn",
+  "name_enter": "Ange ditt namn tack",
+  "blocked_users": "Blockerade användare",
+  "start": "STARTA CHATT",
+  "account_blocked": "Ditt konto är blockerat.",
+  "week": "en vecka",
+  "month": "en månad",
+  "three_months": "tre månader",
+  "six_months": "sex månader",
+  "year": "ett år",
+  "forever": "evigt",
+  "unblock_time": "Ditt konto kommer att avblockeras den {day} kl. {time}",
+  "@unblock_time": {
     "placeholders": {
       "day": {
         "type:": "String"
@@ -36,7 +36,54 @@
       }
     }
   },
-"block_period":"Blockeringsperiod:",
-"err_conn":"Anslutningsfel, försök igen",
-"logged_in_as":"Inloggad som:"
+  "block_period": "Blockeringsperiod:",
+  "err_conn": "Anslutningsfel, försök igen",
+  "logged_in_as": "Inloggad som:",
+  "must_update": "Du måste uppdatera din app",
+  "update": "UPPDATERING",
+  "gp": "Det gick inte att öppna Google Play. Öppna det manuellt tack",
+  "create_passwd": "Skapa ett lösenord",
+  "lowercase": "Lösenordet måste innehålla små bokstäver",
+  "uppercase": "Lösenordet måste innehålla stora bokstäver",
+  "nums": "Lösenordet måste innehålla siffror",
+  "min_len": "Lösenordets minsta längd är 8",
+  "match": "lösenorden måste vara lika",
+  "passwd": "Lösenord",
+  "retype": "skriv lösenordet igen",
+  "required": "Detta fält är obligatoriskt",
+  "next": "NÄSTA",
+  "open_settings": "Gå till inställningar och ge åtkomst till din kamera och mikrofon",
+  "settings": "INSTÄLLNINGAR",
+  "give_access": "Vänligen ge tillgång till din kamera och mikrofon!",
+  "sms": "SMS skickas till",
+  "you_can": "Du kan",
+  "resend": "skicka igen",
+  "after": "efter",
+  "submit": "SKICKA IN",
+  "email": "Skriv in din e-postadress",
+  "enter_phone": "Skriv in ditt telefonnummer",
+  "format_err": "Formatet är fel",
+  "can_send_after": "'Du kan skicka efter:",
+  "pass_login_wrong": "Inloggning eller lösenord är fel",
+  "sign_in_problem": "Det gick inte att logga in med e-post, försök igen",
+  "phone": "telefonnummer",
+  "sign_in": "Logga in",
+  "sign_in_email": "Logga in med e-post",
+  "create": "SKAPA NYTT KONTO",
+  "forgot": "Jag har glömt mitt lösenord",
+  "mail_ru_problem": "E-postinloggning fungerar inte med mail.ru, försök gärna med annan e-post",
+  "email_send_err": "Det gick inte att skicka e-post, försök igen",
+  "ip_blocked": "Din IP har tillfälligt blockerats. Försök igen senare",
+  "phone_invalid": "Ogiltigt telefonnummer",
+  "internal_err": "Det uppstod ett internt fel, försök igen senare",
+  "phone_unavailable": "Telefonregistrering fungerar för närvarande inte, försök med en annan metod",
+  "sms_invalid": "Ogiltig SMS-kod",
+  "email_sent": "E-post skickas till {login}. Kolla även SPAM.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

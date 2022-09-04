@@ -11,7 +11,6 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_signin_button/button_builder.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -66,7 +65,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    hiLog(TAG, 'didChangeAppLifecycleState state=>$state');
     switch (state) {
       case AppLifecycleState.inactive:
         {
@@ -87,7 +85,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
 
   @override
   void initState() {
-    hiLog(TAG, 'init state');
     _checkVerificationStateAndDynamicLink();
     auth.setLanguageCode(Platform.localeName.substring(0, 2));
     super.initState();
@@ -122,7 +119,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
       });
     } else
       FirebaseDynamicLinks.instance.getInitialLink().then((link) {
-        hiLog(TAG, 'dLink=>${link?.link}');
         if (link == null) return;
         _login = Uri.parse(link.link.queryParameters['continueUrl']!).queryParameters['login'] ?? '';
         hiLog(TAG, 'login=>$_login');
@@ -130,7 +126,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
           setState(() {
             _emailSignUpErr = true;
           });
-          hiLog(TAG, '_emailSignUpErr=>$_emailSignUpErr');
         } else
           _loginContinue(_login, ctx, true);
       });
@@ -144,15 +139,13 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
             title: nameWidget,
             bottom: _showProgress
                 ? const PreferredSize(
-                    preferredSize: Size(double.infinity, 0),
-                    child: LinearProgressIndicator(
-                      backgroundColor: Colors.white,
-                    ))
+                    preferredSize: Size(double.infinity, 0), child: LinearProgressIndicator(backgroundColor: Colors.white))
                 : null),
         body: getChild(context));
   }
 
   Widget getChild(BuildContext context) {
+    final locs = AppLocalizations.of(context);
     return _showLoading
         ? const Center(child: CircularProgressIndicator())
         : _showVerificationForm
@@ -162,13 +155,15 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                 children: [
                   if (showCodeSent)
                     Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text('SMS is sent to +$_newLogin'),
+                      Text((locs?.sms ?? 'SMS is sent to') + ' +$_newLogin'),
                       Row(mainAxisSize: MainAxisSize.min, children: [
-                        const Text('You can '),
-                        InkWell(child: const Text('resend', style: TextStyle(color: Colors.red)), onTap: () => register(context)),
-                        const Text(' after: '),
+                        Text(locs?.you_can ?? 'You can'),
+                        InkWell(
+                            child: Text(' ' + (locs?.resend ?? 'resend') + ' ', style: const TextStyle(color: Colors.red)),
+                            onTap: () => register(context)),
+                        Text(locs?.after ?? 'after: '),
                         Text('$_remainingTimeToResend secs')
-                      ]),
+                      ])
                     ]),
                   Row(
                       mainAxisSize: MainAxisSize.min,
@@ -185,7 +180,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                                   controller: TextEditingController(text: c)
                                     ..selection = TextSelection(baseOffset: c.length, extentOffset: c.length),
                                   onChanged: (txt) {
-                                    hiLog(TAG, 'on changed=>$txt');
                                     if (txt.length == 6)
                                       setState(() => verificationCode = txt.split(''));
                                     else if (txt.length == 2 && index < 5)
@@ -216,7 +210,8 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
-                          onPressed: verificationCode.any((e) => e.isEmpty) ? null : submit, child: const Text('SUBMIT')),
+                          onPressed: verificationCode.any((e) => e.isEmpty) ? null : submit,
+                          child: Text(locs?.submit ?? 'SUBMIT')),
                       sizedBox_w_8,
                       ElevatedButton(
                           onPressed: showCodeSent || showErr
@@ -231,7 +226,7 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                                   WidgetsBinding.instance.removeObserver(this);
                                 }
                               : null,
-                          child: const Text('CANCEL'))
+                          child: Text(locs?.cancel ?? 'CANCEL'))
                     ],
                   )
                 ],
@@ -251,19 +246,23 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                               ..selection = TextSelection(baseOffset: _newLogin.length, extentOffset: _newLogin.length),
                             decoration: InputDecoration(
                                 prefixText: _registeringWithPhone ? '+' : '',
-                                hintText: _registeringWithPhone ? 'Enter your phone number' : 'Enter your email'),
+                                hintText: _registeringWithPhone
+                                    ? locs?.phone ?? 'Enter your phone number'
+                                    : locs?.email ?? 'Enter your email'),
                             keyboardType: _registeringWithPhone ? TextInputType.number : TextInputType.emailAddress,
                             inputFormatters: _registeringWithPhone ? [FilteringTextInputFormatter.digitsOnly] : null,
                           ),
                           if (_newLoginEmpty)
-                            const Text("This field is required", style: TextStyle(fontSize: 13, color: Colors.red))
+                            Text(locs?.required ?? "This field is required",
+                                style: const TextStyle(fontSize: 13, color: Colors.red))
                           else if (_formatErr)
-                            const Text("Format is wrong", style: TextStyle(fontSize: 13, color: Colors.red)),
+                            Text(locs?.format_err ?? "Format is wrong", style: const TextStyle(fontSize: 13, color: Colors.red)),
                           sizedBox_h_8,
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              ElevatedButton(onPressed: !_timerStarted ? () => onNext(context) : null, child: const Text('NEXT')),
+                              ElevatedButton(
+                                  onPressed: !_timerStarted ? () => onNext(context) : null, child: Text(locs?.next ?? 'NEXT')),
                               sizedBox_w_4,
                               ElevatedButton(
                                   onPressed: () => setState(() {
@@ -273,38 +272,39 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                                         _newLogin = '';
                                         _formatErr = false;
                                       }),
-                                  child: const Text('CANCEL'))
+                                  child: Text(locs?.cancel ?? 'CANCEL'))
                             ],
                           ),
-                          if (_timerStarted) Text('You can send after: $_remainingTimeToResend secs')
+                          if (_timerStarted)
+                            Text((locs?.can_send_after ?? 'You can send after:') + ' $_remainingTimeToResend secs')
                         ])))
                 : Center(
                     child: SizedBox(
                         width: 220,
                         child: Column(mainAxisSize: MainAxisSize.min, children: [
                           if (_loginOrPassWrong)
-                            const Text('Login or password is wrong', style: TextStyle(color: Colors.red))
+                            Text(locs?.pass_login_wrong ?? 'Login or password is wrong',
+                                style: const TextStyle(color: Colors.red))
                           else if (_emailSignUpErr)
-                            const Text("Couldn't sign in with email, try again please",
-                                style: TextStyle(fontSize: 13, color: Colors.red)),
+                            Text(locs?.sign_in_problem ?? 'Could not sign in with email, try again please',
+                                style: const TextStyle(fontSize: 13, color: Colors.red)),
                           TextField(
                               style: const TextStyle(fontSize: 20),
                               onChanged: (String txt) {
                                 if (txt.startsWith('+'))
-                                  setState(() {
-                                    _login = txt.substring(1);
-                                  });
+                                  setState(() => _login = txt.substring(1));
                                 else
                                   _login = txt;
                               },
                               textInputAction: TextInputAction.next,
                               controller: TextEditingController(text: _login),
-                              decoration: const InputDecoration(
-                                  hintText: 'phone number',
+                              decoration: InputDecoration(
+                                  hintText: locs?.phone ?? 'phone number',
                                   prefixText: '+',
-                                  prefixStyle: TextStyle(color: Colors.black, fontSize: 20))),
+                                  prefixStyle: const TextStyle(color: Colors.black, fontSize: 20))),
                           if (_loginEmptyErr)
-                            const Text("This field is required", style: TextStyle(fontSize: 13, color: Colors.red)),
+                            Text(locs?.required ?? 'This field is required',
+                                style: const TextStyle(fontSize: 13, color: Colors.red)),
                           TextField(
                             style: const TextStyle(fontSize: 20),
                             obscureText: obscure,
@@ -312,7 +312,7 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                             controller: TextEditingController(text: _pass)
                               ..selection = TextSelection(baseOffset: _pass.length, extentOffset: _pass.length),
                             decoration: InputDecoration(
-                                hintText: 'password',
+                                hintText: locs?.passwd ?? 'password',
                                 suffixIcon: GestureDetector(
                                     onTap: () {
                                       setState(() {
@@ -323,7 +323,8 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                             onSubmitted: (txt) => signIn(context),
                           ),
                           if (_passEmptyErr)
-                            const Text("This field is required", style: TextStyle(fontSize: 13, color: Colors.red)),
+                            Text(locs?.required ?? "This field is required",
+                                style: const TextStyle(fontSize: 13, color: Colors.red)),
                           sizedBox_h_8,
                           HiBtn(
                             () => _login.isEmpty
@@ -334,36 +335,24 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                                         _loginEmptyErr = false;
                                       })
                                     : signIn(context),
-                            'Sign in',
+                            locs?.sign_in ?? 'Sign in',
                             Icons.done,
                             const Color.fromRGBO(0, 0, 0, 0.54),
                           ),
-                          SignInButton(Buttons.Google,
-                              text: AppLocalizations.of(context)?.sign_in_google, onPressed: () => googleSignIn(context)),
-                          SignInButtonBuilder(
-                            elevation: 2,
-                            textColor: const Color.fromRGBO(0, 0, 0, 0.54),
-                            mini: false,
-                            text: 'Sign in with Email',
-                            icon: Icons.email,
-                            iconColor: Colors.grey,
-                            onPressed: () {
-                              setState(() {
-                                _signUp = true;
-                                _registeringWithPhone = false;
-                              });
-                            },
-                            backgroundColor: Colors.white,
+                          SignInButton(Buttons.Google, text: locs?.sign_in_google, onPressed: () => googleSignIn(context)),
+                          HiBtn(() {
+                            setState(() {
+                              _signUp = true;
+                              _registeringWithPhone = false;
+                            });
+                          }, locs?.sign_in_email ?? 'Sign in with email', null, const Color.fromRGBO(0, 0, 0, 0.54)),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: HiBtn(_register, locs?.create ?? 'CREATE NEW ACCOUNT', null, Colors.black),
                           ),
-                          sizedBox_h_8,
-                          HiBtn(_register, 'CREATE NEW ACCOUNT', null, Colors.black),
                           InkWell(
-                            child: const Text(
-                              'I forgot my password',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            onTap: _register,
-                          )
+                              child: Text(locs?.forgot ?? 'I forgot my password', style: const TextStyle(color: Colors.red)),
+                              onTap: _register)
                         ])));
   }
 
@@ -379,9 +368,13 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
     if (_remainingTimeToResend > 0) return;
     if (_registeringWithPhone)
       phoneSignUp();
-    else if (RegExp(r'^([^&])+@([^&])+\.([^&])+$').hasMatch(_newLogin))
+    else if (RegExp(r'^([^&])+@([^&])+\.([^&])+$').hasMatch(_newLogin)) {
+      setState(() {
+        _formatErr = false;
+        _newLoginEmpty = false;
+      });
       emailSignUp();
-    else
+    } else
       setState(() {
         _formatErr = true;
         _newLoginEmpty = false;
@@ -390,61 +383,46 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
 
   emailSignUp() async {
     if (_showProgress) return;
-    if (_newLogin.endsWith('mail.ru') ||
-        _newLogin.endsWith('bk.ru') ||
-        _newLogin.endsWith('list.ru') ||
-        _newLogin.endsWith('internet.ru') ||
-        _newLogin.endsWith('inbox.ru'))
-      return showSnack('Email sign in does not work with mail.ru, try other email please', 5, ctx);
-
+    final locs = AppLocalizations.of(ctx);
+    if (RegExp(r'(mail.ru|bk.ru|list.ru|internet.ru|inbox.ru)').hasMatch(_newLogin))
+      return showSnack(locs?.mail_ru_problem ?? 'Email sign in does not work with mail.ru, try other email please', 5, ctx);
     showProgress(true);
-    hiLog(TAG, 'emailSignUp');
     try {
       var instance = FirebaseAuth.instance;
       var id = await getId();
-      hiLog(TAG, 'id=>$id, type=>${id.runtimeType}');
       final actionCodeSettings = ActionCodeSettings(
           dynamicLinkDomain: 'zhethi.page.link',
-          url: 'https://play.google.com/store/apps/details?id=$id&login=$_newLogin',
+          url: 'https://zhethi.page.link/signIn?login=$_newLogin',
           androidPackageName: id,
           androidInstallApp: true,
           iOSBundleId: id,
           handleCodeInApp: true,
-          androidMinimumVersion: '1');
+          androidMinimumVersion: '2');
       await instance.sendSignInLinkToEmail(email: _newLogin, actionCodeSettings: actionCodeSettings);
-      hiLog(TAG, 'email sent to: $_newLogin');
     } on FirebaseAuthException catch (e) {
-      showSnack('Could not send and email, try again please', 5, ctx);
-      hiLog(TAG, 'exception=>${e.toString()}');
+      showSnack(locs?.email_send_err ?? 'Could not send and email, try again please', 5, ctx);
       return;
     } finally {
       showProgress(false);
     }
-    hiLog(TAG, 'emailSignUp finish');
     ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
         content: Row(children: [
-          Expanded(child: Text('Email is sent to $_newLogin.  Check SPAM also.')),
-          TextButton(onPressed: openEmail, child: const Text('OPEN'))
+          Expanded(child: Text(locs?.email_sent(_newLogin) ?? 'Email is sent to $_newLogin.  Check SPAM also.')),
+          TextButton(onPressed: openEmail, child: Text(locs?.open ?? 'OPEN'))
         ]),
         duration: const Duration(seconds: 11)));
   }
 
-  void showProgress(bool b) {
-    setState(() {
-      _showProgress = b;
-    });
-  }
+  void showProgress(bool b) => setState(() => _showProgress = b);
 
   Future<String?> getId() => platform.invokeMethod('getPackageName');
 
   phoneSignUp() async {
-    hiLog(TAG, 'phone sign up');
+    final locs = AppLocalizations.of(ctx);
     if (_newLogin.length < 4 || _newLogin.length > 15) {
       _newLoginEmpty = false;
       if (!_formatErr) setState(() => _formatErr = true);
-      hiLog(TAG, 'new login=>$_newLogin');
     } else if (widget._connectedToInet) {
-      hiLog(TAG, 'number=>$_newLogin');
       showProgress(true);
       await auth.verifyPhoneNumber(
           phoneNumber: '+' + _newLogin,
@@ -459,21 +437,18 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
           verificationFailed: (e) {
             hiLog(TAG, 'failed=>$e, code=>${e.code}');
             if (e.code == "too-many-requests")
-              showSnack("This number has been temporarily blocked. Try again later please", 4, ctx);
+              showSnack(locs?.ip_blocked ?? 'Your IP has been temporarily blocked. Try again later please', 4, ctx);
             else if (e.code == 'invalid-phone-number') {
-              showSnack("Invalid phone number", 4, ctx);
-              setState(() {
-                _showVerificationForm = false;
-              });
+              showSnack(locs?.phone_invalid ?? 'Invalid phone number', 4, ctx);
+              setState(() => _showVerificationForm = false);
             } else if (e.code == 'web-internal-error')
-              showSnack("There was an internal error, try again later please", 4, context);
+              showSnack(locs?.internal_err ?? 'There was an internal error, try again later please', 4, context);
             else if (e.code == 'app-not-authorized')
-              showSnack('Phone sign up is currently not working, try other method please', 4, ctx);
+              showSnack(locs?.phone_unavailable ?? 'Phone sign up is currently not working, try other method please', 4, ctx);
             showErr = true;
             showProgress(false);
           },
           codeSent: (id, token) {
-            hiLog(TAG, 'sent id=>$id; token=>$token');
             showProgress(false);
             showCodeSent = true;
             _timerStarted = true;
@@ -483,15 +458,13 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
             _verificationId = id;
             WidgetsBinding.instance.addObserver(this);
           },
-          codeAutoRetrievalTimeout: (id) {
-            hiLog(TAG, 'time out');
-          });
+          codeAutoRetrievalTimeout: (id) {});
       setState(() {
         _showVerificationForm = true;
         _formatErr = false;
       });
     } else
-      showSnack('No internet', 1, ctx);
+      showSnack(locs?.no_inet ?? 'No internet', 1, ctx);
   }
 
   submit() async {
@@ -505,10 +478,8 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
       _login = _newLogin;
       widget.onSetPassd(_login);
     }, onError: (e) {
-      hiLog(TAG, e.code);
       if (e is FirebaseAuthException && e.code == 'invalid-verification-code') {
-        hiLog(TAG, 'invalid sms');
-        showSnack('Invalid SMS code', 2, context);
+        showSnack(AppLocalizations.of(ctx)?.sms_invalid ?? 'Invalid SMS code', 2, context);
         showProgress(false);
       }
     });
@@ -525,16 +496,13 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
         login = acc?.email;
       }
       if (login != null) _loginContinue(login, context, false);
-      hiLog(TAG, 'after login continue, login=>$login');
     } else
-      showSnack('No internet', 1, context);
+      showSnack(AppLocalizations.of(ctx)?.no_inet ?? 'No internet', 1, context);
   }
 
   _loginContinue(String login, BuildContext context, fromDLink) async {
     if (fromDLink)
-      setState(() {
-        _showLoading = true;
-      });
+      setState(() => _showLoading = true);
     else
       showProgress(true);
     final sp = await SharedPreferences.getInstance();
@@ -575,7 +543,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
         sp.setInt(BLOCK_TIME, millis);
         db.insert(TABLE_USER,
             {LOGIN: login, BLOCK_PERIOD: doc[BLOCK_PERIOD], BLOCK_TIME: millis, LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD]});
-        hiLog(TAG, 'second on blocked');
         return widget.onBlocked(login, unblockTime, doc[BLOCK_PERIOD]);
       } else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
           DateTime.now().isAfter((doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMinutes(doc[BLOCK_PERIOD]))))) {
@@ -590,7 +557,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
         });
       } else if (data.isEmpty) db.insert(TABLE_USER, {LOGIN: login});
     } catch (e) {
-      hiLog(TAG, 'e=>$e');
       showSnack(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please', 2, context);
       setState(() => _showProgress = false);
       return;
@@ -609,7 +575,6 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
       return;
     }
     showProgress(true);
-    hiLog(TAG, 'login=>$_login');
     final db = await openDatabase(join(await getDatabasesPath(), DB_NAME), version: DB_VERSION_1);
     final passHash = md5.convert(utf8.encode(_pass)).toString();
     final res =
@@ -638,30 +603,5 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
       register(context);
   }
 
-  void openEmail() {
-    platform.invokeMethod('startEmailApp', [_newLogin.split('@')[1]]);
-  }
-}
-
-class RadioText extends StatelessWidget {
-  final bool registeringWithPhone;
-  final VoidCallback onSelected;
-  final String title;
-
-  const RadioText(this.title, this.onSelected, this.registeringWithPhone, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Radio(
-          visualDensity: const VisualDensity(horizontal: VisualDensity.minimumDensity),
-          groupValue: 0,
-          value: registeringWithPhone ? 0 : 1,
-          onChanged: (v) => onSelected(),
-        ),
-        Text(title)
-      ],
-    );
-  }
+  void openEmail() => platform.invokeMethod('startEmailApp', [_newLogin.split('@')[1]]);
 }

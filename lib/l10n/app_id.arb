@@ -14,19 +14,19 @@
   "terms_title": "Ketentuan pengguna/kebijakan pengguna",
   "sign_in_google": "Masuk dengan Google",
   "terms": "'Zhet' ('kami' atau 'kami' atau 'milik kami') menghormati martabat manusia dari pengguna kami ('pengguna' atau 'Anda'). Kami tidak mendukung segala bentuk diskriminasi, ancaman, intimidasi, pelecehan, dan pelecehan. Ketentuan Pengguna/Kebijakan pengguna ini menjelaskan bagaimana kami memoderasi konten yang tidak pantas yang menampilkan diskriminasi, ancaman, penindasan, pelecehan, atau penyalahgunaan. Harap baca Kebijakan ini dengan cermat. JIKA ANDA TIDAK SETUJU DENGAN KETENTUAN KEBIJAKAN INI, JANGAN MENGAKSES APLIKASI.\nKami berhak membuat perubahan pada Kebijakan ini kapan saja dan untuk alasan apa pun. Anda HARUS menerima persyaratan kebijakan ini untuk menggunakan aplikasi\n\nKONTEN DAN PERILAKU YANG TIDAK MENJADI:\nKami mendefinisikan segala jenis diskriminasi, ancaman, penindasan, pelecehan, dan penyalahgunaan sebagai perilaku yang tidak pantas.\nKami mendefinisikan konten seksual vulgar sebagai konten yang tidak pantas .\n\nPENGGUNAAN APLIKASI:\nSaat menggunakan aplikasi ini, Anda setuju untuk tidak mengekspos konten atau perilaku yang tidak pantas terhadap pengguna lain. Jika Anda melanggar ketentuan Kebijakan ini, Anda akan dilarang menggunakan aplikasi ini untuk sementara. Dalam kasus pelanggaran lanjutan, yaitu jika kami terus menerima laporan keluhan dari pengguna lain di akun Anda, akun Anda akan dihentikan dan Anda tidak akan pernah dapat menggunakan aplikasi ini.",
-  "name":"Namamu",
-  "name_enter":"Silakan masukkan nama Anda",
-  "blocked_users":"Pengguna diblokir",
-  "start":"MEMULAI OBROLAN",
-  "account_blocked":"Akun Anda diblokir.",
-  "week":"satu minggu",
-  "month":"satu bulan",
-  "three_months":"tiga bulan",
-  "six_months":"enam bulan",
-  "year":"satu tahun",
-  "forever":"selama-lamanya",
-  "unblock_time":"Pemblokiran akun Anda akan dibuka pada {day} pukul {time}",
-"@unblock_time": {
+  "name": "Namamu",
+  "name_enter": "Silakan masukkan nama Anda",
+  "blocked_users": "Pengguna diblokir",
+  "start": "MEMULAI OBROLAN",
+  "account_blocked": "Akun Anda diblokir.",
+  "week": "satu minggu",
+  "month": "satu bulan",
+  "three_months": "tiga bulan",
+  "six_months": "enam bulan",
+  "year": "satu tahun",
+  "forever": "selama-lamanya",
+  "unblock_time": "Pemblokiran akun Anda akan dibuka pada {day} pukul {time}",
+  "@unblock_time": {
     "placeholders": {
       "day": {
         "type:": "String"
@@ -36,7 +36,54 @@
       }
     }
   },
-"block_period":"Periode blok:",
-"err_conn":"Kesalahan koneksi, tolong coba lagi",
-"logged_in_as":"Masuk sebagai:"
+  "block_period": "Periode blok:",
+  "err_conn": "Kesalahan koneksi, tolong coba lagi",
+  "logged_in_as": "Masuk sebagai:",
+  "must_update": "Anda harus memperbarui aplikasi Anda",
+  "update": "MEMPERBARUI",
+  "gp": "Tidak dapat membuka Google Play. Silakan buka secara manual",
+  "create_passwd": "buat kata sandi",
+  "lowercase": "Kata sandi harus mengandung huruf kecil",
+  "uppercase": "Kata sandi harus mengandung huruf besar",
+  "nums": "Kata sandi harus berisi angka",
+  "min_len": "Panjang minimum kata sandi adalah 8",
+  "match": "sandi harus sesuai",
+  "passwd": "kata sandi",
+  "retype": "ketik ulang kata sandi",
+  "required": "Bagian ini diperlukan",
+  "next": "BERIKUTNYA",
+  "open_settings": "Silakan buka pengaturan dan berikan akses ke kamera dan mikrofon Anda",
+  "settings": "PENGATURAN",
+  "give_access": "Tolong beri akses ke kamera dan mikrofon Anda!",
+  "sms": "SMS dikirim ke",
+  "you_can": "Kamu bisa",
+  "resend": "kirim ulang",
+  "after": "setelah",
+  "submit": "KIRIMKAN",
+  "email": "Masukkan email Anda",
+  "enter_phone": "Masukkan nomor telepon Anda",
+  "format_err": "Formatnya salah",
+  "can_send_after": "'Anda dapat mengirim setelah:",
+  "pass_login_wrong": "Login atau kata sandi salah",
+  "sign_in_problem": "Tidak dapat masuk dengan email, harap coba lagi",
+  "phone": "nomor telepon",
+  "sign_in": "Masuk",
+  "sign_in_email": "Masuk dengan email",
+  "create": "BUAT AKUN BARU",
+  "forgot": "Saya lupa kata sandi saya",
+  "mail_ru_problem": "Masuk email tidak berfungsi dengan mail.ru, silakan coba email lain",
+  "email_send_err": "Tidak dapat mengirim email, harap coba lagi",
+  "ip_blocked": "IP Anda telah diblokir sementara. Silakan coba lagi nanti",
+  "phone_invalid": "Nomor telepon tidak valid",
+  "internal_err": "Ada kesalahan internal, coba lagi nanti",
+  "phone_unavailable": "Pendaftaran telepon saat ini tidak berfungsi, silakan coba metode lain",
+  "sms_invalid": "Kode SMS tidak valid",
+  "email_sent": "Email dikirim ke {login}. Cek SPAM juga.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }

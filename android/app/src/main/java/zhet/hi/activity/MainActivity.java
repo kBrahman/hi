@@ -11,11 +11,12 @@ import androidx.annotation.Nullable;
 
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
-import com.facebook.ads.AdSettings;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -25,19 +26,21 @@ import zhet.hi.BuildConfig;
 import zhet.hi.factory.NativeViewFactory;
 import zhet.hi.util.AudienceNetworkInitializer;
 
-public class MainActivity extends FlutterFragmentActivity {
+public class MainActivity extends FlutterFragmentActivity implements InterstitialAdListener {
     private static final String TAG = "MainActivity";
     private static final String IS_LOADED = "isLoaded";
     private static final String SHOW = "show";
     private static final String GET_PACKAGE_NAME = "getPackageName";
     private static final String START_EMAIL_APP = "startEmailApp";
+    private static final String ID_INTERSTITIAL = "3797187196981029_5287545084611892";
+    private static final String UPDATE = "update";
     private InterstitialAd interstitialAd;
+    private Timer timer;
 
     @Override
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        SoLoader.init(this, false);
-//
 //        if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
 //            FlipperClient client = AndroidFlipperClient.getInstance(this);
 //            client.addPlugin(new SharedPreferencesFlipperPlugin(this));
@@ -45,45 +48,48 @@ public class MainActivity extends FlutterFragmentActivity {
 //            client.start();
 //        }
         AudienceNetworkInitializer.initialize(this);
-        interstitialAd = new InterstitialAd(this, "3797187196981029_5287545084611892");
-        if (BuildConfig.DEBUG) AdSettings.addTestDevice("7ee72a5f-c97c-49ac-811f-0c055a5a56be");
+        interstitialAd = new InterstitialAd(this, ID_INTERSTITIAL);
+        loadAd();
+        Log.i(TAG, "on create");
+    }
+
+    @Override
+    public void onInterstitialDisplayed(Ad ad) {
+        Log.e(TAG, "Interstitial ad displayed.");
+    }
+
+    @Override
+    public void onInterstitialDismissed(Ad ad) {
         loadAd();
     }
 
+    @Override
+    public void onError(Ad ad, AdError adError) {
+        Log.e(TAG, "Interstitial ad failed to load: " + adError.getErrorMessage() + ", invalidated=>" + interstitialAd.isAdInvalidated());
+        (timer = new Timer()).schedule(new TimerTask() {
+            @Override
+            public void run() {
+                loadAd();
+            }
+        }, 30000);
+    }
+
+    @Override
+    public void onAdLoaded(Ad ad) {
+        Log.d(TAG, "Interstitial ad is loaded and ready to be displayed!");
+    }
+
+    @Override
+    public void onAdClicked(Ad ad) {
+    }
+
+    @Override
+    public void onLoggingImpression(Ad ad) {
+    }
+
+
     private void loadAd() {
-        interstitialAd.loadAd(
-                interstitialAd.buildLoadAdConfig()
-                        .withAdListener(new InterstitialAdListener() {
-                            @Override
-                            public void onInterstitialDisplayed(Ad ad) {
-                                Log.e(TAG, "Interstitial ad displayed.");
-                            }
-
-                            @Override
-                            public void onInterstitialDismissed(Ad ad) {
-                                Log.e(TAG, "Interstitial ad dismissed. invalidated=>");
-                                loadAd();
-                            }
-
-                            @Override
-                            public void onError(Ad ad, AdError adError) {
-                                Log.e(TAG, "Interstitial ad failed to load: " + adError.getErrorMessage());
-                            }
-
-                            @Override
-                            public void onAdLoaded(Ad ad) {
-                                Log.d(TAG, "Interstitial ad is loaded and ready to be displayed!");
-
-                            }
-
-                            @Override
-                            public void onAdClicked(Ad ad) {
-                            }
-
-                            @Override
-                            public void onLoggingImpression(Ad ad) {
-                            }
-                        }).build());
+        interstitialAd.loadAd(interstitialAd.buildLoadAdConfig().withAdListener(this).build());
     }
 
     @Override
@@ -96,19 +102,36 @@ public class MainActivity extends FlutterFragmentActivity {
                     result.success(BuildConfig.APPLICATION_ID);
                     break;
                 case IS_LOADED:
+                    interstitialAd.isAdInvalidated();
                     result.success(interstitialAd.isAdLoaded());
                     break;
                 case SHOW:
                     interstitialAd.show();
+                    result.success(true);
                     break;
                 case START_EMAIL_APP:
                     openEmail(call, result, false);
-
+                    break;
+                case UPDATE:
+                    final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+                    openGooglePlay(result, appPackageName, true);
             }
         });
         engine.getPlatformViewsController().
                 getRegistry().
                 registerViewFactory("medium_rectangle", new NativeViewFactory());
+    }
+
+    private void openGooglePlay(MethodChannel.Result result, String appPackageName, boolean firstTime) {
+        try {
+            if (firstTime)
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+            else
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+        } catch (ActivityNotFoundException e) {
+            if (firstTime) openGooglePlay(result, appPackageName, false);
+            else result.success(false);
+        }
     }
 
     private void openEmail(MethodCall call, MethodChannel.Result result, boolean useBrowser) {
@@ -152,46 +175,23 @@ public class MainActivity extends FlutterFragmentActivity {
 
     @Override
     protected void onDestroy() {
+        Log.i(TAG, "onDestroy");
         if (interstitialAd != null) interstitialAd.destroy();
+        if (timer != null) timer.cancel();
         super.onDestroy();
     }
 
-    /*
-    /
-                interstitialAd.buildLoadAdConfig()
-                        .withAdListener(new InterstitialAdListener() {
-                            @java.lang.Override
-                            public void onInterstitialDisplayed(Ad ad) {
-                                Log.e(TAG, "Interstitial ad displayed.");
-                                channel.invokeMethod("displayed", null);
-                            }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart");
+    }
 
-                            @Override
-                            public void onInterstitialDismissed(Ad ad) {
-                                Log.e(TAG, "Interstitial ad dismissed.");
-                                channel.invokeMethod("dismissed", null);
-                            }
-
-                            @java.lang.Override
-                            public void onError(Ad ad, AdError adError) {
-                                Log.e(TAG, "Interstitial ad failed to load: " + adError.getErrorMessage());
-                            }
-
-                            @java.lang.Override
-                            public void onAdLoaded(Ad ad) {
-                                Log.d(TAG, "Interstitial ad is loaded and ready to be displayed! time out=>" + timeOut);
-                                if (!timeOut) {
-                                    interstitialAd.show();
-                                }
-                            }
-
-                            @java.lang.Override
-                            public void onAdClicked(Ad ad) {
-                            }
-
-                            @java.lang.Override
-                            public void onLoggingImpression(Ad ad) {
-                            }
-                        }).build()
-     */
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        boolean adInvalidated = interstitialAd.isAdInvalidated();
+//        if (adInvalidated) loadAd();
+        Log.i(TAG, "onRestart, adInvalidated=>" + adInvalidated);
+    }
 }

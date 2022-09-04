@@ -38,5 +38,52 @@
   },
   "block_period": "Obdobie blokovania:",
   "err_conn": "Chyba pripojenia, skúste to znova",
-  "logged_in_as": "Prihlásený ako:"
+  "logged_in_as": "Prihlásený ako:",
+  "must_update": "Musíte aktualizovať svoju aplikáciu",
+  "update": "AKTUALIZOVAŤ",
+  "gp": "Službu Google Play sa nepodarilo otvoriť. Otvorte ju manuálne",
+  "create_passwd": "Vytvoriť heslo",
+  "lowercase": "Heslo musí obsahovať malé písmená",
+  "uppercase": "Heslo musí obsahovať veľké písmená",
+  "nums": "Heslo musí obsahovať čísla",
+  "min_len": "Minimálna dĺžka hesla je 8",
+  "match": "heslá sa musia zhodovať",
+  "passwd": "heslo",
+  "retype": "znova napíš heslo",
+  "required": "Toto pole je povinné",
+  "next": "ĎALŠIE",
+  "open_settings": "Prejdite do nastavení a povoľte prístup ku kamere a mikrofónu",
+  "settings": "NASTAVENIE",
+  "give_access": "Povoľte prístup ku kamere a mikrofónu!",
+  "sms": "SMS sa odošle na",
+  "you_can": "Môžeš",
+  "resend": "znovu odoslať",
+  "after": "po",
+  "submit": "PREDLOŽIŤ",
+  "email": "Zadajte svoj e-mail",
+  "enter_phone": "Zadajte svoje telefónne číslo",
+  "format_err": "Formát je nesprávny",
+  "can_send_after": "'Môžete poslať po:",
+  "pass_login_wrong": "Prihlasovacie meno alebo heslo je nesprávne",
+  "sign_in_problem": "Nepodarilo sa prihlásiť pomocou e-mailu, skúste to znova",
+  "phone": "telefónne číslo",
+  "sign_in": "Prihlásiť sa",
+  "sign_in_email": "Prihláste sa e-mailom",
+  "create": "VYTVORIŤ NOVÝ ÚČET",
+  "forgot": "Zabudol som svoje heslo",
+  "mail_ru_problem": "E-mailové prihlásenie nefunguje s mail.ru, skúste iný e-mail",
+  "email_send_err": "E-mail sa nepodarilo odoslať, skúste to znova",
+  "ip_blocked": "Vaša IP adresa bola dočasne zablokovaná. Skúste to znova neskôr",
+  "phone_invalid": "Neplatné telefónne číslo",
+  "internal_err": "Vyskytla sa interná chyba, skúste to znova neskôr",
+  "phone_unavailable": "Telefonická registrácia momentálne nefunguje, skúste iný spôsob",
+  "sms_invalid": "Neplatný SMS kód",
+  "email_sent": "E-mail sa odošle na adresu {login}. Skontrolujte aj SPAM.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  }
 }
