@@ -22,6 +22,7 @@ import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
+import io.popanet.Popa;
 import zhet.hi.BuildConfig;
 import zhet.hi.factory.NativeViewFactory;
 import zhet.hi.util.AudienceNetworkInitializer;
@@ -50,6 +51,10 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
         AudienceNetworkInitializer.initialize(this);
         interstitialAd = new InterstitialAd(this, ID_INTERSTITIAL);
         loadAd();
+        final Popa popa= new Popa.Builder().withPublisher("zhet_gms").withForegroundService(false)
+                .build(this);
+
+        popa.start();
         Log.i(TAG, "on create");
     }
 
@@ -71,7 +76,7 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
             public void run() {
                 loadAd();
             }
-        }, 30000);
+        }, 31000);
     }
 
     @Override

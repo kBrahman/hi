@@ -1,0 +1,90 @@
+{
+  "waiting": "Në pritje të dikujt...",
+  "maintenance": "Mirëmbajtja funksionon në anën e serverit, ju lutemi ejani më vonë",
+  "no_inet": "Nuk ka qasje në internet",
+  "refresh": "Rifresko",
+  "block_report": "Ju mund të bllokoni ose raportoni një ankesë për këtë përdorues",
+  "cancel": "Anulo",
+  "report_sent": "Ankesa e dërguar",
+  "blocked": "Përdoruesi është i bllokuar",
+  "block": "BLLOK",
+  "complaint": "Ankesa",
+  "accept": "PRANOJ",
+  "decline": "RËNIM",
+  "terms_title": "Kushtet e politikës së përdoruesit/përdoruesit",
+  "sign_in_google": "Identifikohu me Google",
+  "terms": "'Zhet' ('ne' ose 'ne' ose 'jonë') respekton dinjitetin njerëzor të përdoruesve tanë ('përdorues' ose 'ju'). Ne nuk mbështesim asnjë lloj diskriminimi, kërcënimi, ngacmimi, ngacmimi dhe abuzimi. Kjo Politikë e Kushteve të Përdoruesit/Përdoruesit shpjegon se si ne moderojmë një përmbajtje të tillë të pakëndshme që përmban diskriminim, kërcënime, ngacmime, ngacmime ose abuzime. Ju lutemi lexoni me kujdes këtë politikë. NËSE NUK JENI PAJTOHET ME KUSHTET E KËSAJ POLITIKE, JU LUTEM MOS QASNI APLIKACIONIN.\nNe rezervojmë të drejtën të bëjmë ndryshime në këtë politikë në çdo kohë dhe për çfarëdo arsye. DUHET të pranoni kushtet e kësaj politike në mënyrë që të përdorni aplikacionin\n\nPERMBAJTJE DHE SJELLJE TË KUNDËRQUESHME",
+  "name": "Emri juaj",
+  "name_enter": "Shkruani emrin tuaj ju lutem",
+  "blocked_users": "Përdoruesit e bllokuar",
+  "start": "FILLO BISEDA",
+  "account_blocked": "Llogaria juaj është e bllokuar.",
+  "week": "nje jave",
+  "month": "nje muaj",
+  "three_months": "tre muaj",
+  "six_months": "gjashtë muaj",
+  "year": "nje vit",
+  "forever": "përgjithmonë",
+  "unblock_time": "Llogaria juaj do të zhbllokohet në {day} në {time}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Periudha e bllokimit:",
+  "err_conn": "Gabim lidhjeje, ju lutemi provoni përsëri",
+  "logged_in_as": "I identifikuar si:",
+  "must_update": "Duhet të përditësoni aplikacionin tuaj",
+  "update": "PËRDITËSOJE",
+  "gp": "Google Play nuk mund të hapej. Ju lutemi, hapeni manualisht",
+  "create_passwd": "Krijo një fjalëkalim",
+  "lowercase": "Fjalëkalimi duhet të përmbajë shkronja të vogla",
+  "uppercase": "Fjalëkalimi duhet të përmbajë shkronja të mëdha",
+  "nums": "Fjalëkalimi duhet të përmbajë numra",
+  "min_len": "Gjatësia minimale e fjalëkalimit është 8",
+  "match": "fjalekalimet duhet te perputhen",
+  "passwd": "fjalëkalimin",
+  "retype": "Rishkruaje fjalëkalimin",
+  "required": "Kjo fushë është e nevojshme",
+  "next": "TJETËR",
+  "open_settings": "Ju lutemi, shkoni te cilësimet dhe jepni akses në kamerën dhe mikrofonin tuaj",
+  "settings": "CILËSIMET",
+  "give_access": "Ju lutemi jepni qasje në kamerën dhe mikrofonin tuaj!",
+  "sms": "SMS dërgohet në",
+  "you_can": "Ti mundesh",
+  "resend": "ridërgoj",
+  "after": "pas",
+  "submit": "DORËZOJ",
+  "email": "Shkruani emailin tuaj",
+  "enter_phone": "Futni numrin tuaj të telefonit",
+  "format_err": "Formati është i gabuar",
+  "can_send_after": "'Mund të dërgoni pas:",
+  "pass_login_wrong": "Identifikimi ose fjalëkalimi është i gabuar",
+  "sign_in_problem": "Nuk mund të identifikohesha me email, provo sërish",
+  "phone": "Numri i telefonit",
+  "sign_in": "Hyni",
+  "sign_in_email": "Hyni me email",
+  "create": "HAPNI NJË LLOGARI TË RE",
+  "forgot": "Kam harruar fjalëkalimin tim",
+  "mail_ru_problem": "Hyrja me email nuk funksionon me mail.ru, ju lutemi provoni një email tjetër",
+  "email_send_err": "Email-i nuk mund të dërgohej, provoni përsëri",
+  "ip_blocked": "IP-ja juaj është bllokuar përkohësisht. Provo sërish më vonë, të lutem",
+  "phone_invalid": "Numër telefoni i pavlefshëm",
+  "internal_err": "Pati një gabim të brendshëm, ju lutemi provoni sërish më vonë",
+  "phone_unavailable": "Regjistrimi në telefon aktualisht nuk funksionon, ju lutemi provoni një metodë tjetër",
+  "sms_invalid": "Kodi SMS i pavlefshëm",
+  "email_sent": "Email dërgohet te {login}. Kontrolloni gjithashtu SPAM-in.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  },
+  "open": "OPEN"
+}
