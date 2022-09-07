@@ -17,7 +17,7 @@ allprojects {
         jcenter()
         maven {
             credentials {
-                username 'zhet_gms'
+                username 'publisherunique'
                 password 'QyRbvAbk7GjAE3x4fFt3'
             }
             authentication {
