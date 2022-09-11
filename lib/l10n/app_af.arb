@@ -1,0 +1,90 @@
+{
+  "waiting":"Wag vir iemand...",
+  "maintenance":"Instandhouding werk aan bedienerkant, kom asseblief later",
+  "no_inet":"Geen internettoegang nie",
+  "refresh":"Verfris",
+  "block_report":"Jy kan 'n klagte op hierdie gebruiker blokkeer of rapporteer",
+  "cancel":"Kanselleer",
+  "report_sent":"Klag gestuur",
+  "blocked":"Gebruiker is geblokkeer",
+  "block":"BLOK",
+  "complaint":"Klag",
+  "accept":"AANVAAR",
+  "decline":"AFNEEM",
+  "terms_title":"Bepalings van gebruiker/gebruikersbeleid",
+  "sign_in_google":"Meld aan met Google",
+  "terms":"'Zhet' ('ons' of 'ons' of 'ons') respekteer die menswaardigheid van ons gebruikers ('gebruiker' of 'jy'). Ons ondersteun nie enige vorm van diskriminasie, dreigemente, afknouery, teistering en mishandeling nie. Hierdie Bepalings van Gebruiker/Gebruikersbeleid verduidelik hoe ons so 'n aanstootlike inhoud modereer wat diskriminasie, dreigemente, afknouery, teistering of misbruik bevat. Lees asseblief hierdie Beleid noukeurig. INDIEN JY NIE SAAMSTEM MET DIE BEPALINGS VAN HIERDIE BELEID NIE, MOET ASSEBLIEF NIE TOEGANG TOT DIE AANSOEK.\\nOns behou die reg voor om enige tyd en om enige rede veranderinge aan hierdie Beleid aan te bring. Jy MOET die bepalings van hierdie beleid aanvaar om die toepassing te kan gebruik\\n\\nBESKENKLIKE INHOUD EN GEDRAG:\\nOns definieer enige vorm van diskriminasie , dreigemente, afknouery, teistering en mishandeling as aanstootlike gedrag.\\nOns definieer seksueel eksplisiete inhoud as aanstootlike inhoud.\\n\\nAPP GEBRUIK:\\nTerwyl jy hierdie toepassing gebruik, stem jy in om nie aanstootlike inhoud of gedrag teen enige ander gebruiker bloot te stel nie. As jy oortree die bepalings van hierdie beleid sal jy tydelik verban word af van die gebruik van hierdie toepassing. In die geval van voortgesette oortreding, dit wil sê as ons steeds klagverslae van ander gebruikers op jou rekening kry, sal jou rekening beëindig word en jy sal nooit ooit hierdie toepassing kan gebruik nie.\n",
+  "name":"Jou naam",
+  "name_enter":"Voer asseblief jou naam in",
+  "blocked_users":"Geblokkeerde gebruikers",
+  "start":"BEGIN KLETS",
+  "account_blocked":"Jou rekening is geblokkeer.",
+  "week":"een week",
+  "month":"een maand",
+  "three_months":"drie maande",
+  "six_months":"ses maande",
+  "year":"een jaar",
+  "forever":"vir ewig",
+  "unblock_time":"Jou rekening sal op {day} om {time} gedeblokkeer word",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period":"Blok periode",
+  "err_conn":"Verbindingsfout, probeer asseblief weer",
+  "logged_in_as":"Aangeteken a",
+  "must_update":"Jy moet jou toepassing opdateer",
+  "update":"OPDATEER",
+  "gp":"Kon nie Google Play oopmaak nie. Maak dit asseblief handmatig oop",
+  "create_passwd":"Skep 'n wagwoord",
+  "lowercase":"Wagwoord moet kleinletters bevat",
+  "uppercase":"Wagwoord moet hoofletters bevat",
+  "nums":"Wagwoord moet nommers bevat",
+  "min_len":"Wagwoord minimum lengte is 8",
+  "match":"Wagwoorde moet ooreenstem",
+  "passwd":"wagwoord",
+  "retype":"tik wagwoord weer in",
+  "required":"Hierdie veld word vereis",
+  "next":"VOLGENDE",
+  "open_settings":"Gaan asseblief na instellings en gee toegang tot jou kamera en mikrofoon",
+  "settings":"INSTELLINGS",
+  "give_access":"Gee asseblief toegang tot jou kamera en mikrofoon!",
+  "sms":"SMS word gestuur na",
+  "you_can":"Jy kan",
+  "resend":"weer stuur",
+  "after":"na",
+  "submit":"INDIEN",
+  "email":"Gee jou e-pos",
+  "enter_phone":"Voer jou foonnommer in",
+  "format_err":"Formaat is verkeerd",
+  "can_send_after":"'Jy kan agterna stuur",
+  "pass_login_wrong":"Aanmelding of wagwoord is verkeerd",
+  "sign_in_problem":"Kon nie aanmeld met e-pos nie, probeer asseblief weer",
+  "phone":"telefoon nommer",
+  "sign_in":"Meld aan",
+  "sign_in_email":"Meld aan met e-pos",
+  "create":"SKEP NUWE REKENING",
+  "forgot":"ek het my wagwoord vergeet",
+  "mail_ru_problem":"E-posaanmelding werk nie met mail.ru nie, probeer asseblief ander e-posadres",
+  "email_send_err":"Kon nie e-pos stuur nie, probeer asseblief weer",
+  "ip_blocked":"Jou IP is tydelik geblokkeer. Probeer asseblief later weer",
+  "phone_invalid":"Ongeldige foonnommer",
+  "internal_err":"Daar was 'n interne fout, probeer asseblief later weer",
+  "phone_unavailable":"Foonaanmelding werk tans nie, probeer asseblief 'n ander metode",
+  "sms_invalid":"Ongeldige SMS-kode",
+  "email_sent":"E-pos word na {login} gestuur. Gaan ook SPAM na.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  },
+  "open": "OOP"
+}

@@ -39,5 +39,6 @@ const LOCALES = [
   Locale('id', ''),
   Locale('lv', ''),
   Locale('ka', ''),
-  Locale('sk', '')
+  Locale('sk', ''),
+  Locale('af', '')
 ];

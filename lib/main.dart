@@ -1,12 +1,10 @@
-import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hi/widget/widget_main.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'l10n/locale.dart';
 
 var colorCodes = {
@@ -57,4 +55,18 @@ class Hi extends StatelessWidget {
         ),
         home: MainWidget(ip: ip, turnServers: turnServers, turnUname: turnUname, turnPass: turnPass));
   }
+}
+
+mixin Musician on Person {
+  final name = 'Lairat';
+}
+
+class Singer extends Person with Musician {}
+
+class Person {
+  final name='Person';
+}
+
+class Maestro extends Person with Musician {
+  void out() => print(name);
 }

@@ -132,7 +132,10 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           final blockPeriodCode = getBlockPeriod(_lastBlockPeriod);
           widget._db.update(TABLE_USER,
               {BLOCK_PERIOD: blockPeriodCode, BLOCK_TIME: now.millisecondsSinceEpoch, LAST_BLOCK_PERIOD: blockPeriodCode},
-              where: 'login=?', whereArgs: [_login]);
+              where: '$LOGIN=?', whereArgs: [_login]);
+          FirebaseFirestore.instance
+              .doc('user/$_login')
+              .set({BLOCK_PERIOD: blockPeriodCode, BLOCK_TIME: Timestamp.now(), LAST_BLOCK_PERIOD: blockPeriodCode});
           widget._block(_login, now.add(Duration(minutes: getMinutes(blockPeriodCode))), blockPeriodCode);
           break;
         case SignalingState.Update:

@@ -12,11 +12,6 @@ import Flutter
 //        
 //    })
     GeneratedPluginRegistrant.register(with: self)
-//    weak var registrar = self.registrar(forPlugin: PLUGIN_NAME)
-//    let factory = FLNativeViewFactory(messenger: registrar!.messenger(), controller: controller)
-//    self.registrar(forPlugin: "<plugin-hi>")!.register(
-//               factory,
-//               withId: "ios_banner")
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

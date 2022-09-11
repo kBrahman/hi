@@ -11,10 +11,7 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_signin_button/button_list.dart';
-import 'package:flutter_signin_button/button_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:hi/widget/widget_btn.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -326,8 +323,9 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                             Text(locs?.required ?? "This field is required",
                                 style: const TextStyle(fontSize: 13, color: Colors.red)),
                           sizedBox_h_8,
-                          HiBtn(
-                            () => _login.isEmpty
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(minimumSize: const Size(220, 36), backgroundColor: Colors.white),
+                            onPressed: () => _login.isEmpty
                                 ? setState(() => _loginEmptyErr = true)
                                 : _pass.isEmpty
                                     ? setState(() {
@@ -335,20 +333,51 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                                         _loginEmptyErr = false;
                                       })
                                     : signIn(context),
-                            locs?.sign_in ?? 'Sign in',
-                            Icons.done,
-                            const Color.fromRGBO(0, 0, 0, 0.54),
+                            label: Text(locs?.sign_in ?? 'Sign in', style: const TextStyle(color: Colors.black)),
+                            icon: const Icon(
+                              Icons.done,
+                              color: Colors.black,
+                            ),
                           ),
-                          SignInButton(Buttons.Google, text: locs?.sign_in_google, onPressed: () => googleSignIn(context)),
-                          HiBtn(() {
-                            setState(() {
-                              _signUp = true;
-                              _registeringWithPhone = false;
-                            });
-                          }, locs?.sign_in_email ?? 'Sign in with email', null, const Color.fromRGBO(0, 0, 0, 0.54)),
+                          ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(220, 36),
+                                backgroundColor: Colors.white,
+                                padding: EdgeInsets.zero,
+                              ),
+                              onPressed: () => googleSignIn(context),
+                              label: Text(
+                                locs?.sign_in_google ?? 'Sign in with Google',
+                                style: const TextStyle(color: Colors.black),
+                                textAlign: TextAlign.center,
+                              ),
+                              icon: const Image(width: 18, height: 18, image: AssetImage('assets/icon/google.png'))),
+                          ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(220, 36),
+                                backgroundColor: Colors.white,
+                                padding: EdgeInsets.zero,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _signUp = true;
+                                  _registeringWithPhone = false;
+                                });
+                              },
+                              label: Text(
+                                locs?.sign_in_email ?? 'Sign in with email',
+                                style: const TextStyle(color: Colors.black),
+                                textAlign: TextAlign.center,
+                              ),
+                              icon: const Icon(Icons.email_outlined, color: Colors.black)),
                           Padding(
                             padding: const EdgeInsets.only(top: 4),
-                            child: HiBtn(_register, locs?.create ?? 'CREATE NEW ACCOUNT', null, Colors.black),
+                            child: ElevatedButton(
+                                onPressed: _register,
+                                child: Text(locs?.create ?? 'CREATE NEW ACCOUNT',
+                                    textAlign: TextAlign.center, maxLines: 1, style: const TextStyle(color: Colors.black)),
+                                style: ElevatedButton.styleFrom(
+                                    minimumSize: const Size(220, 36), backgroundColor: Colors.white, padding: EdgeInsets.zero)),
                           ),
                           InkWell(
                               child: Text(locs?.forgot ?? 'I forgot my password', style: const TextStyle(color: Colors.red)),

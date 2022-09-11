@@ -68,7 +68,7 @@
   "sign_in_problem": "No se pudo iniciar sesión con el correo electrónico, intente nuevamente por favor",
   "phone": "número de teléfono",
   "sign_in": "Iniciar sesión",
-  "sign_in_email": "Iniciar sesión con correo electrónico",
+  "sign_in_email": "email inicio de sesión",
   "create": "CREAR UNA NUEVA CUENTA",
   "forgot": "Olvidé mi contraseña",
   "mail_ru_problem": "El inicio de sesión de correo electrónico no funciona con mail.ru, intente con otro correo electrónico, por favor",

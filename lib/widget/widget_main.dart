@@ -203,6 +203,8 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
   getChild() {
     late String time;
     late String day;
+    final code = Localizations.localeOf(context).languageCode;
+    hiLog(TAG, 'code=>$code');
     switch (_uiState) {
       case UIState.CALL:
         return CallWidget(() => setState(() => _uiState = UIState.PROFILE), _block, _db!, _name,
@@ -230,11 +232,8 @@ class _MainWidgetState extends State<MainWidget> with WidgetsBindingObserver {
                         Padding(
                             padding: const EdgeInsets.only(left: 16, right: 16),
                             child: Text(
-                                AppLocalizations.of(context)?.unblock_time(
-                                        day =
-                                            DateFormat.yMMMMd(Localizations.localeOf(context).languageCode).format(_unblockTime!),
-                                        time =
-                                            DateFormat.Hm(Localizations.localeOf(context).languageCode).format(_unblockTime!)) ??
+                                AppLocalizations.of(context)?.unblock_time(day = DateFormat.yMMMMd(code).format(_unblockTime!),
+                                        time = DateFormat.Hm(code).format(_unblockTime!)) ??
                                     'Your account will be unblocked on $day at $time',
                                 textAlign: TextAlign.center))
                     ]))));
