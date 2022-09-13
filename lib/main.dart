@@ -56,17 +56,3 @@ class Hi extends StatelessWidget {
         home: MainWidget(ip: ip, turnServers: turnServers, turnUname: turnUname, turnPass: turnPass));
   }
 }
-
-mixin Musician on Person {
-  final name = 'Lairat';
-}
-
-class Singer extends Person with Musician {}
-
-class Person {
-  final name='Person';
-}
-
-class Maestro extends Person with Musician {
-  void out() => print(name);
-}

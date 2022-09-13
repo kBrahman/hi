@@ -18,7 +18,7 @@ enum SignalingState { CallStateBye, ConnectionOpen, ConnectionClosed, Connection
  * callbacks for Signaling API.
  */
 typedef SignalingStateCallback = void Function(SignalingState state);
-typedef StreamStateCallback = void Function(MediaStream _remoteStream, MediaStream _localStream);
+typedef StreamStateCallback = void Function(MediaStream? _remoteStream, MediaStream _localStream);
 typedef OtherEventCallback = void Function(dynamic event);
 typedef DataChannelMessageCallback = void Function(RTCDataChannel dc, RTCDataChannelMessage data);
 typedef DataChannelCallback = void Function(RTCDataChannel? dc);
@@ -334,7 +334,7 @@ class Signaling {
       ..onConnectionState = (s) {
         hiLog(TAG, 'onConnectionState=>$s');
         if (s == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
-          onStreams(_remoteStream!, _localStream!);
+          onStreams(_remoteStream, _localStream!);
           _connecting = false;
         } else if (s == RTCPeerConnectionState.RTCPeerConnectionStateFailed) {
           failCount++;

@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hi/widget/widget_btn.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -203,29 +204,28 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                         ]);
                       })),
                   sizedBox_h_8,
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton(
-                          onPressed: verificationCode.any((e) => e.isEmpty) ? null : submit,
-                          child: Text(locs?.submit ?? 'SUBMIT')),
-                      sizedBox_w_8,
-                      ElevatedButton(
-                          onPressed: showCodeSent || showErr
-                              ? () {
-                                  SharedPreferences.getInstance().then((p) => p.remove(VERIFICATION_DATA));
-                                  setState(() {
-                                    _showVerificationForm = false;
-                                    showCodeSent = false;
-                                    focusIndex = 0;
-                                  });
-                                  for (int i = 0; i < verificationCode.length; i++) verificationCode[i] = '';
-                                  WidgetsBinding.instance.removeObserver(this);
-                                }
-                              : null,
-                          child: Text(locs?.cancel ?? 'CANCEL'))
-                    ],
-                  )
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    ElevatedButton(
+                        onPressed: verificationCode.any((e) => e.isEmpty) ? null : submit, child: Text(locs?.submit ?? 'SUBMIT')),
+                    sizedBox_w_8,
+                    ElevatedButton(
+                        onPressed: showCodeSent || showErr
+                            ? () {
+                                SharedPreferences.getInstance().then((p) => p.remove(VERIFICATION_DATA));
+                                setState(() {
+                                  _showVerificationForm = false;
+                                  showCodeSent = false;
+                                  focusIndex = 0;
+                                });
+                                for (int i = 0; i < verificationCode.length; i++) verificationCode[i] = '';
+                                WidgetsBinding.instance.removeObserver(this);
+                              }
+                            : null,
+                        child: Text(
+                          locs?.cancel ?? 'CANCEL',
+                          overflow: TextOverflow.clip,
+                        ))
+                  ])
                 ],
               ))
             : _signUp
@@ -261,15 +261,18 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                               ElevatedButton(
                                   onPressed: !_timerStarted ? () => onNext(context) : null, child: Text(locs?.next ?? 'NEXT')),
                               sizedBox_w_4,
-                              ElevatedButton(
-                                  onPressed: () => setState(() {
-                                        _signUp = false;
-                                        _showVerificationForm = false;
-                                        _login = '';
-                                        _newLogin = '';
-                                        _formatErr = false;
-                                      }),
-                                  child: Text(locs?.cancel ?? 'CANCEL'))
+                              Expanded(
+                                  child: ElevatedButton(
+                                      onPressed: () => setState(() {
+                                            _signUp = false;
+                                            _showVerificationForm = false;
+                                            _login = '';
+                                            _newLogin = '';
+                                            _formatErr = false;
+                                          }),
+                                      child: FittedBox(
+                                        child: Text(locs?.cancel ?? 'CANCEL'),
+                                      )))
                             ],
                           ),
                           if (_timerStarted)
@@ -323,62 +326,25 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
                             Text(locs?.required ?? "This field is required",
                                 style: const TextStyle(fontSize: 13, color: Colors.red)),
                           sizedBox_h_8,
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(minimumSize: const Size(220, 36), backgroundColor: Colors.white),
-                            onPressed: () => _login.isEmpty
-                                ? setState(() => _loginEmptyErr = true)
-                                : _pass.isEmpty
-                                    ? setState(() {
-                                        _passEmptyErr = true;
-                                        _loginEmptyErr = false;
-                                      })
-                                    : signIn(context),
-                            label: Text(locs?.sign_in ?? 'Sign in', style: const TextStyle(color: Colors.black)),
-                            icon: const Icon(
-                              Icons.done,
-                              color: Colors.black,
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(220, 36),
-                                backgroundColor: Colors.white,
-                                padding: EdgeInsets.zero,
-                              ),
-                              onPressed: () => googleSignIn(context),
-                              label: Text(
-                                locs?.sign_in_google ?? 'Sign in with Google',
-                                style: const TextStyle(color: Colors.black),
-                                textAlign: TextAlign.center,
-                              ),
-                              icon: const Image(width: 18, height: 18, image: AssetImage('assets/icon/google.png'))),
-                          ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(220, 36),
-                                backgroundColor: Colors.white,
-                                padding: EdgeInsets.zero,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _signUp = true;
-                                  _registeringWithPhone = false;
-                                });
-                              },
-                              label: Text(
-                                locs?.sign_in_email ?? 'Sign in with email',
-                                style: const TextStyle(color: Colors.black),
-                                textAlign: TextAlign.center,
-                              ),
-                              icon: const Icon(Icons.email_outlined, color: Colors.black)),
+                          HiBtn(() => signIn(context), locs?.sign_in ?? 'Sign in', const Icon(Icons.done),
+                              const Color.fromRGBO(0, 0, 0, 0.54)),
+                          HiBtn(
+                              () => googleSignIn(context),
+                              locs?.sign_in_google ?? 'Sign in with Google',
+                              const Image(
+                                  width: 18, height: 18, image: AssetImage('assets/icon/google.png'), fit: BoxFit.fitHeight),
+                              const Color.fromRGBO(0, 0, 0, 0.54)),
+                          HiBtn(() {
+                            setState(() {
+                              _signUp = true;
+                              _registeringWithPhone = false;
+                            });
+                          }, locs?.sign_in_email ?? 'Sign in with email', const Icon(Icons.email_outlined),
+                              const Color.fromRGBO(0, 0, 0, 0.54)),
                           Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: ElevatedButton(
-                                onPressed: _register,
-                                child: Text(locs?.create ?? 'CREATE NEW ACCOUNT',
-                                    textAlign: TextAlign.center, maxLines: 1, style: const TextStyle(color: Colors.black)),
-                                style: ElevatedButton.styleFrom(
-                                    minimumSize: const Size(220, 36), backgroundColor: Colors.white, padding: EdgeInsets.zero)),
-                          ),
+                              padding: const EdgeInsets.only(top: 4),
+                              child: HiBtn(
+                                  _register, locs?.create ?? 'CREATE NEW ACCOUNT', null, const Color.fromRGBO(0, 0, 0, 0.54))),
                           InkWell(
                               child: Text(locs?.forgot ?? 'I forgot my password', style: const TextStyle(color: Colors.red)),
                               onTap: _register)
