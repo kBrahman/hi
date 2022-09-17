@@ -27,7 +27,7 @@ dependencies:
   shared_preferences: ^2.0.15
   sqflite: ^2.0.2
   path: ^1.8.1
-  firebase_auth: ^3.8.0
+  firebase_auth: ^3.9.0
   flutter_signin_button: ^2.0.0
   google_sign_in: ^5.4.1
   firebase_dynamic_links: ^4.3.6
