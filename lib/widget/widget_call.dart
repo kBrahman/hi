@@ -172,11 +172,11 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   mainAxisSize: MainAxisSize.min,
                   children: List.generate(
-                      5,
+                      4,
                       (i) => ElevatedButton(
-                          child: icon(i),
                           style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(15)),
-                          onPressed: onPressed(i, context))))
+                          onPressed: onPressed(i, context),
+                          child: icon(i))))
               : null,
           body: _mustUpdate
               ? Center(
@@ -215,31 +215,27 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   Icon? icon(int i) => Icon(i == 0
-      ? Icons.switch_camera
+      ? Icons.call_end
       : i == 1
-          ? Icons.call_end
+          ? (micMuted ? Icons.mic_off : Icons.mic)
           : i == 2
-              ? (micMuted ? Icons.mic_off : Icons.mic)
-              : i == 3
-                  ? Icons.skip_next
-                  : Icons.block);
+              ? Icons.skip_next
+              : Icons.block);
 
   VoidCallback? onPressed(int i, BuildContext context) {
     switch (i) {
-      case ACTION_SWITCH_CAMERA:
-        return _signaling?.switchCamera;
-      case 1:
+      case 0:
         return widget._onBack;
-      case 2:
+      case 1:
         return _muteMic;
-      case 3:
+      case 2:
         return () {
           setState(() {
             _inCall = false;
           });
           _next(true);
         };
-      case 4:
+      case 3:
         return () => _block(context);
       default:
         return null;

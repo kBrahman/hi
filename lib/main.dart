@@ -24,6 +24,7 @@ void main() async {
   final turnUname = props['turnUname']!;
   final turnPass = props['turnPass']!;
   runApp(Hi(ip: ip, turnServers: turnServers, turnUname: turnUname, turnPass: turnPass));
+  'w'.length;
 }
 
 class Hi extends StatelessWidget {

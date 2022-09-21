@@ -76,7 +76,7 @@ class Signaling {
   late List<String?> _reports;
   late int lastBlockedPeriod;
   bool _connecting = false;
-  _OfferTimeOutFuture? future;
+  _OfferTimeOutFuture? _future;
 
   Signaling(this._selfId, this._selfName, this._ip, this.turnServers, this.turnUname, this.turnPass, this.screenSize, this.model,
       this._version, this._db) {
@@ -95,6 +95,7 @@ class Signaling {
   }
 
   close() {
+    _future?.cancelled = true;
     _peerConnection?.getLocalStreams().clear();
     _peerConnection?.getRemoteStreams().clear();
     _peerConnection?.dispose();
@@ -116,22 +117,17 @@ class Signaling {
 
   isDisconnected() => _socket == null;
 
-  void switchCamera() {
-    var videoTrack = _localStream?.getVideoTracks().firstWhere((track) => track.kind == 'video');
-    if (videoTrack != null) Helper.switchCamera(videoTrack);
-  }
-
   void invite(peerId, mc) async {
     hiLog(TAG, 'invite');
     _peerConnection = await _createPeerConnection(mc);
     if (_peerConnection == null)
       onStateChange(SignalingState.ConnectionError);
     else {
-      future?.cancelled = true;
+      _future?.cancelled = true;
       _localDesc = await _createOffer(_peerConnection);
       _offer(peerId, _localDesc, screenSize);
       _connecting = true;
-      future = _OfferTimeOutFuture(msgNew);
+      _future = _OfferTimeOutFuture(msgNew);
     }
   }
 
@@ -162,6 +158,7 @@ class Signaling {
         }
         break;
       case PEER:
+        if (_socket == null) return;
         _peerName = data[NAME] ?? 'unknown';
         invite(data['id'], data['mc']);
         break;
@@ -173,7 +170,7 @@ class Signaling {
         _accept(description['sdp'], description['type'], _peerId!, data['mc']);
         break;
       case ANSWER:
-        future?.cancelled = true;
+        _future?.cancelled = true;
         final description = data['description'];
         _peerId = data['from'];
         await _peerConnection?.setLocalDescription(_localDesc);
