@@ -82,7 +82,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   _checkBlock(String name) async {
-    hiLog(TAG, 'check block');
+    hiLog(TAG, 'is blocked');
     final sharedPrefs = await SharedPreferences.getInstance();
     _login = sharedPrefs.getString(LOGIN) ?? '';
     final DocumentSnapshot doc;
