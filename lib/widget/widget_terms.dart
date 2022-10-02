@@ -15,8 +15,10 @@ class TermsWidget extends StatelessWidget {
         appBar: appBarWithTitle,
         body: Column(
           children: [
-            Text(AppLocalizations.of(context)?.terms_title ?? 'Terms of user/user policy',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Text(AppLocalizations.of(context)?.terms_title ?? 'Terms of user/user policy',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
             Expanded(
                 child: SingleChildScrollView(
                     padding: const EdgeInsets.all(16),

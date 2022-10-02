@@ -50,7 +50,6 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   late MethodChannel _platform;
   String? model;
   bool blockDialogShown = false;
-  late int _lastBlockPeriod;
   bool _mustUpdate = false;
 
   @override
@@ -78,30 +77,15 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     super.initState();
     initRenderers();
     if (Platform.isAndroid) _platform = const MethodChannel('hi.channel/app');
-    _checkBlock(widget._name);
+    _start(widget._name);
   }
 
-  _checkBlock(String name) async {
-    hiLog(TAG, 'is blocked');
-    final sharedPrefs = await SharedPreferences.getInstance();
-    _login = sharedPrefs.getString(LOGIN) ?? '';
-    final DocumentSnapshot doc;
-    if (_login.isNotEmpty &&
-        (doc = await FirebaseFirestore.instance.doc('user/$_login').get()).exists &&
-        doc[BLOCK_PERIOD] != BLOCK_NO) {
-      final periodCode = doc[BLOCK_PERIOD];
-      final blockTime = doc[BLOCK_TIME];
-      sharedPrefs.setInt(BLOCK_PERIOD, periodCode);
-      sharedPrefs.setInt(BLOCK_TIME, (blockTime as Timestamp).millisecondsSinceEpoch);
-      widget._db.update(
-          TABLE_USER, {BLOCK_PERIOD: periodCode, LAST_BLOCK_PERIOD: periodCode, BLOCK_TIME: blockTime.millisecondsSinceEpoch},
-          where: 'login=?', whereArgs: [_login]);
-      widget._block(_login, blockTime.toDate().add(Duration(minutes: getMinutes(periodCode))), periodCode);
-    } else
-      _initSignalingServer(_login, name);
+  _start(String name) async {
+    if (!(await _isBlocked()) && mounted) _initSignaling(_login, name);
   }
 
-  void _initSignalingServer(String login, String name) async {
+  void _initSignaling(String login, String name) async {
+    hiLog(TAG, 'init signaling server');
     final version = (await PackageInfo.fromPlatform()).version;
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     final model = Platform.isAndroid ? (await deviceInfo.androidInfo).model : (await deviceInfo.iosInfo).model;
@@ -109,7 +93,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     final width = WidgetsBinding.instance.window.physicalSize.width;
     _signaling = Signaling(login, name, widget.ip, widget.turnServers, widget.turnUname, widget.turnPass, '$height:$width', model,
         version, widget._db);
-    _signaling?.onStateChange = (SignalingState state) {
+    _signaling?.onStateChange = (SignalingState state, [int lastBlockPeriod = 0]) {
       switch (state) {
         case SignalingState.CallStateBye:
           if (!mounted) return;
@@ -129,7 +113,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
           break;
         case SignalingState.Block:
           final now = DateTime.now();
-          final blockPeriodCode = getBlockPeriod(_lastBlockPeriod);
+          final blockPeriodCode = getBlockPeriod(lastBlockPeriod);
           widget._db.update(TABLE_USER,
               {BLOCK_PERIOD: blockPeriodCode, BLOCK_TIME: now.millisecondsSinceEpoch, LAST_BLOCK_PERIOD: blockPeriodCode},
               where: '$LOGIN=?', whereArgs: [_login]);
@@ -204,7 +188,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    // platform.invokeMethod('isLoaded').then((value) => {if (value) platform.invokeMethod('show')});
+    platform.invokeMethod('isLoaded').then((value) => {if (value) platform.invokeMethod('show')});
     WidgetsBinding.instance.removeObserver(this);
     _signaling?.close();
     _signaling = null;
@@ -259,6 +243,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
     switch (res) {
       case BLOCK:
         _signaling?.block();
+        // ignore: use_build_context_synchronously
         showSnack(AppLocalizations.of(context)?.blocked ?? 'User is blocked', 4, context);
         Future.delayed(const Duration(milliseconds: 250), () {
           _next(false);
@@ -266,6 +251,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         });
         break;
       case REPORT:
+        // ignore: use_build_context_synchronously
         showSnack(AppLocalizations.of(context)?.report_sent ?? 'Complaint sent', 4, context);
         _signaling?.report();
         if (!_inCall) _next(false);
@@ -278,16 +264,16 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
 
   _next(bool canShowAd) async {
     hiLog(TAG, 'nextCount=>$_nextCount, countToShowAd=>$_countToShowAd');
-    if (canShowAd && ++_nextCount == _countToShowAd && await _platform.invokeMethod('isLoaded')) {
-      _platform.invokeMethod('show').then((_) {
-        _nextCount = 0;
-        _countToShowAd *= 2;
-      }).catchError((e) => _signaling?.connect());
-      _signaling?.close();
-      _remoteRenderer.srcObject = null;
-      _localRenderer.srcObject = null;
-    } else
-      closeAndConnect();
+    // if (canShowAd && ++_nextCount == _countToShowAd && await _platform.invokeMethod('isLoaded')) {
+    //   _platform.invokeMethod('show').then((_) {
+    //     _nextCount = 0;
+    //     _countToShowAd *= 2;
+    //   }).catchError((e) => _signaling?.connect());
+    //   _signaling?.close();
+    //   _remoteRenderer.srcObject = null;
+    //   _localRenderer.srcObject = null;
+    // } else
+    if (!(await _isBlocked())) closeAndConnect();
   }
 
   void closeAndConnect() {
@@ -310,7 +296,8 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   checkAndConnect() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (!mounted) return;
     setState(() {
       _connOk = connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi;
     });
@@ -321,6 +308,27 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
         if (!value)
           showSnack(AppLocalizations.of(context)?.gp ?? 'Could not open Google Play.Open it manually please', 5, context);
       });
+
+  Future<bool> _isBlocked() async {
+    hiLog(TAG, 'is blocked');
+    final sharedPrefs = await SharedPreferences.getInstance();
+    _login = sharedPrefs.getString(LOGIN) ?? '';
+    final DocumentSnapshot doc;
+    if (_login.isNotEmpty &&
+        (doc = await FirebaseFirestore.instance.doc('user/$_login').get()).exists &&
+        doc[BLOCK_PERIOD] != BLOCK_NO) {
+      final periodCode = doc[BLOCK_PERIOD];
+      final blockTime = doc[BLOCK_TIME];
+      sharedPrefs.setInt(BLOCK_PERIOD, periodCode);
+      sharedPrefs.setInt(BLOCK_TIME, (blockTime as Timestamp).millisecondsSinceEpoch);
+      widget._db.update(
+          TABLE_USER, {BLOCK_PERIOD: periodCode, LAST_BLOCK_PERIOD: periodCode, BLOCK_TIME: blockTime.millisecondsSinceEpoch},
+          where: 'login=?', whereArgs: [_login]);
+      widget._block(_login, blockTime.toDate().add(Duration(minutes: getMinutes(periodCode))), periodCode);
+      return true;
+    }
+    return false;
+  }
 }
 
 class MaintenanceWidget extends StatelessWidget {
@@ -329,10 +337,10 @@ class MaintenanceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
       child: Container(
+          padding: const EdgeInsets.only(left: 20, right: 10),
           child: Text(
             AppLocalizations.of(context)?.maintenance ?? 'Maintenance works on server side, come later please',
-          ),
-          padding: const EdgeInsets.only(left: 20, right: 10)));
+          )));
 }
 
 class NoInternetWidget extends StatelessWidget {
@@ -342,13 +350,13 @@ class NoInternetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-          child: Column(children: <Widget>[
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
         Text(AppLocalizations.of(context)?.no_inet ?? 'No internet'),
         ElevatedButton(
           onPressed: checkConn,
           child: Text(AppLocalizations.of(context)?.refresh ?? 'Refresh'),
         )
-      ], mainAxisAlignment: MainAxisAlignment.center));
+      ]));
 }
 
 class WaitingWidget extends StatelessWidget {

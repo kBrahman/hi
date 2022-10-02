@@ -1,0 +1,90 @@
+{
+  "waiting": "Menunggu seseorang...",
+  "maintenance": "Penyelenggaraan berfungsi di bahagian pelayan, sila datang kemudian",
+  "no_inet": "Tiada akses internet",
+  "refresh": "Segarkan semula",
+  "block_report": "Anda boleh menyekat atau melaporkan aduan tentang pengguna ini",
+  "cancel": "Batal",
+  "report_sent": "Aduan dihantar",
+  "blocked": "Pengguna disekat",
+  "block": "BLOK",
+  "complaint": "Aduan",
+  "accept": "TERIMA",
+  "decline": "TOLAK",
+  "terms_title": "Syarat dasar pengguna/pengguna",
+  "sign_in_google": "Log masuk dengan Google",
+  "terms": "'Zhet' ('kami' atau 'kami' atau 'kami') menghormati maruah manusia pengguna kami ('pengguna' atau 'anda'). Kami tidak menyokong sebarang jenis diskriminasi, ugutan, buli, gangguan dan penderaan. Syarat Dasar pengguna/pengguna ini menerangkan cara kami menyederhanakan kandungan yang tidak menyenangkan yang menampilkan diskriminasi, ancaman, buli, gangguan atau penyalahgunaan. Sila baca Polisi ini dengan teliti. JIKA ANDA TIDAK BERSETUJU DENGAN TERMA DASAR INI, SILA JANGAN AKSES PERMOHONAN.\nKami berhak untuk membuat perubahan pada Polisi ini pada bila-bila masa dan atas sebarang sebab. Anda MESTI menerima syarat dasar ini untuk menggunakan apl\n\nKANDUNGAN DAN TINGKAH LAKU YANG BOLEH DIBANTAH:\nKami mentakrifkan sebarang jenis diskriminasi, ancaman, buli, gangguan dan penderaan sebagai tingkah laku yang tidak menyenangkan.\nKami mentakrifkan kandungan eksplisit seksual sebagai kandungan yang tidak menyenangkan. .\n\nPENGGUNAAN APP:\nSemasa menggunakan apl ini, anda bersetuju untuk tidak mendedahkan kandungan atau tingkah laku yang tidak menyenangkan terhadap mana-mana pengguna lain. Jika anda melanggar syarat Dasar ini, anda akan dilarang untuk sementara waktu daripada menggunakan apl ini. Sekiranya pelanggaran berterusan, iaitu jika kami terus menerima laporan aduan daripada pengguna lain pada akaun anda, akaun anda akan ditamatkan dan anda tidak akan pernah dapat menggunakan apl ini.",
+  "name": "Nama awak",
+  "name_enter": "Sila masukkan nama anda",
+  "blocked_users": "Pengguna yang disekat",
+  "start": "MULAKAN SEMBANG",
+  "account_blocked": "Akaun anda disekat.",
+  "week": "seminggu",
+  "month": "satu bulan",
+  "three_months": "tiga bulan",
+  "six_months": "Enam bulan",
+  "year": "setahun",
+  "forever": "selamanya",
+  "unblock_time": "Akaun anda akan dinyahsekat pada {hour} pada {time}",
+  "@unblock_time": {
+    "placeholders": {
+      "day": {
+        "type:": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "block_period": "Sekat tempoh",
+  "err_conn": "Ralat sambungan, sila cuba lagi",
+  "logged_in_as": "Log masuk a",
+  "must_update": "Anda mesti mengemas kini apl anda",
+  "update": "KEMASKINI",
+  "gp": "Tidak dapat membuka Google Play. Sila buka secara manual",
+  "create_passwd": "Buat kata laluan",
+  "lowercase": "Kata laluan mesti mengandungi huruf kecil",
+  "uppercase": "Kata laluan mesti mengandungi huruf besar",
+  "nums": "Kata laluan mesti mengandungi nombor",
+  "min_len": "Panjang minimum kata laluan ialah 8",
+  "match": "kata laluan mesti sepadan",
+  "passwd": "kata laluan",
+  "retype": "tulis semula kata laluan",
+  "required": "Medan ini diperlukan",
+  "next": "SETERUSNYA",
+  "open_settings": "Sila pergi ke tetapan dan berikan akses kepada kamera dan mikrofon anda",
+  "settings": "TETAPAN",
+  "give_access": "Sila berikan akses kepada kamera dan mikrofon anda!",
+  "sms": "SMS dihantar ke",
+  "you_can": "Awak boleh",
+  "resend": "hantar semula",
+  "after": "selepas",
+  "submit": "SERAH",
+  "email": "Masukkan emel anda",
+  "enter_phone": "Masukkan nombor telefon anda",
+  "format_err": "Format salah",
+  "can_send_after": "'Anda boleh menghantar selepas",
+  "pass_login_wrong": "Log masuk atau kata laluan salah",
+  "sign_in_problem": "Tidak dapat log masuk dengan e-mel, sila cuba lagi",
+  "phone": "nombor telefon",
+  "sign_in": "Log masuk",
+  "sign_in_email": "Log masuk dengan e-mel",
+  "create": "BUAT AKAUN BARU",
+  "forgot": "Saya terlupa kata laluan saya",
+  "mail_ru_problem": "Log masuk e-mel tidak berfungsi dengan mail.ru, sila cuba e-mel lain",
+  "email_send_err": "Tidak dapat menghantar e-mel, sila cuba lagi",
+  "ip_blocked": "IP anda telah disekat buat sementara waktu. Cuba lagi nanti",
+  "phone_invalid": "Nombor telefon tidak sah",
+  "internal_err": "Terdapat ralat dalaman, sila cuba lagi kemudian",
+  "phone_unavailable": "Pendaftaran telefon tidak berfungsi pada masa ini, sila cuba kaedah lain",
+  "sms_invalid": "Kod SMS tidak sah",
+  "email_sent": "E-mel dihantar ke {login}. Semak SPAM juga.",
+  "@email_sent": {
+    "placeholders": {
+      "login": {
+        "type:": "String"
+      }
+    }
+  },
+  "open": "UNTUK MEMBUKA"
+}

@@ -17,7 +17,7 @@ enum SignalingState { CallStateBye, ConnectionOpen, ConnectionClosed, Connection
 /*
  * callbacks for Signaling API.
  */
-typedef SignalingStateCallback = void Function(SignalingState state);
+typedef SignalingStateCallback = void Function(SignalingState state, [int lastBlockPeriod]);
 typedef StreamStateCallback = void Function(MediaStream? _remoteStream, MediaStream _localStream);
 typedef OtherEventCallback = void Function(dynamic event);
 typedef DataChannelMessageCallback = void Function(RTCDataChannel dc, RTCDataChannelMessage data);
@@ -77,6 +77,7 @@ class Signaling {
   late int lastBlockedPeriod;
   bool _connecting = false;
   _OfferTimeOutFuture? _future;
+  var _closed = false;
 
   Signaling(this._selfId, this._selfName, this._ip, this.turnServers, this.turnUname, this.turnPass, this.screenSize, this.model,
       this._version, this._db) {
@@ -95,11 +96,13 @@ class Signaling {
   }
 
   close() {
+    _closed=true;
     _future?.cancelled = true;
     _peerConnection?.getLocalStreams().clear();
     _peerConnection?.getRemoteStreams().clear();
     _peerConnection?.dispose();
     _peerConnection?.close();
+    _peerConnection?.onConnectionState = null;
     _peerConnection = null;
     _localStream?.dispose();
     _localStream = null;
@@ -107,7 +110,7 @@ class Signaling {
     _remoteStream = null;
     _socket?.close();
     _socket = null;
-    hiLog(TAG, 'close');
+    hiLog(TAG, 'close, _socket=>$_socket');
   }
 
   disconnect() {
@@ -151,10 +154,10 @@ class Signaling {
           _db.insert(REPORT, {REPORTER_LOGIN: _peerId, LOGIN: _selfId});
           FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$_peerId').set({});
         } else {
-          onStateChange(SignalingState.Block);
           _reports.forEach(delete);
           _db.delete(REPORT, where: '$LOGIN=?', whereArgs: [_selfId]);
           _reports.clear();
+          onStateChange(SignalingState.Block, lastBlockedPeriod);
         }
         break;
       case PEER:
@@ -163,6 +166,7 @@ class Signaling {
         invite(data['id'], data['mc']);
         break;
       case OFFER:
+        if (_socket == null) return;
         _peerId = data['from'];
         hiLog(TAG, 'offer from $_peerId');
         _connecting = true;
@@ -171,8 +175,13 @@ class Signaling {
         break;
       case ANSWER:
         _future?.cancelled = true;
-        final description = data['description'];
         _peerId = data['from'];
+        hiLog(TAG, 'answer from=>$_peerId');
+        if (_socket == null) {
+          hiLog(TAG, 'received answer from $_peerId, but socket null, returning');
+          return;
+        }
+        final description = data['description'];
         await _peerConnection?.setLocalDescription(_localDesc);
         await _peerConnection?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
         hiLog(TAG, 'answer from=>$_peerId');
@@ -254,8 +263,12 @@ class Signaling {
   }
 
   void connect() async {
+    hiLog(TAG, 'connect');
+    _closed=false;
     try {
       _socket = await _connectForSelfSignedCert(_ip, _port);
+      if (_closed) return;
+      hiLog(TAG, 'created socket=>$_socket');
       if (_socket == null) {
         onStateChange(SignalingState.ConnectionError);
         return;
@@ -300,7 +313,7 @@ class Signaling {
 
   Future<RTCPeerConnection> _createPeerConnection(mc) async {
     hiLog(TAG, 'creating peer connection');
-    final _iceServers = {
+    final iceServers = {
       'iceServers': [
         {'url': 'stun:stun1.l.google.com:19302'},
         {'url': 'stun:stun.ekiga.net'},
@@ -309,9 +322,8 @@ class Signaling {
       'sdpSemantics': 'unified-plan'
     };
     _localStream = await _createStream(mc);
-    final pc = await createPeerConnection(_iceServers, _constraints)
+    final pc = await createPeerConnection(iceServers, _constraints)
       ..onTrack = (RTCTrackEvent event) {
-        hiLog(TAG, 'onTrack=>${event.track.kind}');
         if (event.track.kind == 'video' && event.streams.isNotEmpty) {
           var streams = event.streams;
           var stream = streams[0];
@@ -329,7 +341,7 @@ class Signaling {
         // _addDataChannel(id, channel);
       }
       ..onConnectionState = (s) {
-        hiLog(TAG, 'onConnectionState=>$s');
+        hiLog(TAG, 'onConnectionState=>$s, _socket=>$_socket');
         if (s == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
           onStreams(_remoteStream, _localStream!);
           _connecting = false;
@@ -458,7 +470,7 @@ class _OfferTimeOutFuture {
   final VoidCallback run;
 
   _OfferTimeOutFuture(this.run) {
-    Future.delayed(const Duration(seconds: 20), () {
+    Future.delayed(const Duration(seconds: 19), () {
       if (!cancelled) {
         run();
         hiLog(TAG, 'run');

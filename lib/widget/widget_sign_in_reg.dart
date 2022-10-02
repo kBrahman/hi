@@ -541,19 +541,16 @@ class _SignInOrUpState extends State<SignInOrRegWidget> with WidgetsBindingObser
         return widget.onBlocked(login, unblockTime, doc[BLOCK_PERIOD]);
       } else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
           DateTime.now().isAfter((doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMinutes(doc[BLOCK_PERIOD]))))) {
-        FirebaseFirestore.instance.doc('user/$login').set(
-            {BLOCK_PERIOD: BLOCK_NO, LAST_BLOCK_PERIOD: blockPeriod, BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0)},
-            SetOptions(merge: true));
-        db.insert(TABLE_USER, {
-          LOGIN: login,
-          BLOCK_PERIOD: BLOCK_NO,
-          BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0),
-          LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD]
-        });
+        FirebaseFirestore.instance
+            .doc('user/$login')
+            .set({BLOCK_PERIOD: BLOCK_NO, LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD]}, SetOptions(merge: true));
+        db.insert(TABLE_USER, {LOGIN: login, BLOCK_PERIOD: BLOCK_NO, LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD]});
       } else if (data.isEmpty) db.insert(TABLE_USER, {LOGIN: login});
     } catch (e) {
-      showSnack(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please', 2, context);
-      setState(() => _showProgress = false);
+      if (mounted) {
+        showSnack(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please', 2, context);
+        setState(() => _showProgress = false);
+      }
       return;
     }
     updateDBWithBlockedUsersAndReporters(db, login);
