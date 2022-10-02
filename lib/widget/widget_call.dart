@@ -263,7 +263,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   _next(bool canShowAd) async {
-    hiLog(TAG, 'nextCount=>$_nextCount, countToShowAd=>$_countToShowAd');
+    // hiLog(TAG, 'nextCount=>$_nextCount, countToShowAd=>$_countToShowAd');
     // if (canShowAd && ++_nextCount == _countToShowAd && await _platform.invokeMethod('isLoaded')) {
     //   _platform.invokeMethod('show').then((_) {
     //     _nextCount = 0;
@@ -277,6 +277,7 @@ class _CallWidgetState extends State<CallWidget> with WidgetsBindingObserver {
   }
 
   void closeAndConnect() {
+    print('close and connect');
     _signaling?.close();
     _signaling?.connect();
     _remoteRenderer.srcObject = null;
