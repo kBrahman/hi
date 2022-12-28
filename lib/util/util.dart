@@ -105,7 +105,7 @@ db.execute(
 
       db.execute('CREATE TABLE $REPORT($REPORTER_LOGIN TEXT NOT NULL, $LOGIN TEXT NOT NULL, '
           'PRIMARY KEY ($REPORTER_LOGIN, $LOGIN), FOREIGN KEY($LOGIN) REFERENCES user($LOGIN))');
-          */
+*/
 
 updateDBWithBlockedUsersAndReporters(Database db, String login) async {
   final blockedUsers = (await FirebaseFirestore.instance.collection('user/$login/$BLOCKED_USER').get()).docs;
