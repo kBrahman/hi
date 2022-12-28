@@ -6,7 +6,6 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:hi/util/util.dart';
@@ -51,13 +50,6 @@ class Signaling {
     'optional': [],
   };
 
-  final Map<String, dynamic> _dcConstraints = {
-    'mandatory': {
-      'OfferToReceiveAudio': false,
-      'OfferToReceiveVideo': false,
-    },
-    'optional': [],
-  };
   final String screenSize;
   String? _peerId;
   final Iterable<String> turnServers;
@@ -80,23 +72,10 @@ class Signaling {
   var _closed = false;
 
   Signaling(this._selfId, this._selfName, this._ip, this.turnServers, this.turnUname, this.turnPass, this.screenSize, this.model,
-      this._version, this._db) {
-    _db
-        .query(BLOCKED_USER, columns: [BLOCKED_LOGIN], where: '$LOGIN=?', whereArgs: [_selfId])
-        .then((bLogins) => _oldPeerIds = bLogins.map((uMap) => uMap[BLOCKED_LOGIN] as String).toList());
-    _db
-        .query(REPORT, columns: [REPORTER_LOGIN], where: '$LOGIN=?', whereArgs: [_selfId])
-        .then((reporters) => reporters.map((r) => r[REPORTER_LOGIN] as String).toList())
-        .then((mapped) {
-      _reports = mapped;
-      hiLog(TAG, 'got report from db=>$_reports');
-    });
-    _db.query(TABLE_USER,
-        columns: [LAST_BLOCK_PERIOD]).then((value) => lastBlockedPeriod = value.first[LAST_BLOCK_PERIOD] as int);
-  }
+      this._version, this._db) {}
 
   close() {
-    _closed=true;
+    _closed = true;
     _future?.cancelled = true;
     _peerConnection?.getLocalStreams().clear();
     _peerConnection?.getRemoteStreams().clear();
@@ -151,7 +130,6 @@ class Signaling {
       case REPORT:
         if (_reports.length < 14) {
           _reports.add(_peerId);
-          _db.insert(REPORT, {REPORTER_LOGIN: _peerId, LOGIN: _selfId});
           FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$_peerId').set({});
         } else {
           _reports.forEach(delete);
@@ -264,7 +242,7 @@ class Signaling {
 
   void connect() async {
     hiLog(TAG, 'connect');
-    _closed=false;
+    _closed = false;
     try {
       _socket = await _connectForSelfSignedCert(_ip, _port);
       if (_closed) return;
@@ -292,23 +270,35 @@ class Signaling {
     hiLog(TAG, 'msg new');
   }
 
-  Future<MediaStream> _createStream(String? mc) async {
-    final cams = await availableCameras();
-    var remoteConstrains = {
+  Future<MediaStream> _createStream(String? hw) async {
+    final regExp = RegExp(r'\..+');
+    final constraints = {
       'audio': true,
-      'video': mc == null
+      'video': hw == null
           ? true
           : {
-              'mandatory': {
-                'minWidth': mc.split(':').last.replaceAll(RegExp(r'\..+'), ''),
-                'minHeight': mc.split(':').first.replaceAll(RegExp(r'\..+'), ''),
-                'minFrameRate': '20',
-              },
-              'facingMode': hasFrontCamera(cams) ? 'user' : 'environment'
+              'width': hw.split(':').last.replaceAll(regExp, ''),
+              'height': hw.split(':').first.replaceAll(regExp, ''),
+              'frameRate': '25',
+              'facingMode': ['user', 'left', 'right'],
+              'advanced': [
+                {
+                  'frameRate': {'min': 55}
+                },
+                {
+                  'frameRate': {'min': 45}
+                },
+                {
+                  'frameRate': {'min': 35}
+                }
+              ]
+
               //   'optional': [],
             }
     };
-    return await navigator.mediaDevices.getUserMedia(remoteConstrains);
+    final mediaDevices = navigator.mediaDevices;
+    hiLog(TAG, 'supported constraints:${mediaDevices.getSupportedConstraints()}');
+    return await mediaDevices.getUserMedia(constraints);
   }
 
   Future<RTCPeerConnection> _createPeerConnection(mc) async {
@@ -328,6 +318,8 @@ class Signaling {
           var streams = event.streams;
           var stream = streams[0];
           _remoteStream = stream;
+          // _remoteStream?.getTracks().single
+
         }
       }
       ..onIceCandidate = (candidate) {
@@ -442,15 +434,9 @@ class Signaling {
     });
   }
 
-  bool hasFrontCamera(List<CameraDescription> cams) {
-    for (final cd in cams) if (cd.lensDirection == CameraLensDirection.front) return true;
-    return false;
-  }
-
   void block() {
     if (_peerId?.contains('@') == false) return;
     _oldPeerIds.add(_peerId);
-    _db.insert(BLOCKED_USER, {BLOCKED_LOGIN: _peerId, NAME: _peerName, LOGIN: _selfId});
     FirebaseFirestore.instance.doc('user/$_selfId/$BLOCKED_USER/$_peerId').set({NAME: _peerName});
   }
 
@@ -458,7 +444,7 @@ class Signaling {
 
   void delete(String? element) => FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$element').delete();
 
-  int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
+  // int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
 
   bool isConnecting() => _connecting;
 }

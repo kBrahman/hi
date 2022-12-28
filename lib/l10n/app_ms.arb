@@ -54,7 +54,7 @@
   "next": "SETERUSNYA",
   "open_settings": "Sila pergi ke tetapan dan berikan akses kepada kamera dan mikrofon anda",
   "settings": "TETAPAN",
-  "give_access": "Sila berikan akses kepada kamera dan mikrofon anda!",
+  "need_access": "Sila berikan akses kepada kamera dan mikrofon anda!",
   "sms": "SMS dihantar ke",
   "you_can": "Awak boleh",
   "resend": "hantar semula",

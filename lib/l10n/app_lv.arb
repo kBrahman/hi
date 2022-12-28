@@ -54,7 +54,7 @@
   "next": "NĀKAMAIS",
   "open_settings": "Lūdzu, dodieties uz iestatījumiem un piešķiriet piekļuvi kamerai un mikrofonam",
   "settings": "IESTATĪJUMI",
-  "give_access": "Lūdzu, piešķiriet piekļuvi savai kamerai un mikrofonam!",
+  "need_access": "Lūdzu, piešķiriet piekļuvi savai kamerai un mikrofonam!",
   "sms": "SMS tiek nosūtīts uz",
   "you_can": "Jūs varat",
   "resend": "sūtīt atkārtoti",

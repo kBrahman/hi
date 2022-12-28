@@ -54,7 +54,7 @@
   "next": "SUIVANT",
   "open_settings": "Veuillez accéder aux paramètres et donner accès à votre caméra et à votre microphone",
   "settings": "RÉGLAGES",
-  "give_access": "Veuillez donner accès à votre caméra et à votre microphone !",
+  "need_access": "Veuillez donner accès à votre caméra et à votre microphone !",
   "sms": "SMS est envoyé à",
   "you_can": "Tu peux",
   "resend": "renvoyer",

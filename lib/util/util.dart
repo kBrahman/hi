@@ -2,11 +2,10 @@
 
 library random_string;
 
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 const TERMS_DEFAULT =
@@ -25,94 +24,94 @@ const ANDROID_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/2067844692';
 const IOS_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/7838433087';
 const ICE_RESTART_COUNT_THRESHOLD = 2;
 const TERMS_ACCEPTED = 'terms_accepted';
-const SIGNED_IN = 'signed_in';
+const IS_SIGNED_IN = 'signed_in';
 const VERIFICATION_DATA = 'verification_data';
 const PIN_CODE = 'pin_code';
 const DB_NAME = 'hi.db';
-const DB_VERSION_1 = 1;
-const TABLE_USER = 'user';
+const DB_VERSION_2 = 2;
+const USER = 'user';
 const REPORT = 'report';
 const UPDATE = 'update';
 const ANSWER = 'answer';
 const CANDIDATE = 'candidate';
+const BYE = 'bye';
 const BLOCKED_USER = 'blocked_user';
 const LOGIN = 'login';
-const BLOCKED_LOGIN = 'blocked_login';
-const REPORTER_LOGIN = 'reporter_login';
+const PEER_LOGIN = 'peer_login';
+const BLOCKED_PEER = 'blocked_peer';
 const PASSWD = 'passwd';
 const NAME = 'name';
-const BLOCK_NO = 0;
-const BLOCK_WEEK = 1;
-const BLOCK_MONTH = 2;
-const BLOCK_QUARTER = 3;
-const BLOCK_SEMI = 4;
-const BLOCK_YEAR = 5;
-const BLOCK_FOREVER = 6;
-const BLOCK_TEST = 7;
 const BLOCK_TIME = 'block_time';
-const BLOCK_PERIOD = 'block_period';
+const BLOCK_PERIOD_INDEX = 'block_period_index';
 const LAST_BLOCK_PERIOD = 'last_block_period';
 const BLOCK = 'block';
-const TIME_OUT_MINIMIZED = 80;
 const TIME_LAST_ACTIVE = 'time_last_active';
 const PEER = 'peer';
 const OFFER = 'offer';
-const sizedBox_w_4 = SizedBox(width: 4);
-const sizedBox_h_8 = SizedBox(height: 8);
 const sizedBox_w_8 = SizedBox(width: 8);
-const nameWidget = Text('hi');
 const bold20 = TextStyle(fontWeight: FontWeight.bold, fontSize: 20);
 const edgeInsetsLR8 = EdgeInsets.only(left: 8, right: 8);
-final appBarWithTitle = AppBar(title: nameWidget);
-const platform = MethodChannel('hi.channel/app');
-
-void showSnack(String s, int dur, ctx) =>
-    ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(s), duration: Duration(seconds: dur)));
-
-/// Generates a random integer where [from] <= [to].
-int randomBetween(int from, int to) {
-  if (from > to) throw Exception('$from cannot be > $to');
-  var rand = Random();
-  return ((to - from) * rand.nextDouble()).toInt() + from;
-}
-
-/// Generates a random string of [length] with characters
-/// between ascii [from] to [to].
-/// Defaults to characters of ascii '!' to '~'.
-String randomString(int length, {int from: ASCII_START, int to: ASCII_END}) {
-  return String.fromCharCodes(List.generate(length, (index) => randomBetween(from, to)));
-}
-
-/// Generates a random string of [length] with only numeric characters.
-String randomNumeric(int length) => randomString(length, from: NUMERIC_START, to: NUMERIC_END);
+const IS_BLOCKED = 'is_blocked';
+final Future<Database> dbGlobal = _getDB();
 
 hiLog(String tag, String msg) => print('$tag:$msg');
 
-getMinutes(int periodCode) {
-  const minutesInDay = 24 * 60;
-  switch (periodCode) {
-    case BLOCK_WEEK:
-      return 7 * minutesInDay;
-    case BLOCK_MONTH:
-      return 30 * minutesInDay;
-    case BLOCK_QUARTER:
-      return 90 * minutesInDay;
-    case BLOCK_SEMI:
-      return 182 * minutesInDay;
-    case BLOCK_YEAR:
-      return 365 * minutesInDay;
-    case BLOCK_FOREVER:
+int getMilliseconds(BlockPeriod blockPeriod) {
+  switch (blockPeriod) {
+    case BlockPeriod.TEST:
+      return 3 * Duration.millisecondsPerMinute;
+    case BlockPeriod.WEEK:
+      return 7 * Duration.millisecondsPerDay;
+    case BlockPeriod.MONTH:
+      return 30 * Duration.millisecondsPerDay;
+    case BlockPeriod.QUARTER:
+      return 90 * Duration.millisecondsPerDay;
+    case BlockPeriod.SEMI:
+      return 182 * Duration.millisecondsPerDay;
+    case BlockPeriod.YEAR:
+      return 365 * Duration.millisecondsPerDay;
+    case BlockPeriod.FOREVER:
       return 0;
-    case BLOCK_TEST:
-      return 2;
-    default:
-      throw UnimplementedError();
   }
 }
 
+Future<Database> _getDB() async => openDatabase(join(await getDatabasesPath(), DB_NAME), onCreate: (db, v) {
+      db.execute('CREATE TABLE $USER($LOGIN TEXT PRIMARY KEY, $PASSWD TEXT, $NAME TEXT)');
+
+      db.execute('CREATE TABLE $BLOCKED_PEER($PEER_LOGIN TEXT NOT NULL, $NAME TEXT, $LOGIN TEXT NOT NULL, '
+          'PRIMARY KEY($PEER_LOGIN, $LOGIN), FOREIGN KEY($LOGIN) REFERENCES $USER($LOGIN))');
+
+      db.execute('CREATE TABLE $REPORT($PEER_LOGIN TEXT NOT NULL, $LOGIN TEXT NOT NULL, '
+          'PRIMARY KEY ($PEER_LOGIN, $LOGIN), FOREIGN KEY($LOGIN) REFERENCES user($LOGIN))');
+    }, onUpgrade: (db, oldV, newV) {
+      db.execute('ALTER TABLE $BLOCKED_USER RENAME COLUMN blocked_login TO $PEER_LOGIN');
+      db.execute('ALTER TABLE $BLOCKED_USER RENAME TO $BLOCKED_PEER');
+      db.execute('ALTER TABLE $USER ADD COLUMN $NAME TEXT');
+      db.execute('ALTER TABLE $USER DROP COLUMN block_period');
+      db.execute('ALTER TABLE $USER DROP COLUMN $BLOCK_TIME');
+      db.execute('ALTER TABLE $USER DROP COLUMN $LAST_BLOCK_PERIOD');
+      db.execute('ALTER TABLE $REPORT RENAME COLUMN reporter_login TO $PEER_LOGIN');
+      hiLog('DB', 'upgraded DB');
+    }, version: DB_VERSION_2);
+
+/*
+Version 1
+db.execute(
+          'CREATE TABLE $TABLE_USER($LOGIN TEXT PRIMARY KEY, $PASSWD TEXT, $BLOCK_PERIOD INTEGER DEFAULT $BLOCK_NO, $BLOCK_TIME INTEGER, '
+          '$LAST_BLOCK_PERIOD INTEGER DEFAULT $BLOCK_NO)');
+
+      db.execute('CREATE TABLE $BLOCKED_USER($BLOCKED_LOGIN TEXT NOT NULL, $NAME TEXT, $LOGIN TEXT NOT NULL, '
+          'PRIMARY KEY ($BLOCKED_LOGIN, $LOGIN), FOREIGN KEY($LOGIN) REFERENCES $TABLE_USER($LOGIN))');
+
+      db.execute('CREATE TABLE $REPORT($REPORTER_LOGIN TEXT NOT NULL, $LOGIN TEXT NOT NULL, '
+          'PRIMARY KEY ($REPORTER_LOGIN, $LOGIN), FOREIGN KEY($LOGIN) REFERENCES user($LOGIN))');
+          */
+
 updateDBWithBlockedUsersAndReporters(Database db, String login) async {
   final blockedUsers = (await FirebaseFirestore.instance.collection('user/$login/$BLOCKED_USER').get()).docs;
-  for (final u in blockedUsers) db.insert(BLOCKED_USER, {BLOCKED_LOGIN: u.id, NAME: u[NAME], LOGIN: login});
+  for (final u in blockedUsers) db.insert(BLOCKED_USER, {PEER_LOGIN: u.id, NAME: u[NAME], LOGIN: login});
   final reporters = (await FirebaseFirestore.instance.collection('user/$login/$REPORT').get()).docs;
-  for (final u in reporters) db.insert(REPORT, {REPORTER_LOGIN: u.id, LOGIN: login});
+  for (final u in reporters) db.insert(REPORT, {PEER_LOGIN: u.id, LOGIN: login});
 }
+
+enum BlockPeriod { TEST, WEEK, MONTH, QUARTER, SEMI, YEAR, FOREVER }

@@ -54,7 +54,7 @@
   "next": "NASTĘPNY",
   "open_settings": "Przejdź do ustawień i zezwól na dostęp do aparatu i mikrofonu",
   "settings": "USTAWIENIA",
-  "give_access": "Proszę dać dostęp do swojej kamery i mikrofonu!",
+  "need_access": "Proszę dać dostęp do swojej kamery i mikrofonu!",
   "sms": "SMS jest wysyłany do",
   "you_can": "Możesz",
   "resend": "wysłać ponownie",

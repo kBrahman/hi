@@ -54,7 +54,7 @@
   "next": "KÖVETKEZŐ",
   "open_settings": "Nyissa meg a beállításokat, és biztosítson hozzáférést a kamerához és a mikrofonhoz",
   "settings": "BEÁLLÍTÁSOK",
-  "give_access": "Kérjük, biztosítson hozzáférést kamerájához és mikrofonjához!",
+  "need_access": "Kérjük, biztosítson hozzáférést kamerájához és mikrofonjához!",
   "sms": "SMS-t küld a címre",
   "you_can": "tudsz",
   "resend": "újraküldeni",

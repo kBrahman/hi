@@ -54,7 +54,7 @@
   "next": "PROSSIMO",
   "open_settings": "Vai alle impostazioni e dai accesso alla tua fotocamera e microfono",
   "settings": "IMPOSTAZIONI",
-  "give_access": "Si prega di consentire l'accesso alla fotocamera e al microfono!",
+  "need_access": "Si prega di consentire l'accesso alla fotocamera e al microfono!",
   "sms": "L'SMS viene inviato a",
   "you_can": "Puoi",
   "resend": "inviare nuovamente",

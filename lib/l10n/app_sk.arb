@@ -54,7 +54,7 @@
   "next": "ĎALŠIE",
   "open_settings": "Prejdite do nastavení a povoľte prístup ku kamere a mikrofónu",
   "settings": "NASTAVENIE",
-  "give_access": "Povoľte prístup ku kamere a mikrofónu!",
+  "need_access": "Povoľte prístup ku kamere a mikrofónu!",
   "sms": "SMS sa odošle na",
   "you_can": "Môžeš",
   "resend": "znovu odoslať",

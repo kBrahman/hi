@@ -53,7 +53,7 @@
   "next": "URMĂTORUL",
   "open_settings": "Accesați setări și acordați acces la camera și la microfon",
   "settings": "SETĂRI",
-  "give_access": "Vă rugăm să acordați acces la camera și la microfon!",
+  "need_access": "Vă rugăm să acordați acces la camera și la microfon!",
   "sms": "SMS este trimis la",
   "you_can": "Poti",
   "resend": "retrimite",

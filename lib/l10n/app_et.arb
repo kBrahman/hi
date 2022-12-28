@@ -54,7 +54,7 @@
   "next": "JÄRGMINE",
   "open_settings": "Avage seaded ja andke juurdepääs kaamerale ja mikrofonile",
   "settings": "SEADED",
-  "give_access": "Andke juurdepääs oma kaamerale ja mikrofonile!",
+  "need_access": "Andke juurdepääs oma kaamerale ja mikrofonile!",
   "sms": "SMS saadetakse aadressile",
   "you_can": "Sa saad",
   "resend": "uuesti saata",

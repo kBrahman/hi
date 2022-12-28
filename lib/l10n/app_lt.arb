@@ -54,7 +54,7 @@
   "next": "KITAS",
   "open_settings": "Eikite į nustatymus ir suteikite prieigą prie fotoaparato ir mikrofono",
   "settings": "NUSTATYMAI",
-  "give_access": "Suteikite prieigą prie savo fotoaparato ir mikrofono!",
+  "need_access": "Suteikite prieigą prie savo fotoaparato ir mikrofono!",
   "sms": "SMS siunčiama į",
   "you_can": "Tu gali",
   "resend": "Persiūsti",

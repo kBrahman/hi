@@ -54,7 +54,7 @@
   "next": "BERIKUTNYA",
   "open_settings": "Silakan buka pengaturan dan berikan akses ke kamera dan mikrofon Anda",
   "settings": "PENGATURAN",
-  "give_access": "Tolong beri akses ke kamera dan mikrofon Anda!",
+  "need_access": "Tolong beri akses ke kamera dan mikrofon Anda!",
   "sms": "SMS dikirim ke",
   "you_can": "Kamu bisa",
   "resend": "kirim ulang",

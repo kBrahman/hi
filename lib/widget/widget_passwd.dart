@@ -6,10 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:hi/widget/widget_main.dart';
-import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 
 import '../util/util.dart';
 
@@ -129,14 +126,14 @@ class _PasswdState extends State<PasswdWidget> {
     if (widget._connectedToInet) {
       showProgress(true);
       final List<Map<String, Object?>> res;
-      final db = await openDatabase(join(await getDatabasesPath(), DB_NAME), version: DB_VERSION_1);
+      final db = await dbGlobal;
       final sp = await SharedPreferences.getInstance();
       final data = (res =
-                  await db.query(TABLE_USER, columns: [BLOCK_PERIOD, BLOCK_TIME], where: '$LOGIN=?', whereArgs: [widget._login]))
+                  await db.query(USER, columns: [BLOCK_PERIOD_INDEX, BLOCK_TIME], where: '$LOGIN=?', whereArgs: [widget._login]))
               .isNotEmpty
           ? res.first
           : {};
-      final blockPeriod = data[BLOCK_PERIOD] ?? BLOCK_NO;
+      final blockPeriod = data[BLOCK_PERIOD_INDEX] ?? BLOCK_NO;
       final blockTime = data[BLOCK_TIME];
       DateTime unblockTime;
       final DocumentSnapshot doc;
@@ -144,65 +141,65 @@ class _PasswdState extends State<PasswdWidget> {
       try {
         if (blockPeriod != BLOCK_NO &&
             DateTime.now().isBefore(
-                unblockTime = DateTime.fromMillisecondsSinceEpoch(blockTime).add(Duration(minutes: getMinutes(blockPeriod)))))
+                unblockTime = DateTime.fromMillisecondsSinceEpoch(blockTime).add(Duration(minutes: getMilliseconds(blockPeriod)))))
           return widget._onBlocked(widget._login, unblockTime, blockPeriod);
         else if (blockPeriod != BLOCK_NO &&
             DateTime.now()
-                .isAfter(DateTime.fromMillisecondsSinceEpoch(blockTime).add(Duration(minutes: getMinutes(blockPeriod))))) {
-          db.update(TABLE_USER, {BLOCK_PERIOD: BLOCK_NO, LAST_BLOCK_PERIOD: blockPeriod, PASSWD: passHash},
+                .isAfter(DateTime.fromMillisecondsSinceEpoch(blockTime).add(Duration(minutes: getMilliseconds(blockPeriod))))) {
+          db.update(USER, {BLOCK_PERIOD_INDEX: BLOCK_NO, LAST_BLOCK_PERIOD: blockPeriod, PASSWD: passHash},
               where: '$LOGIN=?', whereArgs: [widget._login]);
           FirebaseFirestore.instance.doc('user/${widget._login}').set({
-            BLOCK_PERIOD: BLOCK_NO,
+            BLOCK_PERIOD_INDEX: BLOCK_NO,
             LAST_BLOCK_PERIOD: blockPeriod,
             PASSWD: passHash,
             BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0)
           }, SetOptions(merge: true));
         } else if (!(doc = await FirebaseFirestore.instance.doc('user/${widget._login}').get()).exists) {
           FirebaseFirestore.instance.doc('user/${widget._login}').set({
-            BLOCK_PERIOD: BLOCK_NO,
+            BLOCK_PERIOD_INDEX: BLOCK_NO,
             BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0),
             LAST_BLOCK_PERIOD: BLOCK_NO,
             PASSWD: passHash
           });
-          db.insert(TABLE_USER, {LOGIN: widget._login, PASSWD: passHash});
-        } else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
+          db.insert(USER, {LOGIN: widget._login, PASSWD: passHash});
+        } else if (doc[BLOCK_PERIOD_INDEX] != BLOCK_NO &&
             DateTime.now().isBefore(
-                unblockTime = (doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMinutes(doc[BLOCK_PERIOD]))))) {
-          sp.setInt(BLOCK_PERIOD, doc[BLOCK_PERIOD]);
+                unblockTime = (doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMilliseconds(doc[BLOCK_PERIOD_INDEX]))))) {
+          sp.setInt(BLOCK_PERIOD_INDEX, doc[BLOCK_PERIOD_INDEX]);
           final millis = (doc[BLOCK_TIME] as Timestamp).millisecondsSinceEpoch;
           sp.setInt(BLOCK_TIME, millis);
-          db.insert(TABLE_USER, {
+          db.insert(USER, {
             LOGIN: widget._login,
-            BLOCK_PERIOD: doc[BLOCK_PERIOD],
+            BLOCK_PERIOD_INDEX: doc[BLOCK_PERIOD_INDEX],
             BLOCK_TIME: millis,
-            LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD],
+            LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD_INDEX],
             PASSWD: doc[PASSWD]
           });
-          return widget._onBlocked(widget._login, unblockTime, doc[BLOCK_PERIOD]);
-        } else if (doc[BLOCK_PERIOD] != BLOCK_NO &&
+          return widget._onBlocked(widget._login, unblockTime, doc[BLOCK_PERIOD_INDEX]);
+        } else if (doc[BLOCK_PERIOD_INDEX] != BLOCK_NO &&
             DateTime.now()
-                .isAfter((doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMinutes(doc[BLOCK_PERIOD]))))) {
+                .isAfter((doc[BLOCK_TIME] as Timestamp).toDate().add(Duration(minutes: getMilliseconds(doc[BLOCK_PERIOD_INDEX]))))) {
           FirebaseFirestore.instance.doc('user/${widget._login}').set({
-            BLOCK_PERIOD: BLOCK_NO,
+            BLOCK_PERIOD_INDEX: BLOCK_NO,
             LAST_BLOCK_PERIOD: blockPeriod,
             PASSWD: passHash,
             BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0)
           }, SetOptions(merge: true));
-          db.insert(TABLE_USER, {
+          db.insert(USER, {
             LOGIN: widget._login,
-            BLOCK_PERIOD: BLOCK_NO,
+            BLOCK_PERIOD_INDEX: BLOCK_NO,
             BLOCK_TIME: Timestamp.fromMillisecondsSinceEpoch(0),
-            LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD],
+            LAST_BLOCK_PERIOD: doc[BLOCK_PERIOD_INDEX],
             PASSWD: passHash
           });
-        } else if (data.isEmpty) db.insert(TABLE_USER, {LOGIN: widget._login, PASSWD: passHash});
+        } else if (data.isEmpty) db.insert(USER, {LOGIN: widget._login, PASSWD: passHash});
       } catch (e) {
         showSnack(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please', 2, context);
         setState(() => _showProgress = false);
       }
-      sp.setBool(SIGNED_IN, true);
+      sp.setBool(IS_SIGNED_IN, true);
       sp.setString(LOGIN, widget._login);
-      updateDBWithBlockedUsersAndReporters(db, widget._login);
+      // updateDBWithBlockedUsersAndReporters(db, widget._login);
       widget._onSuccess(widget._login);
     } else
       showSnack(AppLocalizations.of(context)?.no_inet ?? 'No internet', 1, context);

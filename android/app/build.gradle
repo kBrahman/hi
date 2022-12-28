@@ -65,6 +65,11 @@ android {
         checkReleaseBuilds false
         disable 'InvalidPackage'
     }
+    namespace 'zhet.hi'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
+    }
 }
 
 flutter {
@@ -72,9 +77,11 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.facebook.android:audience-network-sdk:6.11.0'
-//
-//    debugImplementation 'com.facebook.flipper:flipper:0.157.0'
-//    debugImplementation 'com.facebook.soloader:soloader:0.10.4'
-//    releaseImplementation 'com.facebook.flipper:flipper-noop:0.157.0'
+    implementation 'com.facebook.android:audience-network-sdk:6.12.0'
+//    implementation "androidx.activity:activity:1.6.1"
+    implementation "androidx.fragment:fragment:1.5.5"
+
+    debugImplementation 'com.facebook.flipper:flipper:0.157.0'
+    debugImplementation 'com.facebook.soloader:soloader:0.10.4'
+    releaseImplementation 'com.facebook.flipper:flipper-noop:0.157.0'
 }

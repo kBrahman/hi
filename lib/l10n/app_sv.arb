@@ -54,7 +54,7 @@
   "next": "NÄSTA",
   "open_settings": "Gå till inställningar och ge åtkomst till din kamera och mikrofon",
   "settings": "INSTÄLLNINGAR",
-  "give_access": "Vänligen ge tillgång till din kamera och mikrofon!",
+  "need_access": "Vänligen ge tillgång till din kamera och mikrofon!",
   "sms": "SMS skickas till",
   "you_can": "Du kan",
   "resend": "skicka igen",

@@ -54,7 +54,7 @@
   "next": "PRÓXIMO",
   "open_settings": "Por favor, vá para as configurações e dê acesso à sua câmera e microfone",
   "settings": "DEFINIÇÕES",
-  "give_access": "Por favor, dê acesso à sua câmera e microfone!",
+  "need_access": "Por favor, dê acesso à sua câmera e microfone!",
   "sms": "SMS é enviado para",
   "you_can": "Você pode",
   "resend": "reenviar",

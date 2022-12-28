@@ -54,7 +54,7 @@
   "next": "TJETËR",
   "open_settings": "Ju lutemi, shkoni te cilësimet dhe jepni akses në kamerën dhe mikrofonin tuaj",
   "settings": "CILËSIMET",
-  "give_access": "Ju lutemi jepni qasje në kamerën dhe mikrofonin tuaj!",
+  "need_access": "Ju lutemi jepni qasje në kamerën dhe mikrofonin tuaj!",
   "sms": "SMS dërgohet në",
   "you_can": "Ti mundesh",
   "resend": "ridërgoj",

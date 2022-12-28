@@ -54,7 +54,7 @@
   "next": "SONRAKİ",
   "open_settings": "Lütfen ayarlara gidin ve kameranıza ve mikrofonunuza erişim sağlayın",
   "settings": "AYARLAR",
-  "give_access": "Lütfen kameranıza ve mikrofonunuza erişim izni verin!",
+  "need_access": "Lütfen kameranıza ve mikrofonunuza erişim izni verin!",
   "sms": "SMS gönderilir",
   "you_can": "Yapabilirsiniz",
   "resend": "Yeniden gönder",

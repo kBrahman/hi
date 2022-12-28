@@ -54,7 +54,7 @@
   "next": "NEXT",
   "open_settings": "Please go to settings and give acces to your camera and microphone",
   "settings": "SETTINGS",
-  "give_access": "Please give access to your camera and microphone!",
+  "need_access": "Please grant access to your camera and microphone!",
   "sms": "SMS is sent to",
   "you_can": "You can",
   "resend": "resend",
@@ -86,5 +86,6 @@
       }
     }
   },
-  "open": "OPEN"
+  "open": "OPEN",
+  "err_terms": "Could not save your answer, try again please"
 }
