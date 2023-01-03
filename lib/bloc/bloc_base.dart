@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-class BaseBloc {
+abstract class BaseBloc<D, C> {
   static final _ctr = StreamController<GlobalEvent>();
   static bool connectedToInet = true;
   final platform = const MethodChannel('hi.channel/app')..setMethodCallHandler(nativeMethodCallHandler);
@@ -12,6 +12,9 @@ class BaseBloc {
   Stream<GlobalEvent> get globalStream => _ctr.stream;
 
   Sink<GlobalEvent> get globalSink => _ctr.sink;
+  final ctr = StreamController<C>();
+
+  late final Stream<D> stream;
 
   get hasListener => _ctr.hasListener;
 
@@ -27,4 +30,15 @@ class BaseBloc {
   }
 }
 
-enum GlobalEvent { ERR_TERMS, BLOCK, PROFILE, SIGN_IN, PERMISSION_PERMANENTLY_DENIED, PERMISSION_DENIED, NO_INTERNET, ERR_CONN, REPORT_SENT }
+enum GlobalEvent {
+  ERR_TERMS,
+  BLOCK,
+  PROFILE,
+  SIGN_IN,
+  PERMISSION_PERMANENTLY_DENIED,
+  PERMISSION_DENIED,
+  NO_INTERNET,
+  ERR_CONN,
+  REPORT_SENT,
+  ERR_MAIL_RU
+}

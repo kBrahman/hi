@@ -86,5 +86,9 @@
       }
     }
   },
-  "open": "UNTUK MEMBUKA"
+  "open": "UNTUK MEMBUKA",
+"err_terms":"Tidak dapat menyimpan jawapan anda, sila cuba lagi",
+"sign_up":"daftar",
+"back":"KEMBALI",
+"too_many":"Terlalu banyak permintaan, sila cuba lagi kemudian"
 }

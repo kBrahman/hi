@@ -86,5 +86,9 @@
       }
     }
   },
-  "open": "OOP"
+  "open": "OOP",
+"err_terms":"Kon nie jou antwoord stoor nie, probeer asseblief weer",
+"sign_up":"Teken aan",
+"back":"TERUG",
+"too_many":"Te veel versoeke, probeer asseblief later weer"
 }

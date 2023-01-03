@@ -86,5 +86,9 @@
       }
     }
   },
-  "open": "KINYITNI"
+  "open": "KINYITNI",
+"err_terms":"Nem sikerült menteni a választ, kérem próbálja újra",
+"sign_up":"Regisztrálj",
+"back":"VISSZA",
+"too_many":"Túl sok kérés, próbálkozzon újra később"
 }

@@ -43,5 +43,6 @@ const LOCALES = [
   Locale('af', ''),
   Locale('sq', ''),
   Locale('sr', ''),
-  Locale('ms', '')
+  Locale('ms', ''),
+  Locale('da', '')
 ];

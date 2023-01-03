@@ -14,8 +14,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../bloc/bloc_chat.dart';
 
-//   final String turnUname;
-//   final String turnPass;
 //   final Function(String, DateTime, int) _block;
 //   final Database _db;
 //   final String _name;
@@ -27,7 +25,7 @@ import '../bloc/bloc_chat.dart';
 //   @override
 //   _ChatWidgetState createState() => _ChatWidgetState();
 
-class ChatWidget extends StatelessWidget with WidgetsBindingObserver {
+class ChatWidget extends StatelessWidget {
   static const _TAG = 'ChatWidget';
   Signaling? _signaling;
 
@@ -38,24 +36,6 @@ class ChatWidget extends StatelessWidget with WidgetsBindingObserver {
 
   ChatWidget(this._chatBloc, {Key? key}) : super(key: key);
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        // if (!_inCall && _signaling?.isConnecting() == false) hiLog(_TAG, "app in resumed");
-        break;
-      case AppLifecycleState.paused:
-        _signaling?.close();
-        // setState(() => _inCall = false);
-        hiLog(_TAG, 'paused');
-        break;
-      case AppLifecycleState.inactive:
-        hiLog(_TAG, 'inactive');
-    }
-  }
-
-  //   super.initState();
-  //   initRenderers();
   //   if (Platform.isAndroid) _platform = const MethodChannel('hi.channel/app');
   //   _start(widget._name);
   // }
@@ -90,7 +70,6 @@ class ChatWidget extends StatelessWidget with WidgetsBindingObserver {
                 : null,
             body: _getBody(state, context));
 
-        //         : _connOk && !_maintaining
         //             ? const WaitingWidget()
         //             : !_connOk
         //                 ? NoInternetWidget(checkAndConnect)
@@ -121,9 +100,9 @@ class ChatWidget extends StatelessWidget with WidgetsBindingObserver {
       case 0:
         return Navigator.of(context).pop;
       case 1:
-        return () => _chatBloc.sink.add(Command.MUTE);
+        return () => _chatBloc.ctr.add(Command.MUTE);
       case 2:
-        return () => _chatBloc.sink.add(Command.NEXT);
+        return () => _chatBloc.ctr.add(Command.NEXT);
       case 3:
         return () => _block(context);
       default:
@@ -132,7 +111,7 @@ class ChatWidget extends StatelessWidget with WidgetsBindingObserver {
   }
 
   _block(BuildContext context) async {
-    _chatBloc.sink.add(Command.DIALOG);
+    _chatBloc.ctr.add(Command.DIALOG);
     final res = await showDialog(
         context: context,
         builder: (_) {
@@ -145,13 +124,13 @@ class ChatWidget extends StatelessWidget with WidgetsBindingObserver {
         });
     switch (res) {
       case BLOCK:
-        _chatBloc.sink.add(Command.BLOCK_PEER);
+        _chatBloc.ctr.add(Command.BLOCK_PEER);
         break;
       case REPORT:
-        _chatBloc.sink.add(Command.REPORT);
+        _chatBloc.ctr.add(Command.REPORT);
         break;
       case null:
-        _chatBloc.sink.add(Command.DIALOG);
+        _chatBloc.ctr.add(Command.DIALOG);
     }
   }
 

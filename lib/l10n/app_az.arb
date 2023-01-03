@@ -86,5 +86,9 @@
       }
     }
   },
-"open":"AÇMAQ"
+  "open": "AÇMAQ",
+"err_terms":"Cavabınızı saxlamaq mümkün olmadı, yenidən cəhd edin",
+"sign_up":"Qeydiyyatdan keçmək",
+"back":"GERİ",
+"too_many":"Həddindən artıq sorğu var, sonra yenidən cəhd edin"
 }

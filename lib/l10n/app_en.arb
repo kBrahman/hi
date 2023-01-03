@@ -25,7 +25,7 @@
   "six_months": "six months",
   "year": "one year",
   "forever": "forever",
-  "unblock_time": "Your account will be unblocked on {day} at {time}",
+  "unblock_time": "Your account will be restored on {day} at {time}",
   "@unblock_time": {
     "placeholders": {
       "day": {
@@ -63,7 +63,7 @@
   "email": "Enter your email",
   "enter_phone": "Enter your phone number",
   "format_err": "Format is wrong",
-  "can_send_after": "'You can send after:",
+  "can_send_after": "You can send after:",
   "pass_login_wrong": "Login or password is wrong",
   "sign_in_problem": "Could not sign in with email, try again please",
   "phone": "phone number",
@@ -87,5 +87,8 @@
     }
   },
   "open": "OPEN",
-  "err_terms": "Could not save your answer, try again please"
+  "err_terms": "Could not save your answer, try again please",
+  "sign_up": "Sign up",
+  "back": "BACK",
+  "too_many": "Too many requests, try again later please"
 }

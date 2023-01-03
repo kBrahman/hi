@@ -86,5 +86,9 @@
       }
     }
   },
-  "open": "OTEVŘÍT"
+  "open": "OTEVŘÍT",
+"err_terms":"Vaši odpověď se nepodařilo uložit, zkuste to prosím znovu",
+"sign_up":"Přihlásit se",
+"back":"ZADNÍ",
+"too_many":"Příliš mnoho požadavků, zkuste to prosím znovu později"
 }

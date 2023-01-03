@@ -86,5 +86,9 @@
       }
     }
   },
-"open":"AÇMAK"
+"open":"AÇMAK",
+"err_terms":"Cevabınız kaydedilemedi, lütfen tekrar deneyin",
+"sign_up":"Üye olmak",
+"back":"GERİ",
+"too_many":"Çok fazla istek var, lütfen daha sonra tekrar deneyin"
 }

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" package="zhet.hi">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -37,8 +37,7 @@
             android:configChanges="orientation|screenSize|smallestScreenSize|locale|layoutDirection|screenLayout|density|uiMode"
             android:exported="true"
             android:hardwareAccelerated="true"
-            android:theme="@style/LaunchTheme"
-            android:windowSoftInputMode="adjustResize">
+            android:theme="@style/LaunchTheme">
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />

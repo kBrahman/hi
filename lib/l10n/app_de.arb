@@ -86,5 +86,9 @@
       }
     },
     "open": "ÖFFNEN"
-  }
+  },
+"err_terms":"Ihre Antwort konnte nicht gespeichert werden. Bitte versuchen Sie es erneut",
+"sign_up":"Anmelden",
+"back":"DER RÜCKEN",
+"too_many":"Zu viele Anfragen, versuchen Sie es bitte später noch einmal"
 }

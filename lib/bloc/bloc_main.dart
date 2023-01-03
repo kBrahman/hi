@@ -8,24 +8,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import '../util/util.dart';
 
-class MainBloc extends BaseBloc {
+class MainBloc extends BaseBloc<UiState, Cmd> {
   static const _TAG = 'MainBloc';
-  final _ctr = StreamController<Cmd>();
-
-  Sink<Cmd> get sink => _ctr.sink;
-
-  late final Stream<UiState> stream;
 
   MainBloc() {
     hiLog(_TAG, 'main bloc');
-    stream = _getStream();
     platform.invokeMethod('checkConn').then((value) => BaseBloc.connectedToInet = value);
+    stream = _getStream();
   }
 
   Stream<UiState> _getStream() async* {
     final sp = await SharedPreferences.getInstance();
     yield _getState(sp);
-    await for (final cmd in _ctr.stream)
+    await for (final cmd in ctr.stream)
       switch (cmd) {
         case Cmd.REFRESH:
           yield UiState.LOADING;

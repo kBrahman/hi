@@ -78,7 +78,7 @@ class ProfileWidget extends StatelessWidget {
                         padding: edgeInsetsTop16,
                         child: Center(
                             child: ElevatedButton(
-                                onPressed: () => _profileBloc.cmdSink.add(ProfileCmd.START),
+                                onPressed: () => _profileBloc.ctr.add(ProfileCmd.START),
                                 child: Text(locs?.start ?? 'START CHAT'))))
                   ]);
                 })));

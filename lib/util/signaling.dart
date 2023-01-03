@@ -130,7 +130,6 @@ class Signaling {
       case REPORT:
         if (_reports.length < 14) {
           _reports.add(_peerId);
-          FirebaseFirestore.instance.doc('user/$_selfId/$REPORT/$_peerId').set({});
         } else {
           _reports.forEach(delete);
           _db.delete(REPORT, where: '$LOGIN=?', whereArgs: [_selfId]);

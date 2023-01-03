@@ -1,5 +1,4 @@
 // ignore_for_file: constant_identifier_names, curly_braces_in_flow_control_structures
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -24,7 +23,7 @@ var colorCodes = {
 void main() async {
   const TAG = 'main';
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp();
+  await Firebase.initializeApp();
   runApp(Hi(MainBloc()));
 }
 
@@ -85,7 +84,7 @@ class Hi extends StatelessWidget {
         });
   }
 
-  Future<void> _observeGlobalEvent(t) async {
+  Future<void> _observeGlobalEvent(_) async {
     hiLog(_TAG, '_globalEventListener');
     final context = _msgKey.currentState?.context;
     if (_mainBloc.hasListener || context == null) return;
@@ -97,13 +96,13 @@ class Hi extends StatelessWidget {
           _showSnack(l10n?.err_terms ?? 'Could not save your answer, try again please', 3);
           break;
         case GlobalEvent.BLOCK:
-          _mainBloc.sink.add(Cmd.BLOCK);
+          _mainBloc.ctr.add(Cmd.BLOCK);
           break;
         case GlobalEvent.PROFILE:
-          _mainBloc.sink.add(Cmd.PROFILE);
+          _mainBloc.ctr.add(Cmd.PROFILE);
           break;
         case GlobalEvent.SIGN_IN:
-          _mainBloc.sink.add(Cmd.SIGN_IN);
+          _mainBloc.ctr.add(Cmd.SIGN_IN);
           break;
         case GlobalEvent.PERMISSION_PERMANENTLY_DENIED:
           _msgKey.currentState?.showSnackBar(SnackBar(
@@ -126,6 +125,9 @@ class Hi extends StatelessWidget {
           break;
         case GlobalEvent.REPORT_SENT:
           _showSnack(l10n?.report_sent ?? 'Complaint sent', 3);
+          break;
+        case GlobalEvent.ERR_MAIL_RU:
+          _showSnack(l10n?.mail_ru_problem ?? 'Email sign in does not work with mail.ru, try other email please', 3);
       }
     }
   }

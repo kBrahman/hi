@@ -86,5 +86,9 @@
       }
     }
   },
-  "open": "OPEN"
+  "open": "OPEN",
+"err_terms":"Nuk mund ta ruani përgjigjen tuaj, ju lutemi provoni përsëri",
+"sign_up":"Regjistrohu",
+"back":"PRAPA",
+"too_many":"Shumë kërkesa, provoni sërish më vonë"
 }

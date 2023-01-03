@@ -21,12 +21,6 @@ import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
-import com.facebook.flipper.android.AndroidFlipperClient;
-import com.facebook.flipper.android.utils.FlipperUtils;
-import com.facebook.flipper.core.FlipperClient;
-import com.facebook.flipper.plugins.databases.DatabasesFlipperPlugin;
-import com.facebook.flipper.plugins.sharedpreferences.SharedPreferencesFlipperPlugin;
-import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,13 +62,13 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
     @Override
     protected void onCreate(@Nullable android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SoLoader.init(this, false);
-        if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
-            FlipperClient client = AndroidFlipperClient.getInstance(this);
-            client.addPlugin(new SharedPreferencesFlipperPlugin(this));
-            client.addPlugin(new DatabasesFlipperPlugin(this));
-            client.start();
-        }
+//        SoLoader.init(this, false);
+//        if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
+//            FlipperClient client = AndroidFlipperClient.getInstance(this);
+//            client.addPlugin(new SharedPreferencesFlipperPlugin(this));
+//            client.addPlugin(new DatabasesFlipperPlugin(this));
+//            client.start();
+//        }
         AudienceNetworkInitializer.initialize(this);
         interstitialAd = new InterstitialAd(this, ID_INTERSTITIAL);
         loadAd();

@@ -86,5 +86,9 @@
       }
     }
   },
-"open":"ATVĒRT"
+"open":"ATVĒRT",
+"err_terms":"Nevarēja saglabāt atbildi, lūdzu, mēģiniet vēlreiz",
+"sign_up":"Pierakstīties",
+"back":"ATPAKAĻ",
+"too_many":"Pārāk daudz pieprasījumu, lūdzu, vēlāk mēģiniet vēlreiz"
 }

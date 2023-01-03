@@ -86,5 +86,9 @@
       }
     }
   },
-  "open": "ABRIR"
+  "open": "ABRIR",
+"err_terms":"Não foi possível salvar sua resposta, tente novamente, por favor",
+"sign_up":"Inscrever-se",
+"back":"COSTAS",
+"too_many":"Muitos pedidos, tente novamente mais tarde, por favor"
 }

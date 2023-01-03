@@ -1,11 +1,17 @@
 // ignore_for_file: constant_identifier_names, curly_braces_in_flow_control_structures
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hi/bloc/bloc_sign_in.dart';
 import 'package:hi/util/util.dart';
+import 'package:hi/widget/bar_with_progress.dart';
+import 'package:hi/widget/widget_sign_up.dart';
 
+import '../bloc/bloc_sign_in_email.dart';
+import '../bloc/bloc_sign_up.dart';
 import '../data/data_sign_in.dart';
+import 'widget_sign_in_email.dart';
 
 class SignInWidget extends StatelessWidget {
   static const _TAG = 'SignInWidget';
@@ -24,13 +30,7 @@ class SignInWidget extends StatelessWidget {
           final data = snap.data!;
           return SafeArea(
               child: Scaffold(
-                  appBar: AppBar(
-                      title: const Text('hi'),
-                      bottom: data.progress
-                          ? const PreferredSize(
-                              preferredSize: Size(double.infinity, 0),
-                              child: LinearProgressIndicator(backgroundColor: Colors.white))
-                          : null),
+                  appBar: BarWithProgress(data.progress, null, title: const Text('hi')),
                   body: Center(
                       child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 220),
@@ -39,6 +39,8 @@ class SignInWidget extends StatelessWidget {
                               Text(l10n?.pass_login_wrong ?? 'Login or password is wrong',
                                   style: const TextStyle(color: Colors.red)),
                             TextField(
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                keyboardType: TextInputType.phone,
                                 style: const TextStyle(fontSize: 20),
                                 textInputAction: TextInputAction.next,
                                 controller: _signInBloc.txtCtrLogin,
@@ -49,79 +51,62 @@ class SignInWidget extends StatelessWidget {
                             if (data.loginInvalid)
                               Text(l10n?.phone_invalid ?? 'Invalid phone number', style: const TextStyle(color: Colors.red)),
                             TextField(
+                              keyboardType: TextInputType.visiblePassword,
                               style: const TextStyle(fontSize: 20),
                               obscureText: data.obscure,
                               controller: _signInBloc.txtCtrPass,
                               decoration: InputDecoration(
                                   hintText: l10n?.passwd ?? 'password',
                                   suffixIcon: GestureDetector(
-                                      onTap: () => _signInBloc.sink.add(Command.OBSCURE),
+                                      onTap: () => _signInBloc.ctr.add(Command.OBSCURE),
                                       child: Icon(Icons.remove_red_eye_sharp, color: data.obscure ? Colors.red : Colors.grey))),
-                              // onSubmitted: (txt) => signIn(context),
                             ),
                             ElevatedButton(
                                 onPressed: () =>
                                     data.progress || _signInBloc.txtCtrLogin.text.isEmpty || _signInBloc.txtCtrPass.text.isEmpty
                                         ? null
-                                        : _signInBloc.sink.add(Command.SIGN_IN),
+                                        : _signInBloc.ctr.add(Command.SIGN_IN),
                                 child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [const Icon(Icons.done), Text(l10n?.sign_in ?? 'Sign in')]))
+                                    children: [const Icon(Icons.done), Text(l10n?.sign_in ?? 'Sign in')])),
+                            ElevatedButton(
+                                onPressed: () => data.progress
+                                    ? null
+                                    : Navigator.push(
+                                        context, MaterialPageRoute(builder: (context) => EmailSignInWidget(EmailSignInBloc()))),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                  const Padding(padding: EdgeInsets.only(right: 6), child: Icon(Icons.email_outlined)),
+                                 Expanded(child:  Text(l10n?.sign_in_email ?? 'Sign in with email',textAlign: TextAlign.center,))
+                                ])),
+                            ElevatedButton(
+                                style: TextButton.styleFrom(backgroundColor: Colors.white),
+                                onPressed: () => data.progress ? null : _signInBloc.ctr.add(Command.SIGN_IN_GOOGLE),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                  Padding(
+                                      padding: const EdgeInsets.only(right: 4),
+                                      child: Image.asset('assets/icon/google.png', height: 24, width: 24)),
+                                  Text(l10n?.sign_in_google ?? 'Sign in with Google', style: const TextStyle(color: Colors.grey))
+                                ])),
+                            ElevatedButton(
+                                onPressed: () => _signUp(context, data),
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [Text(l10n?.create ?? 'CREATE NEW ACCOUNT')])),
+                            InkWell(
+                                onTap: () => _signUp(context, data),
+                                child: Text(l10n?.forgot ?? 'I forgot my password', style: const TextStyle(color: Colors.red)))
                           ])))));
         });
   }
+
+  void _signUp(BuildContext context, SignInData data) {
+    if (data.progress) return;
+    final bloc = SignUpBloc();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpWidget(bloc)))
+        .whenComplete(() => bloc.ctr.add(CmdSignUp.CHECK_TIME));
+  }
 }
 
-//   var showErr = false;
-//   int _remainingTimeToResend = 0;
-//   var _timerStarted = false;
-//   final phoneKey = UniqueKey();
-//   final emailKey = UniqueKey();
-//   var focusIndex = 0;
-//   UniqueKey? currKey;
-//   late String _verificationId;
-//   final auth = FirebaseAuth.instance;
-//   var obscure = true;
-//   String _pass = '';
-//   var _showProgress = false;
-//   var _loginOrPassWrong = false;
-//   var _emailSignUpErr = false;
-//   late BuildContext ctx;
-//   bool _showLoading = false;
-//
-//   @override
-//   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-//     switch (state) {
-//       case AppLifecycleState.inactive:
-//         {
-//           hiLog(TAG, 'saving state verification code=>$verificationCode');
-//           final p = await SharedPreferences.getInstance();
-//           final data = [_verificationId, verificationCode.join(':'), _newLogin];
-//           if (_remainingTimeToResend > 0) {
-//             final currTime = currentTimeInSec();
-//             data.add('$currTime:$_remainingTimeToResend');
-//           }
-//           final res = await p.setStringList(VERIFICATION_DATA, data);
-//           hiLog(TAG, 'finished saving state, result ok=>$res');
-//         }
-//     }
-//   }
-//
-//   int currentTimeInSec() => DateTime.now().millisecondsSinceEpoch ~/ 1000;
-//
-//   @override
-//   void initState() {
-//     _checkVerificationStateAndDynamicLink();
-//     auth.setLanguageCode(Platform.localeName.substring(0, 2));
-//     super.initState();
-//   }
-//
-//   _checkVerificationStateAndDynamicLink() async {
-//     final sp = await SharedPreferences.getInstance();
-//     if (sp.containsKey(VERIFICATION_DATA)) {
-//       final data = sp.getStringList(VERIFICATION_DATA)!;
-//       hiLog(TAG, 'data in init=>$data');
-//       _verificationId = data[0];
 //       _newLogin = data[2];
 //       if (data.length == 4) {
 //         final times = data[3].split(':');
@@ -144,17 +129,7 @@ class SignInWidget extends StatelessWidget {
 //         currKey = UniqueKey();
 //       });
 //     } else
-//       FirebaseDynamicLinks.instance.getInitialLink().then((link) {
-//         if (link == null) return;
-//         _login = Uri.parse(link.link.queryParameters['continueUrl']!).queryParameters['login'] ?? '';
-//         hiLog(TAG, 'login=>$_login');
-//         if (_login.isEmpty) {
-//           setState(() {
-//             _emailSignUpErr = true;
-//           });
-//         } else
-//           _loginContinue(_login, ctx, true);
-//       });
+
 //   }
 //
 //   @override
@@ -373,9 +348,6 @@ class SignInWidget extends StatelessWidget {
 //                               padding: const EdgeInsets.only(top: 4),
 //                               child: HiBtn(
 //                                   _register, locs?.create ?? 'CREATE NEW ACCOUNT', null, const Color.fromRGBO(0, 0, 0, 0.54))),
-//                           InkWell(
-//                               child: Text(locs?.forgot ?? 'I forgot my password', style: const TextStyle(color: Colors.red)),
-//                               onTap: _register)
 //                         ])));
 //   }
 //
@@ -410,25 +382,7 @@ class SignInWidget extends StatelessWidget {
 //     if (RegExp(r'(mail.ru|bk.ru|list.ru|internet.ru|inbox.ru)').hasMatch(_newLogin))
 //       return showSnack(locs?.mail_ru_problem ?? 'Email sign in does not work with mail.ru, try other email please', 5, ctx);
 //     showProgress(true);
-//     try {
-//       var instance = FirebaseAuth.instance;
-//       var id = await getId();
-//       final actionCodeSettings = ActionCodeSettings(
-//           dynamicLinkDomain: 'zhethi.page.link',
-//           url: 'https://zhethi.page.link/signIn?login=$_newLogin',
-//           androidPackageName: id,
-//           androidInstallApp: true,
-//           iOSBundleId: id,
-//           handleCodeInApp: true,
-//           androidMinimumVersion: '2');
-//       await instance.sendSignInLinkToEmail(email: _newLogin, actionCodeSettings: actionCodeSettings);
-//     } on FirebaseAuthException catch (e) {
-//       showSnack(locs?.email_send_err ?? 'Could not send and email, try again please', 5, ctx);
-//       return;
-//     } finally {
-//       showProgress(false);
-//     }
-//     ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+
 //         content: Row(children: [
 //           Expanded(child: Text(locs?.email_sent(_newLogin) ?? 'Email is sent to $_newLogin.  Check SPAM also.')),
 //           TextButton(onPressed: openEmail, child: Text(locs?.open ?? 'OPEN'))
@@ -509,19 +463,7 @@ class SignInWidget extends StatelessWidget {
 //     WidgetsBinding.instance.removeObserver(this);
 //   }
 //
-//   googleSignIn(BuildContext context) async {
-//     if (_showProgress) return;
-//     if (widget._connectedToInet) {
-//       GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
-//       var login = _googleSignIn.currentUser?.email;
-//       if (login == null && (login = (await _googleSignIn.signInSilently())?.email) == null) {
-//         final acc = await _googleSignIn.signIn();
-//         login = acc?.email;
-//       }
-//       if (login != null) _loginContinue(login, context, false);
-//     } else
-//       showSnack(AppLocalizations.of(ctx)?.no_inet ?? 'No internet', 1, context);
-//   }
+
 //
 //   _loginContinue(String login, BuildContext context, fromDLink) async {
 //     if (fromDLink)
@@ -623,5 +565,3 @@ class SignInWidget extends StatelessWidget {
 //       register(context);
 //   }
 //
-//   void openEmail() => platform.invokeMethod('startEmailApp', [_newLogin.split('@')[1]]);
-// }

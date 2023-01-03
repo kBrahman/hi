@@ -30,7 +30,7 @@ class TermsWidget extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             TextButton(
                 onPressed: () => SharedPreferences.getInstance().then((sp) => sp.setBool(TERMS_ACCEPTED, true)).then((accepted) =>
-                    accepted ? _mainBloc.sink.add(Cmd.SIGN_IN) : _mainBloc.globalSink.add(GlobalEvent.ERR_TERMS)),
+                    accepted ? _mainBloc.ctr.add(Cmd.SIGN_IN) : _mainBloc.globalSink.add(GlobalEvent.ERR_TERMS)),
                 child: Text(AppLocalizations.of(context)?.accept ?? 'ACCEPT')),
             TextButton(onPressed: SystemNavigator.pop, child: Text(AppLocalizations.of(context)?.decline ?? 'DECLINE'))
           ])

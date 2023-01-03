@@ -8,7 +8,7 @@ class SignInData {
 
   const SignInData({this.passLoginWrong = false, this.obscure = true, this.progress = false, this.loginInvalid = false});
 
-  SignInData copyWith({bool? obscure, bool? progress, bool? loginInvalid, bool? passLoginWrong}) => SignInData(
+  SignInData copyWith({bool? obscure, bool? progress, bool? loginInvalid, bool? passLoginWrong, bool? blocked}) => SignInData(
       obscure: obscure ?? this.obscure,
       progress: progress ?? this.progress,
       loginInvalid: loginInvalid ?? this.loginInvalid,

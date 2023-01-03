@@ -85,5 +85,9 @@
       }
     }
   },
-"open":"A DESCHIDE"
+"open":"A DESCHIDE",
+"err_terms":"Nu s-a putut salva răspunsul dvs., încercați din nou",
+"sign_up":"Inscrie-te",
+"back":"ÎNAPOI",
+"too_many":"Prea multe solicitări, încercați din nou mai târziu"
 }

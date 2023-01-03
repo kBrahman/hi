@@ -86,5 +86,9 @@
       }
     }
   },
-"open":"ATT ÖPPNA"
+"open":"ATT ÖPPNA",
+"err_terms":"Det gick inte att spara ditt svar, försök igen",
+"sign_up":"Bli Medlem",
+"back":"TILLBAKA",
+"too_many":"För många förfrågningar, försök igen senare"
 }

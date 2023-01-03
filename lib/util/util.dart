@@ -4,10 +4,11 @@ library random_string;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
+const _TAG = 'Util';
 const TERMS_DEFAULT =
     "'Zhet' ('we' or 'us' or 'our') respects human dignity of our users ('user' or 'you'). We do not support any kind of discrimination, threats, bullying, harassment and abuse. This Terms of user/user Policy explains how we moderate such an objectionable content which features discrimination, threats, bullying, harassment or abuse. Please read this Policy carefully. IF YOU DO NOT AGREE WITH THE TERMS OF THIS POLICY, PLEASE DO NOT ACCESS THE APPLICATION.\nWe reserve the right to make changes to this Policy at any time and for any reason. You MUST accept the terms of this policy in order to use the app\n\nOBJECTIONABLE CONTENT AND BEHAVIORS:\nWe define any kind of discrimination, threats, bullying, harassment and abuse as objectionable behavior.\nWe define sexually explicit content as objectionable content.\n\nAPP USAGE:\nWhile using this app you agree not to expose objectionable content or behaviors against any other user. If you violate the terms of this Policy you will be temporarily banned from using this app. In case of continued violation, i.e. if we keep getting complaint reports from other users on your account, your account will be terminated and you will never ever be able to use this app.";
 const ASCII_START = 33;
@@ -25,7 +26,7 @@ const IOS_INTERSTITIAL_ID = 'ca-app-pub-8761730220693010/7838433087';
 const ICE_RESTART_COUNT_THRESHOLD = 2;
 const TERMS_ACCEPTED = 'terms_accepted';
 const IS_SIGNED_IN = 'signed_in';
-const VERIFICATION_DATA = 'verification_data';
+const RESEND_TIME = 'resend_time';
 const PIN_CODE = 'pin_code';
 const DB_NAME = 'hi.db';
 const DB_VERSION_2 = 2;
@@ -75,6 +76,46 @@ int getMilliseconds(BlockPeriod blockPeriod) {
   }
 }
 
+Future<void> setSP(SharedPreferences sp, String login, String name) =>
+    Future.wait([sp.setBool(IS_SIGNED_IN, true), sp.setString(LOGIN, login), sp.setString(NAME, name)]);
+
+Future<void> setSPAndCache(SharedPreferences sp, String login, Map<dynamic, dynamic> map) =>
+    Future.wait([setSP(sp, login, map[NAME] ?? ''), _cacheBlockedPeers(login), _cacheReports(login, map[REPORT] ?? [])]);
+
+Future<bool> _cacheBlockedPeers(String login) {
+  hiLog(_TAG, '_cacheBlockedPeers');
+  return FirebaseFirestore.instance.collection('$USER/$login/$BLOCKED_PEER').get().then((collection) {
+    final docs = collection.docs;
+    hiLog(_TAG, 'docs len=>${docs.length}');
+    return Future.wait(docs.map((doc) => _saveDoc(BLOCKED_PEER, {PEER_LOGIN: doc.id, LOGIN: login, NAME: doc[NAME]})));
+  }).then((_) => true);
+}
+
+Future<bool> _cacheReports(String login, List reports) {
+  return Future.wait(reports.map((peerLogin) => _saveDoc(REPORT, {PEER_LOGIN: peerLogin, LOGIN: login}))).then((_) => true);
+}
+
+_saveDoc(table, data) async => dbGlobal.then((db) => db.insert(table, data));
+
+Future<bool> isBlocked(login, SharedPreferences sp) async {
+  final docRef = FirebaseFirestore.instance.doc('$BLOCKED_USER/$login');
+  final DocumentSnapshot docBlocked;
+  docBlocked = await docRef.get();
+  if (docBlocked.exists) {
+    final blockTime = (docBlocked[BLOCK_TIME] as Timestamp).millisecondsSinceEpoch;
+    final index = docBlocked[BLOCK_PERIOD_INDEX];
+    final blockPeriod = getMilliseconds(BlockPeriod.values[index]);
+    if (blockPeriod == 0 || DateTime.now().isBefore(DateTime.fromMillisecondsSinceEpoch(blockTime + blockPeriod))) {
+      await Future.wait([sp.setBool(IS_BLOCKED, true), sp.setInt(BLOCK_TIME, blockTime), sp.setInt(BLOCK_PERIOD_INDEX, index)]);
+      hiLog(_TAG, 'signIn: blocked, block code: $index');
+      return true;
+    } else
+      await Future.wait(
+          [sp.remove(IS_BLOCKED), sp.remove(BLOCK_TIME), sp.remove(BLOCK_PERIOD_INDEX), sp.setString(LOGIN, login)]);
+  }
+  return false;
+}
+
 Future<Database> _getDB() async => openDatabase(join(await getDatabasesPath(), DB_NAME), onCreate: (db, v) {
       db.execute('CREATE TABLE $USER($LOGIN TEXT PRIMARY KEY, $PASSWD TEXT, $NAME TEXT)');
 
@@ -86,12 +127,11 @@ Future<Database> _getDB() async => openDatabase(join(await getDatabasesPath(), D
     }, onUpgrade: (db, oldV, newV) {
       db.execute('ALTER TABLE $BLOCKED_USER RENAME COLUMN blocked_login TO $PEER_LOGIN');
       db.execute('ALTER TABLE $BLOCKED_USER RENAME TO $BLOCKED_PEER');
-      db.execute('ALTER TABLE $USER ADD COLUMN $NAME TEXT');
-      db.execute('ALTER TABLE $USER DROP COLUMN block_period');
-      db.execute('ALTER TABLE $USER DROP COLUMN $BLOCK_TIME');
-      db.execute('ALTER TABLE $USER DROP COLUMN $LAST_BLOCK_PERIOD');
+      db.execute('CREATE TABLE user_tmp($LOGIN TEXT PRIMARY KEY, $PASSWD TEXT, $NAME TEXT)');
+      db.execute('INSERT INTO user_tmp($LOGIN, $PASSWD) SELECT $LOGIN, $PASSWD FROM $USER');
+      db.execute('DROP TABLE $USER');
+      db.execute('ALTER TABLE user_tmp RENAME TO $USER');
       db.execute('ALTER TABLE $REPORT RENAME COLUMN reporter_login TO $PEER_LOGIN');
-      hiLog('DB', 'upgraded DB');
     }, version: DB_VERSION_2);
 
 /*
@@ -106,12 +146,5 @@ db.execute(
       db.execute('CREATE TABLE $REPORT($REPORTER_LOGIN TEXT NOT NULL, $LOGIN TEXT NOT NULL, '
           'PRIMARY KEY ($REPORTER_LOGIN, $LOGIN), FOREIGN KEY($LOGIN) REFERENCES user($LOGIN))');
 */
-
-updateDBWithBlockedUsersAndReporters(Database db, String login) async {
-  final blockedUsers = (await FirebaseFirestore.instance.collection('user/$login/$BLOCKED_USER').get()).docs;
-  for (final u in blockedUsers) db.insert(BLOCKED_USER, {PEER_LOGIN: u.id, NAME: u[NAME], LOGIN: login});
-  final reporters = (await FirebaseFirestore.instance.collection('user/$login/$REPORT').get()).docs;
-  for (final u in reporters) db.insert(REPORT, {PEER_LOGIN: u.id, LOGIN: login});
-}
 
 enum BlockPeriod { TEST, WEEK, MONTH, QUARTER, SEMI, YEAR, FOREVER }

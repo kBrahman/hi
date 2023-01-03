@@ -31,7 +31,7 @@ class BlockedWidget extends StatelessWidget {
     final code = Localizations.localeOf(context).languageCode;
     final unblockTime = DateTime.fromMillisecondsSinceEpoch(blockTime + getMilliseconds(blockPeriod));
     final day = DateFormat.yMMMMd(code).format(unblockTime);
-    final time = DateFormat.Hm(code).format(unblockTime);
+    final time = DateFormat.Hm(code).format(unblockTime.add(const Duration(minutes: 1)));
     return Column(mainAxisSize: MainAxisSize.min, children: [
       Text(l10n?.account_blocked ?? 'Your account is blocked.', style: bold20),
       Text((l10n?.block_period ?? 'Block period:') + _getPeriod(blockPeriod, l10n), style: bold20),
@@ -40,7 +40,7 @@ class BlockedWidget extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, right: 16),
             child: Text(l10n?.unblock_time(day, time) ?? 'Your account will be unblocked on $day at $time',
                 textAlign: TextAlign.center)),
-      ElevatedButton(onPressed: () => _mainBloc.sink.add(Cmd.REFRESH), child: Text(l10n?.refresh ?? 'Refresh'))
+      ElevatedButton(onPressed: () => _mainBloc.ctr.add(Cmd.REFRESH), child: Text(l10n?.refresh ?? 'Refresh'))
     ]);
   }
 

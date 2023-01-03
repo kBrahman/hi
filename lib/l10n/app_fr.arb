@@ -86,5 +86,9 @@
       }
     }
   },
-"open":"OUVRIR"
+"open":"OUVRIR",
+"err_terms":"Impossible d'enregistrer votre réponse, réessayez s'il vous plaît",
+"sign_up":"S'inscrire",
+"back":"ARRIÈRE",
+"too_many":"Trop de demandes, réessayez plus tard s'il vous plaît"
 }

@@ -86,5 +86,9 @@
       }
     }
   },
-"open":"OPENEN"
+"open":"OPENEN",
+"err_terms":"Kan je antwoord niet opslaan, probeer het opnieuw",
+"sign_up":"Aanmelden",
+"back":"RUG",
+"too_many":"Te veel verzoeken, probeer het later nog eens"
 }

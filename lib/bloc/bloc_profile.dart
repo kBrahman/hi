@@ -10,19 +10,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/data_profile.dart';
 
-class ProfileBloc extends BaseBloc {
+class ProfileBloc extends BaseBloc<ProfileData,ProfileCmd> {
   static const _TAG = 'ProfileBloc';
   static const RESULT_PERMANENTLY_DENIED = 2;
   static const RESULT_GRANTED = 3;
   static const RESULT_DENIED = 4;
-  final _streamController = StreamController<ProfileCmd>();
   final _blockedUsersStreamController = StreamController<String?>();
   final txtCtr = TextEditingController();
   late String _oldName;
 
   Sink<String?> get removeRefreshSink => _blockedUsersStreamController.sink;
 
-  get cmdSink => _streamController.sink;
   late final Stream<ProfileData> stream;
   late Stream<List<Map<String, Object?>>> blockedUsersStream;
 
@@ -56,7 +54,7 @@ class ProfileBloc extends BaseBloc {
     yield data = ProfileData(login: sp.getString(LOGIN)!);
     txtCtr.text = _oldName = sp.getString(NAME) ?? '';
 
-    await for (final cmd in _streamController.stream)
+    await for (final cmd in ctr.stream)
       switch (cmd) {
         case ProfileCmd.START:
           yield data = await _start(data);

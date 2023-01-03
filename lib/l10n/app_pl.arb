@@ -86,5 +86,9 @@
       }
     }
   },
-"open":"OTWORZYĆ"
+"open":"OTWORZYĆ",
+"err_terms":"Nie można zapisać odpowiedzi, spróbuj ponownie",
+"sign_up":"Zapisz się",
+"back":"PLECY",
+"too_many":"Zbyt wiele próśb, spróbuj ponownie później"
 }
