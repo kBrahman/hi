@@ -181,7 +181,7 @@ class SignUpBloc extends BaseBloc<SignUpData, CmdSignUp> {
         map = doc.data()!;
         db.insert(USER, {LOGIN: login, PASSWD: passHash, NAME: map[NAME]});
       } else if (!doc.exists) {
-        docRef.set({LOGIN: login, PASSWD: passHash});
+        docRef.set({PASSWD: passHash});
         db.insert(USER, {LOGIN: login, PASSWD: passHash});
       }
       await setSPAndCache(sp, login, map);
