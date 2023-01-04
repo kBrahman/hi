@@ -33,6 +33,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   late RTCSessionDescription _offer;
   var _showingDialog = false;
   var _peerName = '';
+  var disposed = false;
 
   ChatBloc(String login, String name) {
     hiLog(_TAG, 'login:$login');
@@ -114,6 +115,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   }
 
   _onSocket(WebSocket socket, login, name, Map<String, String> props) async {
+    if (disposed) return;
     _socket = socket;
     navigator.mediaDevices.getUserMedia({
       'audio': true,
@@ -169,6 +171,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
 
   dispose() {
     hiLog(_TAG, 'dispose');
+    disposed = true;
     _socket?.close();
     platform.invokeMethod('isLoaded').then((value) => {if (value) platform.invokeMethod('show')});
   }
@@ -286,11 +289,6 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
     Future.wait(
         [sp.setInt(BLOCK_TIME, ts.millisecondsSinceEpoch), sp.setInt(BLOCK_PERIOD_INDEX, index), sp.setBool(IS_BLOCKED, true)]);
     ctr.add(Command.BLOCK_USER);
-  }
-
-  void _del(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-    hiLog(_TAG, 'deleting ${doc.id}');
-    doc.reference.delete();
   }
 
   onError(e) {
