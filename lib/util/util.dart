@@ -157,9 +157,9 @@ _migrateCloud(Database db) {
 void _rename(String login, Object? mapList) {
   final colOld = FirebaseFirestore.instance.collection('$USER/$login/$BLOCKED_USER');
   final colNew = FirebaseFirestore.instance.collection('$USER/$login/$BLOCKED_PEER');
-  for (final m in mapList as List<Map<String, String>>) {
-    colOld.doc(m[PEER_LOGIN]).delete();
-    colNew.doc(m[PEER_LOGIN]).set({NAME: m[NAME]});
+  for (final m in mapList as List<Map<String, Object?>>) {
+    colOld.doc(m[PEER_LOGIN] as String).delete();
+    colNew.doc(m[PEER_LOGIN] as String).set({NAME: m[NAME]});
   }
 }
 
