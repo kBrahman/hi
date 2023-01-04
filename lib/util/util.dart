@@ -132,7 +132,43 @@ Future<Database> _getDB() async => openDatabase(join(await getDatabasesPath(), D
       db.execute('DROP TABLE $USER');
       db.execute('ALTER TABLE user_tmp RENAME TO $USER');
       db.execute('ALTER TABLE $REPORT RENAME COLUMN reporter_login TO $PEER_LOGIN');
+      _migrateCloud(db);
     }, version: DB_VERSION_2);
+
+_migrateCloud(Database db) {
+  db
+      .query(REPORT)
+      .then((mapList) => mapList.fold(<String, Object?>{}, (Map<String, Object?> prev, Map<String, Object?> next) {
+            prev[next[LOGIN] as String] ??= <String>[];
+            (prev[next[LOGIN]] as List<String>).add(next[PEER_LOGIN] as String);
+            return prev;
+          }))
+      .then((reportsMap) => reportsMap.forEach(_saveDelReportsToCloud));
+  db
+      .query(BLOCKED_PEER)
+      .then((mapList) => mapList.fold(<String, Object?>{}, (Map<String, Object?> prev, Map<String, Object?> next) {
+            prev[next[LOGIN] as String] ??= <Map<String, Object?>>[];
+            (prev[next[LOGIN]] as List<Map<String, Object?>>).add({PEER_LOGIN: next[PEER_LOGIN], NAME: next[NAME]});
+            return prev;
+          }))
+      .then((resMap) => resMap.forEach(_rename));
+}
+
+void _rename(String login, Object? mapList) {
+  final colOld = FirebaseFirestore.instance.collection('$USER/$login/$BLOCKED_USER');
+  final colNew = FirebaseFirestore.instance.collection('$USER/$login/$BLOCKED_PEER');
+  for (final m in mapList as List<Map<String, String>>) {
+    colOld.doc(m[PEER_LOGIN]).delete();
+    colNew.doc(m[PEER_LOGIN]).set({NAME: m[NAME]});
+  }
+}
+
+_saveDelReportsToCloud(String login, Object? reports) {
+  FirebaseFirestore.instance.doc('$USER/$login').update({REPORT: reports});
+  for (final peerLogin in reports as List<String>) _del(login, peerLogin);
+}
+
+void _del(String login, String peerLogin) => FirebaseFirestore.instance.doc('$USER/$login/$REPORT/$peerLogin').delete();
 
 /*
 Version 1

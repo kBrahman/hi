@@ -2,21 +2,15 @@
 import 'dart:core';
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:hi/bloc/bloc_base.dart';
-import 'package:hi/util/signaling.dart';
 import 'package:hi/util/util.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../bloc/bloc_chat.dart';
 
-//   final Function(String, DateTime, int) _block;
-//   final Database _db;
-//   final String _name;
 //
 //   const ChatWidget(this._block, this._db, this._name,
 //       {Key? key, required this.ip, required this.turnServers, required this.turnUname, required this.turnPass})
@@ -27,16 +21,11 @@ import '../bloc/bloc_chat.dart';
 
 class ChatWidget extends StatelessWidget {
   static const _TAG = 'ChatWidget';
-  Signaling? _signaling;
 
-  late String _login;
-  String? model;
-  bool blockDialogShown = false;
   final ChatBloc _chatBloc;
 
-  ChatWidget(this._chatBloc, {Key? key}) : super(key: key);
+  const ChatWidget(this._chatBloc, {Key? key}) : super(key: key);
 
-  //   if (Platform.isAndroid) _platform = const MethodChannel('hi.channel/app');
   //   _start(widget._name);
   // }
 
@@ -134,42 +123,8 @@ class ChatWidget extends StatelessWidget {
     }
   }
 
-  _next(bool canShowAd) async {
-    // if (canShowAd && ++_nextCount == _countToShowAd && await _platform.invokeMethod('isLoaded')) {
-    //   _platform.invokeMethod('show').then((_) {
-    //     _nextCount = 0;
-    //     _countToShowAd *= 2;
-    //   }).catchError((e) => _signaling?.connect());
-    //   _signaling?.close();
-    //   _remoteRenderer.srcObject = null;
-    //   _localRenderer.srcObject = null;
-    // } else
-    if (!(await _isBlocked())) closeAndConnect();
-  }
-
   void closeAndConnect() {
     print('close and connect');
-    _signaling?.close();
-    _signaling?.connect();
-  }
-
-  Future<bool> _isBlocked() async {
-    hiLog(_TAG, 'is blocked');
-    final sharedPrefs = await SharedPreferences.getInstance();
-    _login = sharedPrefs.getString(LOGIN) ?? '';
-    final DocumentSnapshot doc;
-    if (_login.isNotEmpty && (doc = await FirebaseFirestore.instance.doc('user/$_login').get()).exists) {
-      final periodCode = doc[BLOCK_PERIOD_INDEX];
-      final blockTime = doc[BLOCK_TIME];
-      sharedPrefs.setInt(BLOCK_PERIOD_INDEX, periodCode);
-      sharedPrefs.setInt(BLOCK_TIME, (blockTime as Timestamp).millisecondsSinceEpoch);
-      // widget._db.update(
-      //     USER, {BLOCK_PERIOD_INDEX: periodCode, LAST_BLOCK_PERIOD: periodCode, BLOCK_TIME: blockTime.millisecondsSinceEpoch},
-      //     where: 'login=?', whereArgs: [_login]);
-      // widget._block(_login, blockTime.toDate().add(Duration(minutes: getMilliseconds(periodCode))), periodCode);
-      return true;
-    }
-    return false;
   }
 
   _getBody(ChatState state, BuildContext context) {
