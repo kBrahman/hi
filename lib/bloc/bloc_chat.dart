@@ -95,6 +95,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
           yield chatData = chatData.copyWith(state: ChatState.IN_CALL);
           break;
         case Command.NEXT:
+          if (_peerId == null) break;
           pc?.dispose();
           _socket?.add(jsonEncode({TYPE: BYE, FROM: login, TO: _peerId}));
           yield chatData = chatData.copyWith(state: ChatState.WAITING);
@@ -145,14 +146,14 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         _socket?.add(jsonEncode({TYPE: CANDIDATE, CANDIDATE: candidate.toMap(), TO: _peerId}));
       }
       ..onTrack = (t) {
-        hiLog(_TAG, 'onTrack');
         if (t.track.kind == 'video') {
+          hiLog(_TAG, 'got video Track');
           remoteRenderer.srcObject = t.streams.single;
         }
       }
       ..onConnectionState = (state) {
-        hiLog(_TAG, 'onConnectionState: $state');
         if (state == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
+          hiLog(_TAG, 'connected');
           ctr.add(Command.IN_CALL);
         } else if (state == RTCPeerConnectionState.RTCPeerConnectionStateFailed) {
           pc?.restartIce();
