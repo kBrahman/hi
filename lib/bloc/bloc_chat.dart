@@ -115,7 +115,10 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   }
 
   _onSocket(WebSocket socket, login, name, Map<String, String> props) async {
-    if (disposed) return;
+    if (disposed) {
+      socket.close();
+      return;
+    }
     _socket = socket;
     navigator.mediaDevices.getUserMedia({
       'audio': true,
