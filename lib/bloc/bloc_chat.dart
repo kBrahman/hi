@@ -33,7 +33,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   late RTCSessionDescription _offer;
   var _showingDialog = false;
   var _peerName = '';
-  var disposed = false;
+  var _disposed = false;
+  _OfferTimeoutManager? _offerTimeout;
 
   ChatBloc(String login, String name) {
     hiLog(_TAG, 'login:$login');
@@ -96,9 +97,10 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
           yield chatData = chatData.copyWith(state: ChatState.IN_CALL);
           break;
         case Command.NEXT:
-          if (_peerId == null) break;
+          if (_peerId == null) return;
           pc?.dispose();
           _socket?.add(jsonEncode({TYPE: BYE, FROM: login, TO: _peerId}));
+          _peerId = null;
           yield chatData = chatData.copyWith(state: ChatState.WAITING);
           break;
         case Command.MUTE:
@@ -115,7 +117,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   }
 
   _onSocket(WebSocket socket, login, name, Map<String, String> props) async {
-    if (disposed) {
+    if (_disposed) {
       socket.close();
       return;
     }
@@ -127,8 +129,12 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   }
 
   Future<void> _sendOffer(WebSocket socket, RTCSessionDescription offer, peerId, name) async {
-    final msgToSend = {TYPE: OFFER, TO: peerId, DESC: offer.toMap(), NAME: name};
-    socket.add(jsonEncode(msgToSend));
+    final msgOffer = {TYPE: OFFER, TO: peerId, DESC: offer.toMap(), NAME: name};
+    socket.add(jsonEncode(msgOffer));
+    _offerTimeout = _OfferTimeoutManager(() => socket.add(jsonEncode(msgOffer)), () {
+      _peerId = peerId;
+      ctr.add(Command.NEXT);
+    });
   }
 
   Future<RTCPeerConnection> _createPC(Map<String, String> props) async {
@@ -174,7 +180,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
 
   dispose() {
     hiLog(_TAG, 'dispose');
-    disposed = true;
+    _offerTimeout?.cancelled = true;
+    _disposed = true;
     _socket?.close();
     platform.invokeMethod('isLoaded').then((value) => {if (value) platform.invokeMethod('show')});
   }
@@ -216,6 +223,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         _sendAnswer(socket, answer, myName);
         break;
       case ANSWER:
+        _offerTimeout?.cancelled = true;
         _peerId = msg[FROM];
         _peerName = msg[NAME];
         hiLog(_TAG, 'on answer');
@@ -311,6 +319,27 @@ class ChatData {
 
   ChatData copyWith({ChatState? state, bool? muted, bool? blocked}) =>
       ChatData(state: state ?? this.state, muted: muted ?? this.muted, blocked: blocked ?? this.blocked);
+}
+
+class _OfferTimeoutManager {
+  static const _TAG = 'OfferTimeout';
+  var cancelled = false;
+  var _tryCount = 0;
+
+  _OfferTimeoutManager(VoidCallback retry, VoidCallback giveUp) {
+    _start(retry, giveUp);
+  }
+
+  _start(VoidCallback retry, VoidCallback giveUp) => Future.delayed(const Duration(seconds: 6), () {
+        if (!cancelled && _tryCount++ < 3) {
+          retry();
+          _start(retry, giveUp);
+          hiLog(_TAG, 'retrying offer');
+        } else if (!cancelled) {
+          giveUp();
+          hiLog(_TAG, 'cancel retry');
+        }
+      });
 }
 
 enum ChatState { WAITING, IN_CALL, MAINTENANCE, UPDATE, LOST }
