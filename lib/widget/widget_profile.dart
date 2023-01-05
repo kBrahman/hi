@@ -12,6 +12,9 @@ import '../util/util.dart';
 
 class ProfileWidget extends StatelessWidget {
   static const _TAG = 'ProfileWidget';
+  static const RESULT_PERMANENTLY_DENIED = 2;
+  static const RESULT_GRANTED = 3;
+  static const RESULT_DENIED = 4;
   final ProfileBloc _profileBloc;
 
   const ProfileWidget(this._profileBloc, {Key? key}) : super(key: key);
@@ -36,7 +39,6 @@ class ProfileWidget extends StatelessWidget {
                   final data = snap.data;
                   if (data == null) return const Center(child: CircularProgressIndicator());
                   hiLog(_TAG, 'data:$data');
-                  if (data.startChat) WidgetsBinding.instance.addPostFrameCallback((_) => _start(context, data));
                   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text('${locs?.logged_in_as ?? 'Logged in as:'} ${data.login}', style: const TextStyle(color: Colors.grey)),
                     Column(children: [
@@ -77,19 +79,34 @@ class ProfileWidget extends StatelessWidget {
                     Padding(
                         padding: edgeInsetsTop16,
                         child: Center(
-                            child: ElevatedButton(
-                                onPressed: () => _profileBloc.ctr.add(ProfileCmd.START),
-                                child: Text(locs?.start ?? 'START CHAT'))))
+                            child:
+                                ElevatedButton(onPressed: () => _start(context, data), child: Text(locs?.start ?? 'START CHAT'))))
                   ]);
                 })));
   }
 
-  void _start(context, ProfileData data) {
-    hiLog(_TAG, '_start, login:${data.login}');
-    final bloc = ChatBloc(data.login, _profileBloc.txtCtr.text);
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatWidget(bloc))).whenComplete(() {
-      bloc.dispose();
-      _profileBloc.removeRefreshSink.add(null);
-    });
+  Future<void> _start(context, ProfileData data) async {
+    if (_profileBloc.txtCtr.text.isEmpty)
+      _profileBloc.ctr.add(ProfileCmd.NAME_EMPTY);
+    else if (!BaseBloc.connectedToInet)
+      _profileBloc.globalSink.add(GlobalEvent.NO_INTERNET);
+    else {
+      switch (await _profileBloc.platform.invokeMethod('requestPermissions')) {
+        case RESULT_PERMANENTLY_DENIED:
+          _profileBloc.globalSink.add(GlobalEvent.PERMISSION_PERMANENTLY_DENIED);
+          break;
+        case RESULT_GRANTED:
+          hiLog(_TAG, '_start, login:${data.login}');
+          final bloc = ChatBloc(data.login, _profileBloc.txtCtr.text);
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatWidget(bloc))).whenComplete(() {
+            bloc.dispose();
+            _profileBloc.removeRefreshSink.add(null);
+          });
+          _profileBloc.ctr.add(ProfileCmd.UPDATE);
+          break;
+        case RESULT_DENIED:
+          _profileBloc.globalSink.add(GlobalEvent.PERMISSION_DENIED);
+      }
+    }
   }
 }
