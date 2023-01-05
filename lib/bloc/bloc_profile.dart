@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/data_profile.dart';
 
-class ProfileBloc extends BaseBloc<ProfileData,ProfileCmd> {
+class ProfileBloc extends BaseBloc<ProfileData, ProfileCmd> {
   static const _TAG = 'ProfileBloc';
   static const RESULT_PERMANENTLY_DENIED = 2;
   static const RESULT_GRANTED = 3;
@@ -28,6 +28,9 @@ class ProfileBloc extends BaseBloc<ProfileData,ProfileCmd> {
     stream = _getStream();
     blockedUsersStream = _getBlockedUsersStream();
   }
+
+  @override
+  onLost() {}
 
   Stream<List<Map<String, Object?>>> _getBlockedUsersStream() async* {
     final db = await dbGlobal;
@@ -62,7 +65,11 @@ class ProfileBloc extends BaseBloc<ProfileData,ProfileCmd> {
   }
 
   Future<ProfileData> _start(ProfileData data) async {
-    if (txtCtr.text.isEmpty) return data.copyWith(nameEmpty: true);
+    if (txtCtr.text.isEmpty) return data.copyWith(nameEmpty: true, startChat: false);
+    if (!BaseBloc.connectedToInet) {
+      globalSink.add(GlobalEvent.NO_INTERNET);
+      return data.copyWith(nameEmpty: false, startChat: false);
+    }
     if (_oldName != txtCtr.text) {
       SharedPreferences.getInstance().then((sp) => sp.setString(NAME, txtCtr.text));
       FirebaseFirestore.instance.doc('$USER/${data.login}').update({NAME: txtCtr.text});
@@ -81,7 +88,6 @@ class ProfileBloc extends BaseBloc<ProfileData,ProfileCmd> {
     return data;
   }
 
-  // hiLog(_TAG, 'statuses after request: $statuses');
   // if (statuses.any((element) => element == PermissionStatus.denied)) globalSink.add(GlobalEvent.PERMISSION_NOT_GRANTED);
   // } else
   // return data.copyWith(startChat: true);
@@ -96,7 +102,6 @@ class ProfileBloc extends BaseBloc<ProfileData,ProfileCmd> {
 //       globalSink.add(GlobalEvent.PERMISSION_PERMANENTLY_DENIED);
 //     else if (statuses.values.any((e) => !e.isGranted))
 //       globalSink.add(GlobalEvent.PERMISSION_NOT_GRANTED);
-//     else
 
 }
 

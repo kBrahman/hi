@@ -56,6 +56,11 @@ class MainBloc extends BaseBloc<UiState, Cmd> {
     sp.remove(BLOCK_PERIOD_INDEX);
     return true;
   }
+
+  @override
+  onLost() {
+
+  }
 }
 
 enum Cmd { REFRESH, BLOCK, SIGN_IN, PROFILE }

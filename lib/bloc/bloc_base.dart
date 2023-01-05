@@ -3,11 +3,13 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:hi/util/util.dart';
 
 abstract class BaseBloc<D, C> {
+  static const _TAG = 'BaseBloc';
   static final _ctr = StreamController<GlobalEvent>();
   static bool connectedToInet = true;
-  final platform = const MethodChannel('hi.channel/app')..setMethodCallHandler(nativeMethodCallHandler);
+  final platform = const MethodChannel('hi.channel/app');
 
   Stream<GlobalEvent> get globalStream => _ctr.stream;
 
@@ -18,7 +20,14 @@ abstract class BaseBloc<D, C> {
 
   get hasListener => _ctr.hasListener;
 
-  static Future<dynamic> nativeMethodCallHandler(MethodCall methodCall) async {
+  BaseBloc() {
+    platform.setMethodCallHandler(nativeMethodCallHandler);
+    hiLog(_TAG, 'base bloc');
+  }
+
+  onLost();
+
+  Future<dynamic> nativeMethodCallHandler(MethodCall methodCall) async {
     final method = methodCall.method;
     switch (method) {
       case "onAvailable":
@@ -26,6 +35,7 @@ abstract class BaseBloc<D, C> {
         break;
       case "onLost":
         connectedToInet = false;
+        onLost();
     }
   }
 }

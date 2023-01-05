@@ -109,8 +109,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         case Command.BLOCK_USER:
           yield chatData = chatData.copyWith(blocked: true);
           break;
-        default:
-          yield chatData;
+        case Command.ON_LOST:
+          yield chatData = chatData.copyWith(state: ChatState.LOST);
       }
   }
 
@@ -294,6 +294,9 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   onError(e) {
     hiLog(_TAG, 'error deleting reports on cloud: $e');
   }
+
+  @override
+  onLost() => ctr.add(Command.ON_LOST);
 }
 
 class ChatData {
@@ -307,6 +310,6 @@ class ChatData {
       ChatData(state: state ?? this.state, muted: muted ?? this.muted, blocked: blocked ?? this.blocked);
 }
 
-enum ChatState { WAITING, IN_CALL, MAINTENANCE, UPDATE, NEXT, MUTE }
+enum ChatState { WAITING, IN_CALL, MAINTENANCE, UPDATE, LOST }
 
-enum Command { MUTE, NEXT, MAINTENANCE, IN_CALL, UPDATE, WAITING, DIALOG, BLOCK_PEER, REPORT, BLOCK_USER }
+enum Command { MUTE, NEXT, MAINTENANCE, IN_CALL, UPDATE, WAITING, DIALOG, BLOCK_PEER, REPORT, BLOCK_USER, ON_LOST }

@@ -162,6 +162,9 @@ class SignUpBloc extends BaseBloc<SignUpData, CmdSignUp> {
     return data.copyWith(progress: false);
   }
 
+  @override
+  onLost() {}
+
   Future<SignUpData> _save(String login, String pass, SignUpData data) async {
     hiLog(_TAG, 'save:$login, $pass');
     final db = await dbGlobal;

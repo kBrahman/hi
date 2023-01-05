@@ -12,7 +12,6 @@ import 'package:hi/util/util.dart';
 import '../bloc/bloc_chat.dart';
 
 //
-//   const ChatWidget(this._block, this._db, this._name,
 //       {Key? key, required this.ip, required this.turnServers, required this.turnUname, required this.turnPass})
 //       : super(key: key);
 //
@@ -131,6 +130,8 @@ class ChatWidget extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final width = MediaQuery.of(context).size.width / 6;
     switch (state) {
+      case ChatState.LOST:
+        return const NoInternetWidget();
       case ChatState.UPDATE:
         return Center(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -170,16 +171,13 @@ class _MaintenanceWidget extends StatelessWidget {
 }
 
 class NoInternetWidget extends StatelessWidget {
-  final VoidCallback checkConn;
-
-  const NoInternetWidget(this.checkConn, {Key? key}) : super(key: key);
+  const NoInternetWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-        Text(AppLocalizations.of(context)?.no_inet ?? 'No internet'),
-        ElevatedButton(onPressed: checkConn, child: Text(AppLocalizations.of(context)?.refresh ?? 'Refresh'))
-      ]));
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[Text(AppLocalizations.of(context)?.err_conn ?? 'Connection error, try again please')]));
 }
 
 class _WaitingWidget extends StatelessWidget {

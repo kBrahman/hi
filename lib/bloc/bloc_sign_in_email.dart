@@ -36,7 +36,10 @@ class EmailSignInBloc extends BaseBloc<EmailSignInData, Cmd> {
   }
 
   bool _valid(String email) => email.contains('.') && email.contains('@');
+  @override
+  onLost() {
 
+  }
   Future<EmailSignInData> _emailSignIn(email, EmailSignInData data) async {
 
     var instance = FirebaseAuth.instance;

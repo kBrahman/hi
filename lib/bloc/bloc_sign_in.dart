@@ -54,7 +54,10 @@ class SignInBloc extends BaseBloc<SignInData, Command> {
           yield data = data.copyWith(progress: true);
       }
   }
+  @override
+  onLost() {
 
+  }
   Future<SignInData> _googleSignIn(SignInData data) async {
     if (!BaseBloc.connectedToInet) {
       globalSink.add(GlobalEvent.NO_INTERNET);
