@@ -11,7 +11,6 @@ import 'package:sqflite/sqflite.dart';
 const _TAG = 'Util';
 const TERMS_DEFAULT =
     "'Zhet' ('we' or 'us' or 'our') respects human dignity of our users ('user' or 'you'). We do not support any kind of discrimination, threats, bullying, harassment and abuse. This Terms of user/user Policy explains how we moderate such an objectionable content which features discrimination, threats, bullying, harassment or abuse. Please read this Policy carefully. IF YOU DO NOT AGREE WITH THE TERMS OF THIS POLICY, PLEASE DO NOT ACCESS THE APPLICATION.\nWe reserve the right to make changes to this Policy at any time and for any reason. You MUST accept the terms of this policy in order to use the app\n\nOBJECTIONABLE CONTENT AND BEHAVIORS:\nWe define any kind of discrimination, threats, bullying, harassment and abuse as objectionable behavior.\nWe define sexually explicit content as objectionable content.\n\nAPP USAGE:\nWhile using this app you agree not to expose objectionable content or behaviors against any other user. If you violate the terms of this Policy you will be temporarily banned from using this app. In case of continued violation, i.e. if we keep getting complaint reports from other users on your account, your account will be terminated and you will never ever be able to use this app.";
-const ASCII_START = 33;
 const ASCII_END = 126;
 const NUMERIC_START = 48;
 const NUMERIC_END = 57;
@@ -32,6 +31,7 @@ const DB_NAME = 'hi.db';
 const DB_VERSION_2 = 2;
 const USER = 'user';
 const REPORT = 'report';
+const KEEPALIVE = 'keepalive';
 const UPDATE = 'update';
 const ANSWER = 'answer';
 const CANDIDATE = 'candidate';

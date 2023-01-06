@@ -24,6 +24,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   static const FROM = 'from';
   static const DESC = 'desc';
   static const SDP = 'sdp';
+  static const TIMEOUT = 7;
 
   final remoteRenderer = RTCVideoRenderer()..initialize();
   final localRenderer = RTCVideoRenderer()..initialize();
@@ -34,7 +35,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   var _showingDialog = false;
   var _peerName = '';
   var _disposed = false;
-  _OfferTimeoutManager? _offerTimeout;
+  _TimeoutManager? _offerTimeout;
+  _TimeoutManager? _keepaliveTimeout;
 
   ChatBloc(String login, String name) {
     hiLog(_TAG, 'login:$login');
@@ -47,14 +49,12 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
       .then((blocked) => blocked ? ctr.add(Command.BLOCK_USER) : null);
 
   Stream<ChatData> _getStream(String login, String name) async* {
+    hiLog(_TAG, 'get stream');
     String data = await rootBundle.loadString('assets/local.properties');
     final iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
     final props = {for (final v in iterable) v.split('=')[0]: v.split('=')[1]};
     final String ip = props['server']!;
-    WebSocket.connect('ws://$ip:4442/ws').then((s) => _onSocket(s, login, name, props)).onError((error, stackTrace) {
-      hiLog(_TAG, 'connect, onError: $error');
-      ctr.add(Command.MAINTENANCE);
-    });
+    WebSocket.connect('ws://$ip:4442/ws').then((s) => _onSocket(s, login, name, props)).onError(_onErr);
     var chatData = const ChatData();
     await for (final state in ctr.stream)
       switch (state) {
@@ -116,6 +116,11 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
       }
   }
 
+  FutureOr<dynamic> _onErr(error, stackTrace) {
+    hiLog(_TAG, 'connect, onError: $error');
+    ctr.add(Command.MAINTENANCE);
+  }
+
   _onSocket(WebSocket socket, login, name, Map<String, String> props) async {
     if (_disposed) {
       socket.close();
@@ -131,7 +136,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   Future<void> _sendOffer(WebSocket socket, RTCSessionDescription offer, peerId, name) async {
     final msgOffer = {TYPE: OFFER, TO: peerId, DESC: offer.toMap(), NAME: name};
     socket.add(jsonEncode(msgOffer));
-    _offerTimeout = _OfferTimeoutManager(() => socket.add(jsonEncode(msgOffer)), () {
+    _offerTimeout = _TimeoutManager(() => socket.add(jsonEncode(msgOffer)), () {
       _peerId = peerId;
       ctr.add(Command.NEXT);
     });
@@ -180,8 +185,9 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
 
   dispose() {
     hiLog(_TAG, 'dispose');
-    _offerTimeout?.cancelled = true;
     _disposed = true;
+    _offerTimeout?.cancelled = true;
+    _keepaliveTimeout?.cancelled = true;
     _socket?.close();
     platform.invokeMethod('isLoaded').then((value) => {if (value) platform.invokeMethod('show')});
   }
@@ -190,6 +196,19 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
     hiLog(_TAG, 'socket event:$data');
     final msg = jsonDecode(data);
     switch (msg[TYPE]) {
+      case KEEPALIVE:
+        _keepaliveTimeout?.cancelled = true;
+        Future.delayed(const Duration(minutes: 1), () {
+          if (_disposed) return;
+          socket.add(jsonEncode({TYPE: KEEPALIVE}));
+          _keepaliveTimeout = _TimeoutManager(() => socket.add(jsonEncode({TYPE: KEEPALIVE})), () async {
+            socket.close();
+            WebSocket.connect('ws://${props['server']!}:4442/ws')
+                .then((soc) => _onSocket(soc, login, myName, props))
+                .onError(_onErr);
+          });
+        });
+        break;
       case REPORT:
         final added = reports.add(_peerId!);
         if (reports.length > 15)
@@ -321,20 +340,20 @@ class ChatData {
       ChatData(state: state ?? this.state, muted: muted ?? this.muted, blocked: blocked ?? this.blocked);
 }
 
-class _OfferTimeoutManager {
-  static const _TAG = 'OfferTimeout';
+class _TimeoutManager {
+  static const _TAG = 'TimeoutManager';
   var cancelled = false;
   var _tryCount = 0;
 
-  _OfferTimeoutManager(VoidCallback retry, VoidCallback giveUp) {
+  _TimeoutManager(VoidCallback retry, VoidCallback giveUp) {
     _start(retry, giveUp);
   }
 
-  _start(VoidCallback retry, VoidCallback giveUp) => Future.delayed(const Duration(seconds: 6), () {
+  _start(VoidCallback retry, VoidCallback giveUp) => Future.delayed(const Duration(seconds: ChatBloc.TIMEOUT), () {
         if (!cancelled && _tryCount++ < 3) {
           retry();
           _start(retry, giveUp);
-          hiLog(_TAG, 'retrying offer');
+          hiLog(_TAG, 'retrying');
         } else if (!cancelled) {
           giveUp();
           hiLog(_TAG, 'cancel retry');

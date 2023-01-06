@@ -16,7 +16,7 @@ abstract class BaseBloc<D, C> {
   Sink<GlobalEvent> get globalSink => _ctr.sink;
   final ctr = StreamController<C>();
 
-  late final Stream<D> stream;
+  late Stream<D> stream;
 
   get hasListener => _ctr.hasListener;
 
