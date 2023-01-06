@@ -1,7 +1,7 @@
 name: hi
 description: Video chat
 publish_to: 'none'
-version: 4.4.0+71
+version: 4.4.1+72
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -13,7 +13,6 @@ dependencies:
   #    path: ../../local_plugins/dev_tok_rtc
   cupertino_icons: ^1.0.5
   flutter_launcher_icons: ^0.11.0
-  wakelock: ^0.6.1+2
   flutter_localizations:
     sdk: flutter
   intl: ^0.17.0

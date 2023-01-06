@@ -179,15 +179,15 @@ class SignUpBloc extends BaseBloc<SignUpData, CmdSignUp> {
       await setSP(sp, login, userMaps.single[NAME] as String? ?? '');
     } else if (userMaps.isEmpty) {
       final doc = await docRef.get();
-      var map = {};
+      final map = doc.data() ?? {};
       if (doc.exists && doc[PASSWD] != passHash) {
         docRef.update({PASSWD: passHash});
-        map = doc.data()!;
         db.insert(USER, {LOGIN: login, PASSWD: passHash, NAME: map[NAME]});
       } else if (!doc.exists) {
         docRef.set({PASSWD: passHash});
         db.insert(USER, {LOGIN: login, PASSWD: passHash});
       }
+      hiLog(_TAG, 'map to save:$map');
       await setSPAndCache(sp, login, map);
     }
     if (await isBlocked(login, sp))
