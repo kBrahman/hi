@@ -34,7 +34,7 @@ class SignInWidget extends StatelessWidget {
                   body: Center(
                       child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 220),
-                          child: Column(mainAxisSize: MainAxisSize.min, children: [
+                          child: ListView(shrinkWrap: true, children: [
                             if (data.passLoginWrong)
                               Text(l10n?.pass_login_wrong ?? 'Login or password is wrong',
                                   style: const TextStyle(color: Colors.red)),
@@ -76,7 +76,11 @@ class SignInWidget extends StatelessWidget {
                                         context, MaterialPageRoute(builder: (context) => EmailSignInWidget(EmailSignInBloc()))),
                                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                                   const Padding(padding: EdgeInsets.only(right: 6), child: Icon(Icons.email_outlined)),
-                                 Expanded(child:  Text(l10n?.sign_in_email ?? 'Sign in with email',textAlign: TextAlign.center,))
+                                  Expanded(
+                                      child: Text(
+                                    l10n?.sign_in_email ?? 'Sign in with email',
+                                    textAlign: TextAlign.center,
+                                  ))
                                 ])),
                             ElevatedButton(
                                 style: TextButton.styleFrom(backgroundColor: Colors.white),
@@ -94,7 +98,8 @@ class SignInWidget extends StatelessWidget {
                                     children: [Text(l10n?.create ?? 'CREATE NEW ACCOUNT')])),
                             InkWell(
                                 onTap: () => _signUp(context, data),
-                                child: Text(l10n?.forgot ?? 'I forgot my password', style: const TextStyle(color: Colors.red)))
+                                child: Text(l10n?.forgot ?? 'I forgot my password',
+                                    textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)))
                           ])))));
         });
   }

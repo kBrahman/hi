@@ -156,10 +156,11 @@ class SignUpBloc extends BaseBloc<SignUpData, CmdSignUp> {
       await FirebaseAuth.instance.signInWithCredential(credential);
       return data.copyWith(state: SignUpState.SAVE, progress: false);
     } on FirebaseAuthException catch (e) {
+      hiLog(_TAG, 'catch:$e');
       if (e.code == 'invalid-verification-code') return data.copyWith(progress: false, codeInvalid: true);
+      globalSink.add(GlobalEvent.ERR_CONN);
     }
-    globalSink.add(GlobalEvent.ERR_CONN);
-    return data.copyWith(progress: false);
+    return data.copyWith(progress: false, codeInvalid: false);
   }
 
   @override
