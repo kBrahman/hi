@@ -15,6 +15,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   static const _TAG = 'ChatBloc';
   static const NEW = 'new';
   static const TYPE = 'type';
+  static const OFFER_TIMEOUT = 'offer_timeout';
   static const NEXT = 'next';
   static const MODEL = 'model';
   static const VERSION = 'version';
@@ -136,10 +137,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   Future<void> _sendOffer(WebSocket socket, RTCSessionDescription offer, peerId, name) async {
     final msgOffer = {TYPE: OFFER, TO: peerId, DESC: offer.toMap(), NAME: name};
     socket.add(jsonEncode(msgOffer));
-    _offerTimeout = _TimeoutManager(() => socket.add(jsonEncode(msgOffer)), () {
-      _peerId = peerId;
-      ctr.add(Command.NEXT);
-    });
+    _offerTimeout = _TimeoutManager(() => socket.add(jsonEncode(msgOffer)), () => socket.add({TYPE: OFFER_TIMEOUT, TO: peerId}));
   }
 
   Future<RTCPeerConnection> _createPC(Map<String, String> props) async {
@@ -277,15 +275,6 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
     final blockedPeers = (await (await dbGlobal).query(BLOCKED_PEER, where: '$LOGIN=?', whereArgs: [login]))
         .map((m) => m[PEER_LOGIN] as String)
         .toList();
-    final msgNew = {
-      TYPE: NEW,
-      MODEL: deviceInfo[MODEL],
-      'v': deviceInfo[VERSION],
-      CODE: deviceInfo[CODE],
-      ID: login,
-      NAME: name,
-      'blockedPeers': blockedPeers
-    };
     final reports =
         (await (await dbGlobal).query(REPORT, where: '$LOGIN=?', whereArgs: [login])).map((m) => m[PEER_LOGIN] as String).toSet();
     socket.listen((data) => _onData(data, socket, props, mediaStream, name, reports, login), onDone: () {
@@ -299,7 +288,15 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
       hiLog(_TAG, 'done, st:${FieldValue.serverTimestamp()}, ts:${DateTime.now().millisecondsSinceEpoch}');
     });
     FieldValue.serverTimestamp();
-    socket.add(jsonEncode(msgNew));
+    socket.add(jsonEncode({
+      TYPE: NEW,
+      MODEL: deviceInfo[MODEL],
+      'v': deviceInfo[VERSION],
+      CODE: deviceInfo[CODE],
+      ID: login,
+      NAME: name,
+      'blockedPeers': blockedPeers
+    }));
     localRenderer.srcObject = mediaStream;
   }
 
