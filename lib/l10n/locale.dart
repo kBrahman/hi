@@ -44,5 +44,6 @@ const LOCALES = [
   Locale('sq', ''),
   Locale('sr', ''),
   Locale('ms', ''),
-  Locale('da', '')
+  Locale('da', ''),
+  Locale('fi', '')
 ];
