@@ -137,7 +137,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   Future<void> _sendOffer(WebSocket socket, RTCSessionDescription offer, peerId, name) async {
     final msgOffer = {TYPE: OFFER, TO: peerId, DESC: offer.toMap(), NAME: name};
     socket.add(jsonEncode(msgOffer));
-    _offerTimeout = _TimeoutManager(() => socket.add(jsonEncode(msgOffer)), () => socket.add({TYPE: OFFER_TIMEOUT, TO: peerId}));
+    _offerTimeout =
+        _TimeoutManager(() => socket.add(jsonEncode(msgOffer)), () => socket.add(jsonEncode({TYPE: OFFER_TIMEOUT, TO: peerId})));
   }
 
   Future<RTCPeerConnection> _createPC(Map<String, String> props) async {
