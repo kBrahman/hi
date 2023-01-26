@@ -25,7 +25,7 @@
   "six_months": "seks måneder",
   "year": "et år",
   "forever": "for evigt",
-  "unblock_time": "Din konto vil blive gendannet {day} kl. {hour}",
+  "unblock_time": "Din konto vil blive gendannet {day} kl. {time}",
   "@unblock_time": {
     "placeholders": {
       "day": {

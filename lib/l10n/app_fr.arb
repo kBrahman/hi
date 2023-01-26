@@ -25,7 +25,7 @@
   "six_months": "six mois",
   "year": "un ans",
   "forever": "toujours",
-  "unblock_time": "Votre compte sera débloqué le {jour} à {heure}",
+  "unblock_time": "Votre compte sera débloqué le {day} à {time}",
   "@unblock_time": {
     "placeholders": {
       "day": {

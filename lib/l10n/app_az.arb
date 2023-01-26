@@ -25,7 +25,7 @@
   "six_months": "Altı ay",
   "year": "bir il",
   "forever": "əbədi",
-  "unblock_time": "Hesabınız {day}, {saat} radələrində blokdan çıxarılacaq",
+  "unblock_time": "Hesabınız {day}, {time} radələrində blokdan çıxarılacaq",
   "@unblock_time": {
     "placeholders": {
       "day": {

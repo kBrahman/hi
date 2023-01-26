@@ -25,7 +25,7 @@
   "six_months": "Enam bulan",
   "year": "setahun",
   "forever": "selamanya",
-  "unblock_time": "Akaun anda akan dinyahsekat pada {hour} pada {time}",
+  "unblock_time": "Akaun anda akan dinyahsekat pada {day} pada {time}",
   "@unblock_time": {
     "placeholders": {
       "day": {

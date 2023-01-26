@@ -20,7 +20,7 @@ dependencies:
   flutter_webrtc: ^0.9.19
   shared_preferences: ^2.0.15
   sqflite: ^2.2.2
-  path: ^1.8.1
+  path: ^1.8.2
   firebase_auth: ^4.2.5
   flutter_signin_button: ^2.0.0
   google_sign_in: ^5.4.3

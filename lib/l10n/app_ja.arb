@@ -25,7 +25,7 @@
   "six_months": "六ヶ月",
   "year": "1年",
   "forever": "永遠に",
-  "unblock_time": "アカウントは{日}の{時間}にブロック解除されます",
+  "unblock_time": "アカウントは{day}の{time}にブロック解除されます",
   "@unblock_time": {
     "placeholders": {
       "day": {
