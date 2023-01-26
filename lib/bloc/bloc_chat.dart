@@ -25,7 +25,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   static const FROM = 'from';
   static const DESC = 'desc';
   static const SDP = 'sdp';
-  static const TIMEOUT = 7;
+  static const TIMEOUT = 8;
 
   final remoteRenderer = RTCVideoRenderer()..initialize();
   final localRenderer = RTCVideoRenderer()..initialize();
@@ -200,6 +200,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         Future.delayed(const Duration(minutes: 1), () {
           if (_disposed) return;
           socket.add(jsonEncode({TYPE: KEEPALIVE}));
+          hiLog(_TAG, 'sent keepalive');
           _keepaliveTimeout = _TimeoutManager(() => socket.add(jsonEncode({TYPE: KEEPALIVE})), () async {
             socket.close();
             WebSocket.connect('ws://${props['server']!}:4442/ws')
@@ -228,7 +229,11 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         hiLog(_TAG, 'on peer:$peerId');
         break;
       case OFFER:
-        hiLog(_TAG, 'on offer');
+        hiLog(_TAG, 'offer ${msg[FROM]}');
+        if (_peerId != null) {
+          hiLog(_TAG, 'already chatting with $_peerId, returning');
+          return;
+        }
         _peerId = msg[FROM];
         _peerName = msg[NAME];
         final offerDesc = msg[DESC][SDP];
