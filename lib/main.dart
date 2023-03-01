@@ -15,7 +15,7 @@ import 'bloc/bloc_main.dart';
 import 'bloc/bloc_sign_in.dart';
 import 'l10n/locale.dart';
 
-var colorCodes = {
+final colorCodes = {
   50: const Color.fromRGBO(211, 10, 75, .1),
   for (var i = 100; i < 1000; i += 100) i: Color.fromRGBO(247, 0, 15, (i + 100) / 1000)
 };
