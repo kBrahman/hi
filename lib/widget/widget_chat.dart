@@ -21,7 +21,6 @@ class ChatWidget extends StatelessWidget {
   const ChatWidget(this._chatBloc, this._showWinAd, {Key? key})
       : super(key: key);
 
-  //   if (!(await _isBlocked()) && mounted) _initSignaling(_login, name);
   // }
 
   // int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
@@ -59,7 +58,6 @@ class ChatWidget extends StatelessWidget {
         //                 : const MaintenanceWidget());
       });
 
-  //   _signaling?.close();
   //   _signaling = null;
   //   _localRenderer.dispose();
   //   _remoteRenderer.dispose();

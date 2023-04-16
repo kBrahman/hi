@@ -37,12 +37,13 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   var _peerName = '';
   var _disposed = false;
   _TimeoutManager? _offerTimeout;
-  _TimeoutManager? _keepaliveTimeout;
+  _TimeoutManager? _keepAliveTimeout;
 
   ChatBloc(String login, String name) {
     hiLog(_TAG, 'login:$login');
     _checkBlock(login);
     stream = _getStream(login, name);
+    platform.invokeMethod('wakeLockOn');
   }
 
   void _checkBlock(String login) => SharedPreferences.getInstance()
@@ -52,10 +53,14 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   Stream<ChatData> _getStream(String login, String name) async* {
     hiLog(_TAG, 'get stream');
     String data = await rootBundle.loadString('assets/local.properties');
-    final iterable = data.split('\n').where((element) => !element.startsWith('#') && element.isNotEmpty);
+    final iterable = data
+        .split('\n')
+        .where((element) => !element.startsWith('#') && element.isNotEmpty);
     final props = {for (final v in iterable) v.split('=')[0]: v.split('=')[1]};
     final String ip = props['server']!;
-    WebSocket.connect('ws://$ip:4442/ws').then((s) => _onSocket(s, login, name, props)).onError(_onErr);
+    WebSocket.connect('ws://$ip:4442/ws')
+        .then((s) => _onSocket(s, login, name, props))
+        .onError(_onErr);
     var chatData = const ChatData();
     await for (final state in ctr.stream)
       switch (state) {
@@ -77,8 +82,11 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
           break;
         case Command.BLOCK_PEER:
           _showingDialog = false;
-          (await dbGlobal).insert(BLOCKED_PEER, {PEER_LOGIN: _peerId, NAME: _peerName, LOGIN: login});
-          FirebaseFirestore.instance.doc('$USER/$login/$BLOCKED_PEER/$_peerId').set({NAME: _peerName});
+          (await dbGlobal).insert(BLOCKED_PEER,
+              {PEER_LOGIN: _peerId, NAME: _peerName, LOGIN: login});
+          FirebaseFirestore.instance
+              .doc('$USER/$login/$BLOCKED_PEER/$_peerId')
+              .set({NAME: _peerName});
           if (_peerId == null)
             _socket?.add(jsonEncode({TYPE: NEXT}));
           else
@@ -107,7 +115,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         case Command.MUTE:
           final audioTrack = localRenderer.srcObject?.getAudioTracks()[0];
           audioTrack?.enabled = !audioTrack.enabled;
-          yield chatData = chatData.copyWith(muted: audioTrack?.enabled == false);
+          yield chatData =
+              chatData.copyWith(muted: audioTrack?.enabled == false);
           break;
         case Command.BLOCK_USER:
           yield chatData = chatData.copyWith(blocked: true);
@@ -134,23 +143,27 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
     }).then((s) => _onLocalStream(s, socket, login, name, props));
   }
 
-  Future<void> _sendOffer(WebSocket socket, RTCSessionDescription offer, peerId, name) async {
+  Future<void> _sendOffer(
+      WebSocket socket, RTCSessionDescription offer, peerId, name) async {
     final msgOffer = {TYPE: OFFER, TO: peerId, DESC: offer.toMap(), NAME: name};
     socket.add(jsonEncode(msgOffer));
-    _offerTimeout =
-        _TimeoutManager(() => socket.add(jsonEncode(msgOffer)), () => socket.add(jsonEncode({TYPE: OFFER_TIMEOUT, TO: peerId})));
+    _offerTimeout = _TimeoutManager(() => socket.add(jsonEncode(msgOffer)),
+        () => socket.add(jsonEncode({TYPE: OFFER_TIMEOUT, TO: peerId})));
   }
 
   Future<RTCPeerConnection> _createPC(Map<String, String> props) async {
-    final turnServers = props['turnServers']!.split(':').map((e) => 'turn:$e:3478');
+    final turnServers =
+        props['turnServers']!.split(':').map((e) => 'turn:$e:3478');
     final turnUname = props['turnUname']!;
     final turnPass = props['turnPass']!;
-    hiLog(_TAG, 'turnUname:$turnUname, turnPass:$turnPass, turnServers:$turnServers');
+    hiLog(_TAG,
+        'turnUname:$turnUname, turnPass:$turnPass, turnServers:$turnServers');
     return await createPeerConnection({
       'iceServers': [
         {'url': 'stun:stun1.l.google.com:19302'},
         {'url': 'stun:stun.ekiga.net'},
-        ...turnServers.map((e) => {'url': e, 'credential': turnPass, 'username': turnUname}),
+        ...turnServers.map(
+            (e) => {'url': e, 'credential': turnPass, 'username': turnUname}),
       ],
       'sdpSemantics': 'unified-plan'
     }, {
@@ -158,7 +171,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
       'optional': []
     })
       ..onIceCandidate = (candidate) {
-        _socket?.add(jsonEncode({TYPE: CANDIDATE, CANDIDATE: candidate.toMap(), TO: _peerId}));
+        _socket?.add(jsonEncode(
+            {TYPE: CANDIDATE, CANDIDATE: candidate.toMap(), TO: _peerId}));
       }
       ..onTrack = (t) {
         if (t.track.kind == 'video') {
@@ -170,7 +184,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         if (state == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
           hiLog(_TAG, 'connected');
           ctr.add(Command.IN_CALL);
-        } else if (state == RTCPeerConnectionState.RTCPeerConnectionStateFailed) {
+        } else if (state ==
+            RTCPeerConnectionState.RTCPeerConnectionStateFailed) {
           pc?.restartIce();
           hiLog(_TAG, 'restarted ice');
         }
@@ -178,7 +193,12 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   }
 
   Future<void> _sendAnswer(WebSocket socket, answer, myName) async {
-    final msgToSend = {TYPE: ANSWER, TO: _peerId, DESC: answer.toMap(), NAME: myName};
+    final msgToSend = {
+      TYPE: ANSWER,
+      TO: _peerId,
+      DESC: answer.toMap(),
+      NAME: myName
+    };
     socket.add(jsonEncode(msgToSend));
   }
 
@@ -186,22 +206,27 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
     hiLog(_TAG, 'dispose');
     _disposed = true;
     _offerTimeout?.cancelled = true;
-    _keepaliveTimeout?.cancelled = true;
+    _keepAliveTimeout?.cancelled = true;
     _socket?.close();
-    platform.invokeMethod('isLoaded').then((value) => {if (value) platform.invokeMethod('show')});
+    platform.invokeMethod('isLoaded').then((value) {
+      if (value) platform.invokeMethod('show');
+      platform.invokeMethod('wakeLockOff');
+    });
   }
 
-  _onData(data, WebSocket socket, props, MediaStream mediaStream, myName, Set<String> reports, login) async {
+  _onData(data, WebSocket socket, props, MediaStream mediaStream, myName,
+      Set<String> reports, login) async {
     hiLog(_TAG, 'socket event:$data');
     final msg = jsonDecode(data);
     switch (msg[TYPE]) {
       case KEEPALIVE:
-        _keepaliveTimeout?.cancelled = true;
+        _keepAliveTimeout?.cancelled = true;
         Future.delayed(const Duration(minutes: 1), () {
           if (_disposed) return;
           socket.add(jsonEncode({TYPE: KEEPALIVE}));
           hiLog(_TAG, 'sent keepalive');
-          _keepaliveTimeout = _TimeoutManager(() => socket.add(jsonEncode({TYPE: KEEPALIVE})), () async {
+          _keepAliveTimeout = _TimeoutManager(
+              () => socket.add(jsonEncode({TYPE: KEEPALIVE})), () async {
             socket.close();
             WebSocket.connect('ws://${props['server']!}:4442/ws')
                 .then((soc) => _onSocket(soc, login, myName, props))
@@ -239,7 +264,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         final offerDesc = msg[DESC][SDP];
         await pc?.dispose();
         pc = await _createPC(props);
-        pc!.setRemoteDescription(RTCSessionDescription(offerDesc, msg[DESC][TYPE]));
+        pc!.setRemoteDescription(
+            RTCSessionDescription(offerDesc, msg[DESC][TYPE]));
         mediaStream.getTracks().forEach((t) => pc!.addTrack(t, mediaStream));
         final answer = await pc!.createAnswer();
         pc!.setLocalDescription(answer);
@@ -251,14 +277,16 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         _peerName = msg[NAME];
         hiLog(_TAG, 'on answer');
         pc!.setLocalDescription(_offer);
-        pc?.setRemoteDescription(RTCSessionDescription(msg[DESC][SDP], msg[DESC][TYPE]));
+        pc?.setRemoteDescription(
+            RTCSessionDescription(msg[DESC][SDP], msg[DESC][TYPE]));
         break;
       case UPDATE:
         ctr.add(Command.UPDATE);
         break;
       case CANDIDATE:
         final candidateMap = msg[CANDIDATE];
-        pc?.addCandidate(RTCIceCandidate(candidateMap['candidate'], candidateMap['sdpMid'], candidateMap['sdpMLineIndex']));
+        pc?.addCandidate(RTCIceCandidate(candidateMap['candidate'],
+            candidateMap['sdpMid'], candidateMap['sdpMLineIndex']));
         break;
       case BYE:
         hiLog(_TAG, 'bye from:$_peerId');
@@ -276,14 +304,21 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
     lines.forEach(print);
   }
 
-  _onLocalStream(MediaStream mediaStream, WebSocket socket, login, name, Map<String, String> props) async {
+  _onLocalStream(MediaStream mediaStream, WebSocket socket, login, name,
+      Map<String, String> props) async {
     final deviceInfo = await platform.invokeMethod('deviceInfo');
-    final blockedPeers = (await (await dbGlobal).query(BLOCKED_PEER, where: '$LOGIN=?', whereArgs: [login]))
+    final blockedPeers = (await (await dbGlobal)
+            .query(BLOCKED_PEER, where: '$LOGIN=?', whereArgs: [login]))
         .map((m) => m[PEER_LOGIN] as String)
         .toList();
-    final reports =
-        (await (await dbGlobal).query(REPORT, where: '$LOGIN=?', whereArgs: [login])).map((m) => m[PEER_LOGIN] as String).toSet();
-    socket.listen((data) => _onData(data, socket, props, mediaStream, name, reports, login), onDone: () {
+    final reports = (await (await dbGlobal)
+            .query(REPORT, where: '$LOGIN=?', whereArgs: [login]))
+        .map((m) => m[PEER_LOGIN] as String)
+        .toSet();
+    socket.listen(
+        (data) =>
+            _onData(data, socket, props, mediaStream, name, reports, login),
+        onDone: () {
       localRenderer.srcObject = null;
       remoteRenderer.srcObject = null;
       if (pc != null)
@@ -291,7 +326,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
       else
         mediaStream.dispose();
 
-      hiLog(_TAG, 'done, st:${FieldValue.serverTimestamp()}, ts:${DateTime.now().millisecondsSinceEpoch}');
+      hiLog(_TAG,
+          'done, st:${FieldValue.serverTimestamp()}, ts:${DateTime.now().millisecondsSinceEpoch}');
     });
     FieldValue.serverTimestamp();
     socket.add(jsonEncode({
@@ -309,18 +345,27 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   Future<void> _block(login, Set<String> reports) async {
     hiLog(_TAG, 'blocking, login:$login');
     (await dbGlobal).delete(REPORT, where: '$LOGIN=?', whereArgs: [login]);
-    FirebaseFirestore.instance.doc('$USER/$login').update({REPORT: FieldValue.delete()}).catchError(onError);
-    final doc = await FirebaseFirestore.instance.doc('$BLOCKED_USER/$login').get();
+    FirebaseFirestore.instance
+        .doc('$USER/$login')
+        .update({REPORT: FieldValue.delete()}).catchError(onError);
+    final doc =
+        await FirebaseFirestore.instance.doc('$BLOCKED_USER/$login').get();
     var index = BlockPeriod.WEEK.index;
     if (doc.exists) {
       final cloudIndex = doc[BLOCK_PERIOD_INDEX];
-      index = cloudIndex == BlockPeriod.FOREVER.index ? cloudIndex : cloudIndex + 1;
+      index =
+          cloudIndex == BlockPeriod.FOREVER.index ? cloudIndex : cloudIndex + 1;
     }
     final ts = Timestamp.now();
-    await FirebaseFirestore.instance.doc('$BLOCKED_USER/$login').set({BLOCK_TIME: ts, BLOCK_PERIOD_INDEX: index});
+    await FirebaseFirestore.instance
+        .doc('$BLOCKED_USER/$login')
+        .set({BLOCK_TIME: ts, BLOCK_PERIOD_INDEX: index});
     final sp = await SharedPreferences.getInstance();
-    Future.wait(
-        [sp.setInt(BLOCK_TIME, ts.millisecondsSinceEpoch), sp.setInt(BLOCK_PERIOD_INDEX, index), sp.setBool(IS_BLOCKED, true)]);
+    Future.wait([
+      sp.setInt(BLOCK_TIME, ts.millisecondsSinceEpoch),
+      sp.setInt(BLOCK_PERIOD_INDEX, index),
+      sp.setBool(IS_BLOCKED, true)
+    ]);
     ctr.add(Command.BLOCK_USER);
   }
 
@@ -337,10 +382,15 @@ class ChatData {
   final bool muted;
   final bool blocked;
 
-  const ChatData({this.state = ChatState.WAITING, this.muted = false, this.blocked = false});
+  const ChatData(
+      {this.state = ChatState.WAITING,
+      this.muted = false,
+      this.blocked = false});
 
-  ChatData copyWith({ChatState? state, bool? muted, bool? blocked}) =>
-      ChatData(state: state ?? this.state, muted: muted ?? this.muted, blocked: blocked ?? this.blocked);
+  ChatData copyWith({ChatState? state, bool? muted, bool? blocked}) => ChatData(
+      state: state ?? this.state,
+      muted: muted ?? this.muted,
+      blocked: blocked ?? this.blocked);
 }
 
 class _TimeoutManager {
@@ -352,7 +402,8 @@ class _TimeoutManager {
     _start(retry, giveUp);
   }
 
-  _start(VoidCallback retry, VoidCallback giveUp) => Future.delayed(const Duration(seconds: ChatBloc.TIMEOUT), () {
+  _start(VoidCallback retry, VoidCallback giveUp) =>
+      Future.delayed(const Duration(seconds: ChatBloc.TIMEOUT), () {
         if (!cancelled && _tryCount++ < 3) {
           retry();
           _start(retry, giveUp);
@@ -366,4 +417,16 @@ class _TimeoutManager {
 
 enum ChatState { WAITING, IN_CALL, MAINTENANCE, UPDATE, LOST }
 
-enum Command { MUTE, NEXT, MAINTENANCE, IN_CALL, UPDATE, WAITING, DIALOG, BLOCK_PEER, REPORT, BLOCK_USER, ON_LOST }
+enum Command {
+  MUTE,
+  NEXT,
+  MAINTENANCE,
+  IN_CALL,
+  UPDATE,
+  WAITING,
+  DIALOG,
+  BLOCK_PEER,
+  REPORT,
+  BLOCK_USER,
+  ON_LOST
+}

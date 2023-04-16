@@ -12,6 +12,7 @@ import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,6 +43,9 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
     private static final String IS_LOADED = "isLoaded";
     private static final String SHOW = "show";
     private static final String GET_PACKAGE_NAME = "getPackageName";
+    private static final String WAKE_LOCK_ON = "wakeLockOn";
+
+    private static final String WAKE_LOCK_OFF = "wakeLockOff";
     private static final String START_EMAIL_APP = "startEmailApp";
     private static final String ID_INTERSTITIAL = "3797187196981029_5287545084611892";
     private static final String UPDATE = "update";
@@ -120,6 +124,14 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
         channel.setMethodCallHandler((call, result) -> {
             this.result = result;
             switch (call.method) {
+                case WAKE_LOCK_OFF:
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    Log.i(TAG, "wake lock off");
+                    break;
+                case WAKE_LOCK_ON:
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    Log.i(TAG, "wake lock on");
+                    break;
                 case GET_PACKAGE_NAME:
                     result.success(BuildConfig.APPLICATION_ID);
                     break;
@@ -222,14 +234,16 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
     }
 
     private boolean allMatch(int[] grantResults, AllMatchTest tester) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) return Arrays.stream(grantResults).allMatch(tester::test);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            return Arrays.stream(grantResults).allMatch(tester::test);
         for (int res : grantResults) if (!tester.test(res)) return false;
         return true;
     }
 
     private void openGooglePlay(MethodChannel.Result result, String appPackageName, boolean firstTime) {
         try {
-            if (firstTime) startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+            if (firstTime)
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
             else
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
         } catch (ActivityNotFoundException e) {
@@ -263,8 +277,10 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
 
     private Intent getIntentForCertainClients(String domain) {
         PackageManager manager = getPackageManager();
-        if (domain.equals("outlook.com")) return manager.getLaunchIntentForPackage("com.microsoft.office.outlook");
-        if (domain.matches("yandex\\..+")) return manager.getLaunchIntentForPackage("ru.yandex.mail");
+        if (domain.equals("outlook.com"))
+            return manager.getLaunchIntentForPackage("com.microsoft.office.outlook");
+        if (domain.matches("yandex\\..+"))
+            return manager.getLaunchIntentForPackage("ru.yandex.mail");
         if (domain.equals("gmail.com")) {
             final Intent intent = manager.getLaunchIntentForPackage("com.google.android.gm");
             Log.i(TAG, "gmail intent=>" + intent);
@@ -272,7 +288,8 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
         }
         if (domain.matches("(rambler|lenta|autorambler|myrambler|ro)\\.(ru|ua)"))
             return manager.getLaunchIntentForPackage("ru.rambler.mail");
-        if (domain.equals("yahoo.com")) return manager.getLaunchIntentForPackage("com.yahoo.mobile.client.android.mail");
+        if (domain.equals("yahoo.com"))
+            return manager.getLaunchIntentForPackage("com.yahoo.mobile.client.android.mail");
         Log.i(TAG, "returning null intent");
         return null;
     }
