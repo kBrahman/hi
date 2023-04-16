@@ -107,7 +107,6 @@ Future<bool> isBlocked(login, SharedPreferences sp) async {
     final blockPeriod = getMilliseconds(BlockPeriod.values[index]);
     if (blockPeriod == 0 || DateTime.now().isBefore(DateTime.fromMillisecondsSinceEpoch(blockTime + blockPeriod))) {
       await Future.wait([sp.setBool(IS_BLOCKED, true), sp.setInt(BLOCK_TIME, blockTime), sp.setInt(BLOCK_PERIOD_INDEX, index)]);
-      hiLog(_TAG, 'signIn: blocked, block code: $index');
       return true;
     } else
       await Future.wait(
