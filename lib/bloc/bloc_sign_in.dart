@@ -34,9 +34,13 @@ class SignInBloc extends BaseBloc<SignInData, Command> {
         final login = Uri.parse(link.link.queryParameters['continueUrl']!)
                 .queryParameters['login'] ??
             '';
-        hiLog(_TAG, 'login=>$login');
+        hiLog(_TAG, 'dynamic link login=>$login');
         ctr.add(Command.PROGRESS);
-        _saveAndCheck(login, const SignInData());
+        try {
+          _saveAndCheck(login, const SignInData());
+        } catch (e) {
+          ctr.add(Command.PROGRESS_STOP);
+        }
       });
 
   Stream<SignInData> _getStream() async* {
@@ -56,6 +60,9 @@ class SignInBloc extends BaseBloc<SignInData, Command> {
           break;
         case Command.PROGRESS:
           yield data = data.copyWith(progress: true);
+          break;
+        case Command.PROGRESS_STOP:
+          yield data = data.copyWith(progress: false);
       }
   }
 
@@ -165,4 +172,4 @@ class SignInBloc extends BaseBloc<SignInData, Command> {
   }
 }
 
-enum Command { SIGN_IN, OBSCURE, SIGN_IN_GOOGLE, PROGRESS }
+enum Command { SIGN_IN, OBSCURE, SIGN_IN_GOOGLE, PROGRESS, PROGRESS_STOP }

@@ -27,15 +27,20 @@ abstract class BaseBloc<D, C> {
 
   onLost();
 
+  onPop(){}
+
   Future<dynamic> nativeMethodCallHandler(MethodCall methodCall) async {
     final method = methodCall.method;
     switch (method) {
-      case "onAvailable":
+      case 'onAvailable':
         connectedToInet = true;
         break;
-      case "onLost":
+      case 'onLost':
         connectedToInet = false;
         onLost();
+        break;
+      case 'pop':
+        onPop();
     }
   }
 }

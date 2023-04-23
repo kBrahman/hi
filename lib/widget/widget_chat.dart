@@ -2,7 +2,10 @@
 import 'dart:core';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -21,8 +24,6 @@ class ChatWidget extends StatelessWidget {
   const ChatWidget(this._chatBloc, this._showWinAd, {Key? key})
       : super(key: key);
 
-  // }
-
   // int getBlockPeriod(int lastBlockedPeriod) => lastBlockedPeriod < BLOCK_YEAR ? lastBlockedPeriod + 1 : BLOCK_YEAR;
 
   @override
@@ -33,6 +34,7 @@ class ChatWidget extends StatelessWidget {
         if (snap.data?.blocked == true)
           WidgetsBinding.instance
               .addPostFrameCallback((_) => _blockUser(context));
+        else if (snap.data?.pop == true) Navigator.pop(context);
         final state = snap.data!.state;
         final inCall = state == ChatState.IN_CALL;
         return Scaffold(
@@ -58,7 +60,6 @@ class ChatWidget extends StatelessWidget {
         //                 : const MaintenanceWidget());
       });
 
-  //   _signaling = null;
   //   _localRenderer.dispose();
   //   _remoteRenderer.dispose();
   //   hiLog(TAG, 'dispose');
@@ -137,7 +138,7 @@ class ChatWidget extends StatelessWidget {
               child: Text(l10n?.update ?? 'UPDATE'))
         ]));
       case ChatState.WAITING:
-        return _WaitingWidget(_showWinAd);
+        return _WaitingWidget(_showWinAd, _chatBloc);
       case ChatState.MAINTENANCE:
         return const _MaintenanceWidget();
       case ChatState.IN_CALL:
@@ -193,8 +194,10 @@ class NoInternetWidget extends StatelessWidget {
 class _WaitingWidget extends StatelessWidget {
   static const _TAG = 'WaitingWidgetState';
   final bool _showWinAd;
+  final ChatBloc _chatBloc;
 
-  const _WaitingWidget(this._showWinAd, {Key? key}) : super(key: key);
+  const _WaitingWidget(this._showWinAd, this._chatBloc, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +206,10 @@ class _WaitingWidget extends StatelessWidget {
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-          if (Platform.isAndroid) _Ad(_showWinAd ? _AdType.WIN : _AdType.FAB),
+          if (Platform.isAndroid)
+            Expanded(
+                flex: _showWinAd ? 1 : 0,
+                child: _Ad(_showWinAd ? _AdType.WIN : _AdType.FAB, _chatBloc)),
           const Padding(padding: EdgeInsets.only(top: 5)),
           if (orientation == Orientation.portrait)
             const CircularProgressIndicator(),
@@ -218,8 +224,9 @@ class _WaitingWidget extends StatelessWidget {
 class _Ad extends StatelessWidget {
   static const _TAG = '_Ad';
   final _AdType _type;
+  final ChatBloc _chatBloc;
 
-  const _Ad(this._type);
+  const _Ad(this._type, this._chatBloc);
 
   @override
   Widget build(BuildContext context) {
@@ -227,22 +234,24 @@ class _Ad extends StatelessWidget {
       case _AdType.FAB:
         hiLog(_TAG, 'medium rec');
         return const SizedBox(
-            height: 250,
-            child: AndroidView(
-                viewType: 'medium_rectangle',
-                layoutDirection: TextDirection.ltr,
-                creationParamsCodec: StandardMessageCodec()));
+          height: 250,
+          child: AndroidView(
+              viewType: 'medium_rectangle',
+              layoutDirection: TextDirection.ltr,
+              creationParamsCodec: StandardMessageCodec()),
+        );
       case _AdType.WIN:
-        return Expanded(
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: GestureDetector(
-                      child: Image.asset('assets/icon/ad.png'),
-                      onTap: () =>
-                          launchUrl(Uri.parse('https://1wozrn.top/#ommj')),
-                    ))));
+        return Padding(
+            padding: const EdgeInsets.all(16),
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: GestureDetector(
+                    child: Image.asset('assets/icon/ad.png'),
+                    onTap: () {
+                      hiLog(_TAG, 'on tap');
+                      launchUrl(Uri.parse('https://1wozrn.top/#ommj'));
+                      Navigator.pop(context, false);
+                    })));
     }
   }
 }

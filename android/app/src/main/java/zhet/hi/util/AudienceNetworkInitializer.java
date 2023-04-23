@@ -1,6 +1,7 @@
 package zhet.hi.util;
 
-import static zhet.hi.BuildConfig.DEBUG;
+
+import static com.facebook.ads.BuildConfig.DEBUG;
 
 import android.content.Context;
 

@@ -17,6 +17,7 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
   static const TYPE = 'type';
   static const OFFER_TIMEOUT = 'offer_timeout';
   static const NEXT = 'next';
+  static const IS_BUSY = 'is_busy';
   static const MODEL = 'model';
   static const VERSION = 'version';
   static const CODE = 'code';
@@ -62,8 +63,8 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
         .then((s) => _onSocket(s, login, name, props))
         .onError(_onErr);
     var chatData = const ChatData();
-    await for (final state in ctr.stream)
-      switch (state) {
+    await for (final cmd in ctr.stream)
+      switch (cmd) {
         case Command.DIALOG:
           _showingDialog = !_showingDialog;
           if (_peerId == null) {
@@ -123,8 +124,14 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
           break;
         case Command.ON_LOST:
           yield chatData = chatData.copyWith(state: ChatState.LOST);
+          break;
+        case Command.POP:
+          yield const ChatData(pop: true);
       }
   }
+
+  @override
+  onPop() => ctr.sink.add(Command.POP);
 
   FutureOr<dynamic> _onErr(error, stackTrace) {
     hiLog(_TAG, 'connect, onError: $error');
@@ -202,21 +209,21 @@ class ChatBloc extends BaseBloc<ChatData, Command> {
     socket.add(jsonEncode(msgToSend));
   }
 
-  dispose() {
-    hiLog(_TAG, 'dispose');
+  dispose(canShowAd) {
+    hiLog(_TAG, 'dispose, can show ad:$canShowAd');
     _disposed = true;
     _offerTimeout?.cancelled = true;
     _keepAliveTimeout?.cancelled = true;
     _socket?.close();
-    platform.invokeMethod('isLoaded').then((value) {
-      if (value) platform.invokeMethod('show');
-      platform.invokeMethod('wakeLockOff');
-    });
+    if (canShowAd != false)
+      platform.invokeMethod('isLoaded').then((value) {
+        if (value) platform.invokeMethod('show');
+        platform.invokeMethod('wakeLockOff');
+      });
   }
 
   _onData(data, WebSocket socket, props, MediaStream mediaStream, myName,
       Set<String> reports, login) async {
-    hiLog(_TAG, 'socket event:$data');
     final msg = jsonDecode(data);
     switch (msg[TYPE]) {
       case KEEPALIVE:
@@ -381,11 +388,13 @@ class ChatData {
   final ChatState state;
   final bool muted;
   final bool blocked;
+  final bool pop;
 
   const ChatData(
       {this.state = ChatState.WAITING,
       this.muted = false,
-      this.blocked = false});
+      this.blocked = false,
+      this.pop = false});
 
   ChatData copyWith({ChatState? state, bool? muted, bool? blocked}) => ChatData(
       state: state ?? this.state,
@@ -428,5 +437,6 @@ enum Command {
   BLOCK_PEER,
   REPORT,
   BLOCK_USER,
-  ON_LOST
+  ON_LOST,
+  POP
 }

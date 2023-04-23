@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" package="zhet.hi">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="zhet.hi">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -32,19 +33,30 @@
         android:icon="@mipmap/ic_launcher"
         android:label="hi">
         <activity
-            android:name=".activity.MainActivity"
-            android:screenOrientation="portrait"
+            android:name="zhet.hi.activity.MainActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|locale|layoutDirection|screenLayout|density|uiMode"
             android:exported="true"
             android:hardwareAccelerated="true"
+            android:screenOrientation="portrait"
             android:theme="@style/LaunchTheme"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="hihi-51ca9.firebaseapp.com"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <meta-data

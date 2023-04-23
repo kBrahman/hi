@@ -65,7 +65,6 @@ android {
         checkReleaseBuilds false
         disable 'InvalidPackage'
     }
-    namespace 'zhet.hi'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_9
         targetCompatibility JavaVersion.VERSION_1_9

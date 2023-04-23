@@ -1,7 +1,7 @@
 name: hi
 description: Video chat
 publish_to: 'none'
-version: 4.6.0+76
+version: 4.7.0+77
 
 environment:
   sdk: ">=2.19.4 <3.0.0"
@@ -10,19 +10,19 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.5
-  flutter_launcher_icons: ^0.13.0
+  flutter_launcher_icons: ^0.13.1
   flutter_localizations:
     sdk: flutter
   intl: ^0.17.0
-  cloud_firestore: ^4.5.1
-  flutter_webrtc: ^0.9.25
+  cloud_firestore: ^4.5.2
+  flutter_webrtc: ^0.9.26
   shared_preferences: ^2.1.0
-  sqflite: ^2.2.6
+  sqflite: ^2.2.7
   path: ^1.8.2
-  firebase_auth: ^4.4.1
+  firebase_auth: ^4.4.2
   flutter_signin_button: ^2.0.0
   google_sign_in: ^6.1.0
-  firebase_dynamic_links: ^5.1.0
+  firebase_dynamic_links: ^5.1.1
   url_launcher: ^6.1.10
 
 flutter_icons:

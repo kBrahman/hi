@@ -133,8 +133,8 @@ class ProfileWidget extends StatelessWidget {
           Navigator.of(context)
               .push(MaterialPageRoute(
                   builder: (context) => ChatWidget(bloc, _showWinAd)))
-              .whenComplete(() {
-            bloc.dispose();
+              .then((canShowAd) {
+            bloc.dispose(canShowAd);
             _profileBloc.removeRefreshSink.add(null);
             _showWinAd = !_showWinAd;
           });

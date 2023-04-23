@@ -25,7 +25,8 @@ class EmailSignInBloc extends BaseBloc<EmailSignInData, Cmd> {
           if (!BaseBloc.connectedToInet) {
             globalSink.add(GlobalEvent.NO_INTERNET);
             yield data = data.copyWith(progress: false);
-          } else if (RegExp(r'(mail.ru|bk.ru|list.ru|internet.ru|inbox.ru)').hasMatch(txtCtrEmail.text)) {
+          } else if (RegExp(r'(mail.ru|bk.ru|list.ru|internet.ru|inbox.ru)')
+              .hasMatch(txtCtrEmail.text)) {
             globalSink.add(GlobalEvent.ERR_MAIL_RU);
             yield data = data.copyWith(progress: false);
           } else if (!_valid(txtCtrEmail.text))
@@ -36,14 +37,14 @@ class EmailSignInBloc extends BaseBloc<EmailSignInData, Cmd> {
   }
 
   bool _valid(String email) => email.contains('.') && email.contains('@');
+
   @override
-  onLost() {
+  onLost() {}
 
-  }
   Future<EmailSignInData> _emailSignIn(email, EmailSignInData data) async {
-
-    var instance = FirebaseAuth.instance;
-    var id = await platform.invokeMethod('getPackageName');
+    final instance = FirebaseAuth.instance;
+    final id = await platform.invokeMethod('getPackageName');
+    hiLog(_TAG, 'pkg name:$id');
     final actionCodeSettings = ActionCodeSettings(
         dynamicLinkDomain: 'zhethi.page.link',
         url: 'https://zhethi.page.link/signIn?login=$email',
@@ -53,7 +54,8 @@ class EmailSignInBloc extends BaseBloc<EmailSignInData, Cmd> {
         handleCodeInApp: true,
         androidMinimumVersion: '3');
     try {
-      await instance.sendSignInLinkToEmail(email: email, actionCodeSettings: actionCodeSettings);
+      await instance.sendSignInLinkToEmail(
+          email: email, actionCodeSettings: actionCodeSettings);
     } catch (e) {
       hiLog(_TAG, 'catch:$e');
     }

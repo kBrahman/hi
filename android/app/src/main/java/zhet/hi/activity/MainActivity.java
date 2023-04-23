@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
+import com.facebook.ads.AdSettings;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
 
@@ -35,8 +36,8 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import zhet.hi.BuildConfig;
 import zhet.hi.factory.NativeViewFactory;
-import zhet.hi.lambda.AllMatchTest;
 import zhet.hi.util.AudienceNetworkInitializer;
+import zhet.hi.lambda.AllMatchTest;
 
 public class MainActivity extends FlutterFragmentActivity implements InterstitialAdListener {
     private static final String TAG = "MainActivity";
@@ -74,6 +75,7 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
 //            client.start();
 //        }
         AudienceNetworkInitializer.initialize(this);
+        AdSettings.addTestDevice("4202754d-d84a-4e06-b111-d2d03b5754ed");
         interstitialAd = new InterstitialAd(this, ID_INTERSTITIAL);
         loadAd();
     }
@@ -166,7 +168,7 @@ public class MainActivity extends FlutterFragmentActivity implements Interstitia
                     break;
             }
         });
-        engine.getPlatformViewsController().getRegistry().registerViewFactory("medium_rectangle", new NativeViewFactory());
+        engine.getPlatformViewsController().getRegistry().registerViewFactory("medium_rectangle", new NativeViewFactory(channel));
     }
 
     private void appSettings() {

@@ -543,11 +543,8 @@ class SignInWidget extends StatelessWidget {
 //     }
 //     showProgress(true);
 //     final db = await openDatabase(join(await getDatabasesPath(), DB_NAME), version: DB_VERSION_1);
-//     final passHash = md5.convert(utf8.encode(_pass)).toString();
 //     final res =
-//         await db.query(TABLE_USER, columns: [LOGIN, PASSWD], where: '$LOGIN=? AND $PASSWD=?', whereArgs: [_login, passHash]);
 //     final DocumentSnapshot<Map<String, dynamic>> doc;
-//     if (res.isNotEmpty || ((doc = await FirebaseFirestore.instance.doc('user/$_login').get()).exists && doc[PASSWD] == passHash))
 //       _loginContinue(_login, context, false);
 //     else {
 //       _loginOrPassWrong = true;
